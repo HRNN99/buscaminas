@@ -4,25 +4,25 @@
 #include "dibujos.h"
 
 const int sonrisa[8][8] ={
-    {N, N, A, A, A, A, N, N},
-    {N, A, A, A, A, A, A, N},
-    {A, A, N, A, A, N, A, A},
-    {A, A, A, A, A, A, A, A},
-    {A, A, A, A, A, A, A, A},
-    {A, N, A, A, A, A, N, A},
-    {N, A, N, N, N, N, A, N},
-    {N, N, A, A, A, A, N, N}
+    {B, B, B, N, N, B, B, B},
+    {B, B, N, N, N, N, B, B},
+    {B, N, N, B, N, N, N, B},
+    {N, N, B, N, N, N, N, N},
+    {N, N, N, N, N, N, N, N},
+    {B, N, N, N, N, N, N, B},
+    {B, B, N, N, N, N, B, B},
+    {B, B, B, N, N, B, B, B}
 };
 
 const int triste[8][8] ={
-    {N, N, A, A, A, A, N, N},
-    {N, A, A, A, A, A, A, N},
-    {A, A, N, A, A, N, A, A},
-    {A, A, A, A, A, A, A, A},
-    {A, A, N, N, N, N, A, A},
-    {A, N, A, A, A, A, N, A},
-    {N, A, A, A, A, A, A, N},
-    {N, N, A, A, A, A, N, N}
+    {B, B, B, B, B, B, B, B},
+    {B, B, B, N, R, R, R, B},
+    {B, B, B, N, R, R, B, B},
+    {B, B, B, N, R, B, B, B},
+    {B, B, B, N, B, B, B, B},
+    {B, B, B, N, B, B, B, B},
+    {B, B, N, N, N, B, B, B},
+    {B, N, N, N, N, N, B, B}
 
     };
 
