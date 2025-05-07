@@ -11,6 +11,7 @@
 #define B 2 // Blanco
 #define V 3 // Verde
 #define R 4 // Rojo
+#define G 5 // Rojo
 
 void dibujar(SDL_Window *ventana, SDL_Renderer *renderer, const int[][PIXELES_X_LADO], int oX, int oY);
 void borrarPantalla(SDL_Window *ventana, SDL_Renderer *renderer);

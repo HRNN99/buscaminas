@@ -5,7 +5,9 @@ SDL_Color colores[] =
     {255, 255, 0, 255},   // Y[1] - Amarillo
     {255, 255, 255, 255},  // B[2] - Blanco
     {0, 150, 60, 255},          // V[3] - Verde
-    {255, 0, 0, 255}          // R[4] - Rojo
+    {255, 0, 0, 255},          // R[4] - Rojo
+    {0, 0, 0, 100}          // G[5] - Gris
+
 
 /*
     Si necesitan agregar más colores, es necesario agregar en dibujos.h el #define correspondiente
@@ -30,7 +32,7 @@ void dibujar(SDL_Window *ventana, SDL_Renderer *renderer, const int   dibujo[][P
                                    colores[dibujo[y][x]].r,
                                    colores[dibujo[y][x]].g,
                                    colores[dibujo[y][x]].b,
-                                   transparencia);
+                                   colores[dibujo[y][x]].a);
             SDL_Rect pixel = {offsetX + TAM_PIXEL*x, offsetY + TAM_PIXEL*y, TAM_PIXEL, TAM_PIXEL};
             SDL_RenderFillRect(renderer, &pixel);
         }
