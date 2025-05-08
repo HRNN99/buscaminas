@@ -3,6 +3,25 @@
 #include <time.h>
 #include "dibujos.h"
 
+const int uno[8][8] = {
+    {G, G, G, G, G, G, G, G},
+    {G, B, B, N, N, B, B, G},
+    {G, B, N, N, N, B, B, G},
+    {G, B, B, N, N, B, B, G},
+    {G, B, B, N, N, B, B, G},
+    {G, B, B, N, N, B, B, G},
+    {G, B, N, N, N, N, B, G},
+    {G, G, G, G, G, G, G, G}};
+
+const int dos[8][8] = {
+    {G, G, G, G, G, G, G, G},
+    {G, B, B, B, N, N, B, G},
+    {G, B, B, N, B, N, N, G},
+    {G, B, B, B, N, N, B, G},
+    {G, B, B, N, N, B, B, G},
+    {G, B, N, N, B, B, B, G},
+    {G, B, N, N, N, N, N, G},
+    {G, G, G, G, G, G, G, G}};
 const int fondo[8][8] = {
     {G, G, G, G, G, G, G, G},
     {G, B, B, B, B, B, B, G},
@@ -50,7 +69,7 @@ int main(int argc, char *argv[])
     srand(time(0));
 
     // TEMPORAL - CREACION DE MAPA - MOVER
-    int minasEnMapa = 5;
+    int minasEnMapa = 8;
     int posMinas[minasEnMapa][2];
     for (size_t i = 0; i < minasEnMapa; i++)
     {
@@ -153,7 +172,12 @@ int main(int argc, char *argv[])
                 if (boton == SDL_BUTTON_LEFT)
                 {
                     printf("Hiciste clic izquierdo en (%d, %d) poniendo un dibujo en la posición aleatoria [%d,%d]\n", x, y, xGrilla, yGrilla);
-                    dibujar(ventana, renderer, (mapa[yGrilla][xGrilla] == -1) ? bomba : fondo, xGrilla, yGrilla);
+                    dibujar(ventana, renderer,
+                         mapa[yGrilla][xGrilla] == 0 ? fondo :
+                         mapa[yGrilla][xGrilla] == 1 ? uno :
+                         mapa[yGrilla][xGrilla] == 2 ? dos :
+                         mapa[yGrilla][xGrilla] == -1 ? bomba : bandera,
+                        xGrilla, yGrilla);
                 }
                 else if (boton == SDL_BUTTON_RIGHT)
                 {
