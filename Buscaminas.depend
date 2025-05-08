@@ -413,10 +413,10 @@
 	<time.h>
 	"dibujos.h"
 
-1746577848 source:c:\users\hvillalba\onedrive - baufest\documentos\progra\ejemplo-sdl2\dibujos.c
+1746644770 source:c:\users\hvillalba\onedrive - baufest\documentos\progra\ejemplo-sdl2\dibujos.c
 	"dibujos.h"
 
-1746580272 c:\users\hvillalba\onedrive - baufest\documentos\progra\ejemplo-sdl2\dibujos.h
+1746580360 c:\users\hvillalba\onedrive - baufest\documentos\progra\ejemplo-sdl2\dibujos.h
 	<SDL2/SDL.h>
 
 1746569600 c:\users\hvillalba\onedrive - baufest\documentos\progra\ejemplo-sdl2\sdl2-2.0.22\x86_64-w64-mingw32\include\sdl2\sdl.h
@@ -797,7 +797,7 @@
 	"begin_code.h"
 	"close_code.h"
 
-1746577741 source:c:\users\hvillalba\onedrive - baufest\documentos\progra\ejemplo-sdl2\main.c
+1746673984 source:c:\users\hvillalba\onedrive - baufest\documentos\progra\ejemplo-sdl2\main.c
 	<stdio.h>
 	<stdlib.h>
 	<time.h>
