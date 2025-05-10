@@ -1,78 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+
 #include "dibujos.h"
+#include "estados.h" //Header de estados
 
-const int uno[8][8] = {
-    {G, G, G, G, G, G, G, G},
-    {G, B, B, N, N, B, B, G},
-    {G, B, N, N, N, B, B, G},
-    {G, B, B, N, N, B, B, G},
-    {G, B, B, N, N, B, B, G},
-    {G, B, B, N, N, B, B, G},
-    {G, B, N, N, N, N, B, G},
-    {G, G, G, G, G, G, G, G}};
+int main(int argc, char *argv[]){
 
-const int dos[8][8] = {
-    {G, G, G, G, G, G, G, G},
-    {G, B, B, B, N, N, B, G},
-    {G, B, B, N, B, N, N, G},
-    {G, B, B, B, N, N, B, G},
-    {G, B, B, N, N, B, B, G},
-    {G, B, N, N, B, B, B, G},
-    {G, B, N, N, N, N, N, G},
-    {G, G, G, G, G, G, G, G}};
-const int fondo[8][8] = {
-    {G, G, G, G, G, G, G, G},
-    {G, B, B, B, B, B, B, G},
-    {G, B, B, B, B, B, B, G},
-    {G, B, B, B, B, B, B, G},
-    {G, B, B, B, B, B, B, G},
-    {G, B, B, B, B, B, B, G},
-    {G, B, B, B, B, B, B, G},
-    {G, G, G, G, G, G, G, G}};
-
-const int bomba[8][8] = {
-    {B, B, B, N, N, B, B, B},
-    {B, B, N, N, N, N, B, B},
-    {B, N, N, B, N, N, N, B},
-    {N, N, B, N, N, N, N, N},
-    {N, N, N, N, N, N, N, N},
-    {B, N, N, N, N, N, N, B},
-    {B, B, N, N, N, N, B, B},
-    {B, B, B, N, N, B, B, B}};
-
-const int bandera[8][8] = {
-    {B, B, B, B, B, B, B, B},
-    {B, B, B, N, R, R, R, B},
-    {B, B, B, N, R, R, B, B},
-    {B, B, B, N, R, B, B, B},
-    {B, B, B, N, B, B, B, B},
-    {B, B, B, N, B, B, B, B},
-    {B, B, N, N, N, B, B, B},
-    {B, N, N, N, N, N, B, B}};
-
-int mapa[10][10] = {
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
-
-int main(int argc, char *argv[])
-{
-    srand(time(0));
+    int mapa[TAM_GRILLA][TAM_GRILLA] = {0}; // Matriz con el tamaño de grilla inicializada en 0
+    srand(time(0)); //Semilla rand
 
     // TEMPORAL - CREACION DE MAPA - MOVER
     int minasEnMapa = 8;
     int posMinas[minasEnMapa][2];
-    for (size_t i = 0; i < minasEnMapa; i++)
-    {
+    for (size_t i = 0; i < minasEnMapa; i++){
 
         int x = rand() % 9;
         int y = rand() % 9;
@@ -92,12 +33,14 @@ int main(int argc, char *argv[])
                 mapa[y - 1][x - 1] += 1; // Diag sup iz
             }
         }
+
         if (x + 1 < 10)
         {
             mapa[y][x + 1] += 1;     // Der
             mapa[y + 1][x + 1] += 1; // Diag inf der
             mapa[y - 1][x + 1] += 1; // Diag sup der
         }
+
         if (y + 1 < 10)
         {
             mapa[y + 1][x] += 1; // Arriba
@@ -109,88 +52,100 @@ int main(int argc, char *argv[])
         }
     }
 
-    for (size_t i = 0; i < minasEnMapa; i++)
-    {
+    for (size_t i = 0; i < minasEnMapa; i++){
+
         mapa[posMinas[i][0]][posMinas[i][1]] = -1;
     }
 
-
+    //Iniciar SDL con funcion Video
     SDL_Init(SDL_INIT_VIDEO);
     char nombreVentana[100];
-    sprintf(nombreVentana, "Tablero %dx%d", TAM_GRILLA, TAM_GRILLA);
-    SDL_Window *ventana = SDL_CreateWindow(nombreVentana,
-                                           SDL_WINDOWPOS_CENTERED,
-                                           SDL_WINDOWPOS_CENTERED,
-                                           TAM_GRILLA * TAM_PIXEL * PIXELES_X_LADO + TAM_GRILLA * PX_PADDING,
-                                           TAM_GRILLA * TAM_PIXEL * PIXELES_X_LADO + TAM_GRILLA * PX_PADDING,
-                                           2);
-
+    //String formateado para el titulo de ventana
+    sprintf(nombreVentana, "Buscaminas %ix%i", TAM_GRILLA, TAM_GRILLA);
+    //Tamaño de ancho y altura de la ventana, utilizo 1 sola variable ya que sera cuadrada
+    int TAM = TAM_GRILLA * TAM_PIXEL * PIXELES_X_LADO + TAM_GRILLA * PX_PADDING;
+    //Funcion para crear ventana con posicion especifica, dimension y banderas.
+    SDL_Window *ventana = SDL_CreateWindow(nombreVentana, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, TAM, TAM, 2);
+    //Funcion para crear el renderizado en ventana acelerado por hardware
     SDL_Renderer *renderer = SDL_CreateRenderer(ventana, -1, SDL_RENDERER_ACCELERATED);
+    //Funcion para establecer el modo de mezcla de colores para el renderizado, el modo blend nos permite utilizar transparencia
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
-    borrarPantalla(ventana, renderer);
+    // TEST ONLY // Grafico de matriz para debug
+    for (size_t i = 0; i < TAM_GRILLA; i++){
 
-    SDL_Event e;
-    int corriendo = 1;
-    int offsetX = 0;
-    int offsetY = 0;
+        for (size_t j = 0; j < TAM_GRILLA; j++){
 
-    // TEST ONLY
-    for (size_t i = 0; i < 10; i++)
-    {
-        for (size_t j = 0; j < 10; j++)
-        {
             printf("%3d ", mapa[i][j]);
         }
         printf("\n\n");
     }
 
-    while (corriendo)
-    {
-        while (SDL_PollEvent(&e))
-        {
-            if (e.type == SDL_QUIT)
-            {
+    SDL_Event e; //Variable para registrar eventos
+    int corriendo = 1; //Variable flag true para mantener corriendo el programa
+    int offsetX = 0; // Variable para coordenada X
+    int offsetY = 0; // Variable para ccoordenada Y
+
+    //Establecer el renderizado con un color base (negro)
+    SDL_SetRenderDrawColor(renderer, 0,0,0,255); //color
+    SDL_RenderClear(renderer); //limpieza
+
+    int x,y = 0;
+    while (corriendo){ //While para mantener el programa corriendo
+
+        while(y < TAM_GRILLA){
+            x=0;
+            while(x < TAM_GRILLA){
+                offsetX = x % TAM_GRILLA;
+                offsetY = y % TAM_GRILLA;
+                dibujar(ventana,renderer, square1, offsetX, offsetY);
+                x++;
+            }
+            y++;
+        }
+
+        while (SDL_PollEvent(&e)){//Registrando eventos
+
+            if (e.type == SDL_QUIT){ //Evento de salida
+
                 printf("Saliendo de SDL\n");
                 corriendo = 0;
             }
 
-            if (e.type == SDL_MOUSEBUTTONDOWN)
-            {
+            if (e.type == SDL_MOUSEBUTTONDOWN){ //Se presiono una tecla del mouse
 
-                offsetX = rand() % TAM_GRILLA;
-                offsetY = rand() % TAM_GRILLA;
+                int x = e.button.x; //Posicion X del click medido en pixeles
+                int y = e.button.y; //Posicion Y del click medido en pixeles
+                int boton = e.button.button; //Alias del boton presionado
 
-                int x = e.button.x;
-                int y = e.button.y;
-
+                //Se dividen los pixeles para obtener un valor de grilla
                 int xGrilla = e.button.x / (PIXELES_X_LADO * TAM_PIXEL + PX_PADDING);
                 int yGrilla = e.button.y / (PIXELES_X_LADO * TAM_PIXEL + PX_PADDING);
 
-                int boton = e.button.button;
-
-                if (boton == SDL_BUTTON_LEFT)
+                if (boton == SDL_BUTTON_LEFT) //Evento clik izquierdo del mouse
                 {
-                    printf("Hiciste clic izquierdo en (%d, %d) poniendo un dibujo en la posición aleatoria [%d,%d]\n", x, y, xGrilla, yGrilla);
+                    printf("Hiciste clic izquierdo en (%d, %d) poniendo un dibujo en la posición [%d,%d]\n", x, y, xGrilla, yGrilla);
                     dibujar(ventana, renderer,
-                         mapa[yGrilla][xGrilla] == 0 ? fondo :
-                         mapa[yGrilla][xGrilla] == 1 ? uno :
-                         mapa[yGrilla][xGrilla] == 2 ? dos :
-                         mapa[yGrilla][xGrilla] == -1 ? bomba : bandera,
-                        xGrilla, yGrilla);
+                         mapa[yGrilla][xGrilla] == 0 ? square2 :
+                         mapa[yGrilla][xGrilla] == 1 ? one :
+                         mapa[yGrilla][xGrilla] == 2 ? two :
+                         mapa[yGrilla][xGrilla] == 3 ? three :
+                         mapa[yGrilla][xGrilla] == -1 ? mine : flag, xGrilla, yGrilla);
                 }
-                else if (boton == SDL_BUTTON_RIGHT)
+                else if (boton == SDL_BUTTON_RIGHT) //Evento click derecho del mouse
                 {
-                    printf("Hiciste clic derecho en (%d, %d)\n", x, y);
+                    printf("Hiciste clic derecho en (%d, %d) colocando bandera\n", x, y);
                     // borrarPantalla(ventana, renderer);
-                    dibujar(ventana, renderer, bandera, xGrilla, yGrilla);
+                    dibujar(ventana, renderer, flag, xGrilla, yGrilla);
                 }
             }
         }
-        SDL_Delay(100); // Esta pausa es para evitar que el procesador se ponga al 100% renderizando constantemente.
+        SDL_RenderPresent(renderer);
+        SDL_Delay(16); // (60 fps) Esta pausa es para evitar que el procesador se ponga al 100% renderizando constantemente.
     }
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(ventana);
-    SDL_Quit();
+
+    SDL_DestroyRenderer(renderer); //Funcion para destruir el renderer
+    SDL_DestroyWindow(ventana); //Funcion para destrir la ventana
+    SDL_Quit(); //Funcion para parar SDL init
     return 0;
 }
