@@ -12,12 +12,10 @@ SDL_Color colores[] =
 
 };
 
-
-void dibujar(SDL_Window *ventana, SDL_Renderer *renderer, const int   dibujo[][PIXELES_X_LADO], int oX, int oY)
+void dibujar(SDL_Renderer *renderer, const int   dibujo[][PIXELES_X_LADO], int oX, int oY)
 {
     int offsetX = oX * (PIXELES_X_LADO * TAM_PIXEL + PX_PADDING); // Posicion X en pixeles
     int offsetY = oY * (PIXELES_X_LADO * TAM_PIXEL + PX_PADDING); // Posicion Y en pixeles
-    int transparencia = rand() & 255;
 
     for (int y = 0; y < PIXELES_X_LADO; y++){
 
@@ -37,4 +35,5 @@ void dibujar(SDL_Window *ventana, SDL_Renderer *renderer, const int   dibujo[][P
         }
     }
 }
+
 

@@ -2,6 +2,8 @@
 #define DIBUJOS_H_INCLUDED
 
 #include <SDL2/SDL.h> //Libreria especial SDL2
+#include <stdio.h>
+#include <stdbool.h>
 
 #define TAM_GRILLA 10
 #define TAM_PIXEL 3
@@ -16,7 +18,12 @@
 #define V 5 //Verde Oscuro
 #define A 6 //Azul
 
-void dibujar(SDL_Window *ventana, SDL_Renderer *renderer, const int[][PIXELES_X_LADO], int oX, int oY);
+typedef struct{
+    int estado;
+    bool presionada;
+}Casilla;
 
+void dibujar(SDL_Renderer *renderer, const int[][PIXELES_X_LADO], int oX, int oY);
+void despejar_recursivo(SDL_Window *ventana, SDL_Renderer *renderer,Casilla mapa[][TAM_GRILLA],int x, int y);
 
 #endif // DIBUJOS_H_INCLUDED

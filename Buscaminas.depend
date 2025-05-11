@@ -803,18 +803,20 @@
 	<time.h>
 	"dibujos.h"
 
-1746914667 source:c:\proyecto\buscaminas\dibujos.c
+1746950744 source:c:\proyecto\buscaminas\dibujos.c
 	"dibujos.h"
 
-1746915019 c:\proyecto\buscaminas\dibujos.h
+1746926711 c:\proyecto\buscaminas\dibujos.h
 	<SDL2/SDL.h>
+	<stdio.h>
+	<stdbool.h>
 
-1746914784 source:c:\proyecto\buscaminas\main.c
+1746950777 source:c:\proyecto\buscaminas\main.c
 	<stdio.h>
 	<stdlib.h>
 	<time.h>
 	"dibujos.h"
-	"estados.h"
+	"juego.h"
 
 1650910406 c:\proyecto\buscaminas\sdl2-2.0.22\x86_64-w64-mingw32\include\sdl2\sdl.h
 	"SDL_main.h"
@@ -1195,4 +1197,11 @@
 	"close_code.h"
 
 1746911007 c:\proyecto\buscaminas\estados.h
+
+1746949796 c:\proyecto\buscaminas\juego.h
+	"dibujos.h"
+
+1746950778 source:c:\proyecto\buscaminas\juego.c
+	<stdio.h>
+	"juego.h"
 
