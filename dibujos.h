@@ -15,5 +15,7 @@
 
 void dibujar(SDL_Window *ventana, SDL_Renderer *renderer, const int[][PIXELES_X_LADO], int oX, int oY);
 void borrarPantalla(SDL_Window *ventana, SDL_Renderer *renderer);
-
+void CrearMapa(int* mapa, int minas, int filas, int columnas);
+void _ReiniciarMapa(int* mapa, int filas, int columnas);
+int _ColocarMinas(int posMinas[][2], int fil,int* x, int* y);
 #endif // DIBUJOS_H_INCLUDED
