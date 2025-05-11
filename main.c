@@ -52,68 +52,21 @@ const int bandera[8][8] = {
     {B, B, N, N, N, B, B, B},
     {B, N, N, N, N, N, B, B}};
 
-int mapa[10][10] = {
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
+
 
 int main(int argc, char *argv[])
 {
-    srand(time(0));
 
-    // TEMPORAL - CREACION DE MAPA - MOVER
-    int minasEnMapa = 8;
-    int posMinas[minasEnMapa][2];
-    for (size_t i = 0; i < minasEnMapa; i++)
-    {
+    int filas = 0, columnas = 0, minasEnMapa = 0;
+    puts("ingrese la cantidad de filas\n");
+    scanf("%d", &filas);
+    puts("ingrese la cantidad de columnas\n");
+    scanf("%d", &columnas);
+    puts("ingrese la cantidad de minas\n");
+    scanf("%d", &minasEnMapa);
+    int *mapa = malloc(filas * columnas * sizeof(int));
 
-        int x = rand() % 9;
-        int y = rand() % 9;
-        posMinas[i][0] = y;
-        posMinas[i][1] = x;
-        //mapa[y][x] = -1;
-        // Colocacion de unos
-        if (x - 1 >= 0)
-        {
-            mapa[y][x - 1] += 1;     // Izq
-            if (y + 1 < 10)
-            {
-                mapa[y + 1][x - 1] += 1; // Diag inf iz
-            }
-            if (y - 1 >= 0)
-            {
-                mapa[y - 1][x - 1] += 1; // Diag sup iz
-            }
-        }
-        if (x + 1 < 10)
-        {
-            mapa[y][x + 1] += 1;     // Der
-            mapa[y + 1][x + 1] += 1; // Diag inf der
-            mapa[y - 1][x + 1] += 1; // Diag sup der
-        }
-        if (y + 1 < 10)
-        {
-            mapa[y + 1][x] += 1; // Arriba
-        }
-
-        if (y - 1 >= 0)
-        {
-            mapa[y - 1][x] += 1; // Abajo
-        }
-    }
-
-    for (size_t i = 0; i < minasEnMapa; i++)
-    {
-        mapa[posMinas[i][0]][posMinas[i][1]] = -1;
-    }
-
+    CrearMapa(mapa, minasEnMapa, filas, columnas);
 
     SDL_Init(SDL_INIT_VIDEO);
     char nombreVentana[100];
@@ -140,7 +93,7 @@ int main(int argc, char *argv[])
     {
         for (size_t j = 0; j < 10; j++)
         {
-            printf("%3d ", mapa[i][j]);
+            printf("%3d ", mapa[i * columnas + j]);
         }
         printf("\n\n");
     }
@@ -171,12 +124,12 @@ int main(int argc, char *argv[])
 
                 if (boton == SDL_BUTTON_LEFT)
                 {
-                    printf("Hiciste clic izquierdo en (%d, %d) poniendo un dibujo en la posiciÃ³n aleatoria [%d,%d]\n", x, y, xGrilla, yGrilla);
+                    printf("Hiciste clic izquierdo en (%d, %d) poniendo un dibujo en la posición aleatoria [%d,%d]\n", x, y, xGrilla, yGrilla);
                     dibujar(ventana, renderer,
-                         mapa[yGrilla][xGrilla] == 0 ? fondo :
-                         mapa[yGrilla][xGrilla] == 1 ? uno :
-                         mapa[yGrilla][xGrilla] == 2 ? dos :
-                         mapa[yGrilla][xGrilla] == -1 ? bomba : bandera,
+                         mapa[yGrilla * columnas + xGrilla] == 0 ? fondo :
+                         mapa[yGrilla * columnas + xGrilla] == 1 ? uno :
+                         mapa[yGrilla * columnas + xGrilla] == 2 ? dos :
+                         mapa[yGrilla * columnas + xGrilla] == -1 ? bomba : bandera,
                         xGrilla, yGrilla);
                 }
                 else if (boton == SDL_BUTTON_RIGHT)
