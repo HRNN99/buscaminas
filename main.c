@@ -66,6 +66,14 @@ int main(int argc, char *argv[])
     scanf("%d", &minasEnMapa);
     int *mapa = malloc(filas * columnas * sizeof(int));
 
+    if(mapa == NULL)
+    {
+        puts("No hay suficiente memoria, cerrando juego\n");
+        free(mapa);
+        return EXIT_FAILURE;
+
+    }
+
     CrearMapa(mapa, minasEnMapa, filas, columnas);
 
     SDL_Init(SDL_INIT_VIDEO);
@@ -89,9 +97,9 @@ int main(int argc, char *argv[])
     int offsetY = 0;
 
     // TEST ONLY
-    for (size_t i = 0; i < 10; i++)
+    for (size_t i = 0; i < filas; i++)
     {
-        for (size_t j = 0; j < 10; j++)
+        for (size_t j = 0; j < columnas; j++)
         {
             printf("%3d ", mapa[i * columnas + j]);
         }
@@ -142,8 +150,6 @@ int main(int argc, char *argv[])
         }
         SDL_Delay(100); // Esta pausa es para evitar que el procesador se ponga al 100% renderizando constantemente.
     }
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(ventana);
-    SDL_Quit();
+    FinalizarSDL(ventana, renderer, EXIT_SUCCESS, mapa);
     return 0;
 }

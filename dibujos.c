@@ -28,6 +28,14 @@ void _ReiniciarMapa(int* mapa, int filas, int columnas)
     }
 }
 
+void FinalizarSDL(SDL_Window *ventana, SDL_Renderer *renderer, int estadoExit, int* mapa)
+{
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(ventana);
+    SDL_Quit();
+    free(mapa);
+    exit(estadoExit);
+}
 
 
 
@@ -90,8 +98,8 @@ void CrearMapa(int* mapa, int minas, int filas, int columnas)
         while(repetido == 1)
         {
             repetido = _ColocarMinas(posMinas, i, &x, &y);
-            x = rand() % 9;
-            y = rand() % 9;
+            x = rand() % filas - 1;
+            y = rand() % columnas - 1;
         }
             posMinas[i][0] = x;
             posMinas[i][1] = y;
