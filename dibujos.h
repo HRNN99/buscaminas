@@ -1,19 +1,29 @@
 #ifndef DIBUJOS_H_INCLUDED
 #define DIBUJOS_H_INCLUDED
-#include <SDL2/SDL.h>
-#define TAM_PIXEL 10
-#define PIXELES_X_LADO 8
+
+#include <SDL2/SDL.h> //Libreria especial SDL2
+#include <stdio.h>
+#include <stdbool.h>
+
 #define TAM_GRILLA 10
-#define PX_PADDING 4
+#define TAM_PIXEL 3
+#define PIXELES_X_LADO 10
+#define PX_PADDING 1
 
-#define N 0 // Negro
-#define A 1 // Amarillo
-#define B 2 // Blanco
-#define V 3 // Verde
-#define R 4 // Rojo
-#define G 5 // Rojo
+#define N 0 //Negro
+#define B 1 //Blanco
+#define GS 2 //Gris Suave
+#define GF 3 //Gris Fuerte
+#define R 4 //Rojo
+#define V 5 //Verde Oscuro
+#define A 6 //Azul
 
-void dibujar(SDL_Window *ventana, SDL_Renderer *renderer, const int[][PIXELES_X_LADO], int oX, int oY);
-void borrarPantalla(SDL_Window *ventana, SDL_Renderer *renderer);
+typedef struct{
+    int estado;
+    bool presionada;
+}Casilla;
+
+void dibujar(SDL_Renderer *renderer, const int[][PIXELES_X_LADO], int oX, int oY);
+void despejar_recursivo(SDL_Window *ventana, SDL_Renderer *renderer,Casilla mapa[][TAM_GRILLA],int x, int y);
 
 #endif // DIBUJOS_H_INCLUDED
