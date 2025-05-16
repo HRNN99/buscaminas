@@ -17,22 +17,23 @@ SDL_Color colores[] =
 */
 };
 
-void _ReiniciarMapa(int* mapa, int filas, int columnas)
+void _ReiniciarMapa(int** mapa, int filas, int columnas)
 {
     for(int i = 0; i < filas; i++)
     {
         for(int j = 0; j < columnas; j++)
         {
-            mapa[i * columnas + j] = 0;
+            mapa[i][j] = 0;
         }
     }
 }
 
-void FinalizarSDL(SDL_Window *ventana, SDL_Renderer *renderer, int estadoExit, int* mapa)
+void FinalizarSDL(SDL_Window *ventana, SDL_Renderer *renderer, int estadoExit, int** mapa, int filas)
 {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(ventana);
     SDL_Quit();
+    for (int i = 0; i < filas; i++) free(mapa[i]);
     free(mapa);
     exit(estadoExit);
 }
@@ -84,48 +85,73 @@ _ColocarMinas(int posMinas[][2], int fil,int* x, int* y)
         return repetido;
 }
 
-void CrearMapa(int* mapa, int minas, int filas, int columnas)
+void** CrearMatriz(int filas, int columnas, size_t tamElem)
 {
-    srand(time(0));
-    _ReiniciarMapa(mapa, filas, columnas);
+    void** mapa = malloc(filas * sizeof(void*));
+    if (!mapa)
+    {
+        puts("No hay suficiente memoria para las filas.");
+        return NULL;
+    }
 
-    int posMinas[minas][2];
-    for (size_t i = 0; i < minas; i++)
+    for (int i = 0; i < filas; i++)
+    {
+        mapa[i] = malloc(columnas * tamElem);  // inicializa en cero
+        if (!mapa[i])
+        {
+            puts("No hay suficiente memoria para una de las filas.");
+            // Liberar filas anteriores
+            for (int j = 0; j < i; j++) free(mapa[j]);
+            free(mapa);
+            return NULL;
+        }
+    }
+    return mapa;
+}
+
+int** CrearMapa(int filas, int columnas, int minas, size_t tamElem)
+{
+    int** mapa = (int**)CrearMatriz(filas, columnas, tamElem);
+    int x, y;
+    _ReiniciarMapa(mapa, filas, columnas);
+    srand(time(NULL));
+    for (int m = 0; m < minas; m++)
     {
         int repetido = 1;
-        int x = rand() % 9;
-        int y = rand() % 9;
+
         while(repetido == 1)
         {
-            repetido = _ColocarMinas(posMinas, i, &x, &y);
-            x = rand() % filas - 1;
-            y = rand() % columnas - 1;
+          x = rand() % filas;
+          y = rand() % columnas;
+          if(mapa[x][y] != -1)
+          {
+            mapa[x][y] = -1;
+            repetido = 0;
+          }
         }
-            posMinas[i][0] = x;
-            posMinas[i][1] = y;
-        //mapa[y][x] = -1;
-        // Colocacion de unos
+
+
+        //Sumar alrededro de la mina
         for (int dx = -1; dx <= 1; dx++)
         {
             for (int dy = -1; dy <= 1; dy++)
             {
                 if (dx == 0 && dy == 0)
                     continue;
+
                 int nf = x + dx;
                 int nc = y + dy;
                 if (nf >= 0 && nf < filas && nc >= 0 && nc < columnas)
                 {
-                    mapa[nf * columnas + nc] += 1;
+                    if (mapa[nf][nc] != -1)
+                    {
+                         mapa[nf][nc]++;
+                    }
+
                 }
             }
-}
-
+        }
     }
-
-    for (size_t i = 0; i < minas; i++)
-    {
-        mapa[posMinas[i][0] * columnas + posMinas[i][1]] = -1;
-    }
+    return mapa;
 }
-
 
