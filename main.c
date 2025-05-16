@@ -64,17 +64,10 @@ int main(int argc, char *argv[])
     scanf("%d", &columnas);
     puts("ingrese la cantidad de minas\n");
     scanf("%d", &minasEnMapa);
-    int *mapa = malloc(filas * columnas * sizeof(int));
 
-    if(mapa == NULL)
-    {
-        puts("No hay suficiente memoria, cerrando juego\n");
-        free(mapa);
-        return EXIT_FAILURE;
+    int** mapa = CrearMapa(filas, columnas, minasEnMapa, sizeof(int));
 
-    }
 
-    CrearMapa(mapa, minasEnMapa, filas, columnas);
 
     SDL_Init(SDL_INIT_VIDEO);
     char nombreVentana[100];
@@ -101,7 +94,7 @@ int main(int argc, char *argv[])
     {
         for (size_t j = 0; j < columnas; j++)
         {
-            printf("%3d ", mapa[i * columnas + j]);
+            printf("%3d ", mapa[i][j]);
         }
         printf("\n\n");
     }
@@ -134,10 +127,10 @@ int main(int argc, char *argv[])
                 {
                     printf("Hiciste clic izquierdo en (%d, %d) poniendo un dibujo en la posición aleatoria [%d,%d]\n", x, y, xGrilla, yGrilla);
                     dibujar(ventana, renderer,
-                         mapa[yGrilla * columnas + xGrilla] == 0 ? fondo :
-                         mapa[yGrilla * columnas + xGrilla] == 1 ? uno :
-                         mapa[yGrilla * columnas + xGrilla] == 2 ? dos :
-                         mapa[yGrilla * columnas + xGrilla] == -1 ? bomba : bandera,
+                         mapa[yGrilla][xGrilla] == 0 ? fondo :
+                         mapa[yGrilla][xGrilla] == 1 ? uno :
+                         mapa[yGrilla][xGrilla] == 2 ? dos :
+                         mapa[yGrilla][xGrilla] == -1 ? bomba : bandera,
                         xGrilla, yGrilla);
                 }
                 else if (boton == SDL_BUTTON_RIGHT)
@@ -150,6 +143,6 @@ int main(int argc, char *argv[])
         }
         SDL_Delay(100); // Esta pausa es para evitar que el procesador se ponga al 100% renderizando constantemente.
     }
-    FinalizarSDL(ventana, renderer, EXIT_SUCCESS, mapa);
+    FinalizarSDL(ventana, renderer, EXIT_SUCCESS, mapa, filas);
     return 0;
 }
