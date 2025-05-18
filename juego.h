@@ -9,7 +9,7 @@
 //Prototipos
 void fondoColor(SDL_Renderer* renderer);
 bool casillaColocacion(SDL_Renderer* renderer);
-void casillaEstado(SDL_Renderer* renderer , Casilla mapa[][TAM_GRILLA] , int xGrilla , int yGrilla);
+void casillaEstado(SDL_Renderer* renderer , Casilla** mapa , int filas , int columnas , int xGrilla , int yGrilla);
 bool casillaBandera(SDL_Renderer* renderer, int xGrilla , int yGrilla);
 
 #endif // JUEGO_H

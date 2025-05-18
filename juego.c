@@ -127,9 +127,9 @@ bool casillaColocacion(SDL_Renderer* renderer){
     return true;
 }
 
-void casillaEstado(SDL_Renderer* renderer , Casilla mapa[][TAM_GRILLA] , int xGrilla , int yGrilla){
+void casillaEstado(SDL_Renderer* renderer , Casilla** mapa , int filas , int columnas , int xGrilla , int yGrilla){
 
-    if(xGrilla < 0 || xGrilla >= TAM_GRILLA || yGrilla < 0 || yGrilla >= TAM_GRILLA){
+    if(xGrilla < 0 || xGrilla >= columnas || yGrilla < 0 || yGrilla >= filas){
         return;
     }
 
@@ -144,19 +144,19 @@ void casillaEstado(SDL_Renderer* renderer , Casilla mapa[][TAM_GRILLA] , int xGr
 
         dibujar(renderer , square2 , xGrilla , yGrilla);
 
-        casillaEstado(renderer , mapa , xGrilla , yGrilla-1);
-        casillaEstado(renderer , mapa , xGrilla-1 , yGrilla);
-        casillaEstado(renderer , mapa , xGrilla+1 , yGrilla);
-        casillaEstado(renderer , mapa , xGrilla , yGrilla+1);
+        casillaEstado(renderer , mapa , filas , columnas , xGrilla , yGrilla-1);
+        casillaEstado(renderer , mapa , filas , columnas , xGrilla-1 , yGrilla);
+        casillaEstado(renderer , mapa , filas , columnas , xGrilla+1 , yGrilla);
+        casillaEstado(renderer , mapa , filas , columnas , xGrilla , yGrilla+1);
 
-        casillaEstado(renderer , mapa , xGrilla-1 , yGrilla-1);
-        casillaEstado(renderer , mapa , xGrilla+1 , yGrilla-1);
-        casillaEstado(renderer , mapa , xGrilla-1 , yGrilla+1);
-        casillaEstado(renderer , mapa , xGrilla+1 , yGrilla+1);
+        casillaEstado(renderer , mapa , filas , columnas , xGrilla-1 , yGrilla-1);
+        casillaEstado(renderer , mapa , filas , columnas , xGrilla+1 , yGrilla-1);
+        casillaEstado(renderer , mapa , filas , columnas , xGrilla-1 , yGrilla+1);
+        casillaEstado(renderer , mapa , filas , columnas , xGrilla+1 , yGrilla+1);
     }
 }
 
 bool casillaBandera(SDL_Renderer* renderer, int xGrilla , int yGrilla){
-    dibujar(renderer, flag, xGrilla, yGrilla);
+    dibujar(renderer , flag , xGrilla , yGrilla);
     return true;
 }
