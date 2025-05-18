@@ -1,0 +1,102 @@
+#ifndef ESTADOS_H
+#define ESTADOS_H
+
+const int square1[10][10] =
+{
+    {BB,BB,BB,BB,BB,BB,BB,BB,BB,GF},
+    {BB,GS,GS,GS,GS,GS,GS,GS,GS,GF},
+    {BB,GS,GS,GS,GS,GS,GS,GS,GS,GF},
+    {BB,GS,GS,GS,GS,GS,GS,GS,GS,GF},
+    {BB,GS,GS,GS,GS,GS,GS,GS,GS,GF},
+    {BB,GS,GS,GS,GS,GS,GS,GS,GS,GF},
+    {BB,GS,GS,GS,GS,GS,GS,GS,GS,GF},
+    {BB,GS,GS,GS,GS,GS,GS,GS,GS,GF},
+    {BB,GS,GS,GS,GS,GS,GS,GS,GS,GF},
+    {BB,GF,GF,GF,GF,GF,GF,GF,GF,GF}
+};
+
+const int square2[10][10] =
+{
+    {GF,GF,GF,GF,GF,GF,GF,GF,GF,GF},
+    {GF,GS,GS,GS,GS,GS,GS,GS,GS,GF},
+    {GF,GS,GS,GS,GS,GS,GS,GS,GS,GF},
+    {GF,GS,GS,GS,GS,GS,GS,GS,GS,GF},
+    {GF,GS,GS,GS,GS,GS,GS,GS,GS,GF},
+    {GF,GS,GS,GS,GS,GS,GS,GS,GS,GF},
+    {GF,GS,GS,GS,GS,GS,GS,GS,GS,GF},
+    {GF,GS,GS,GS,GS,GS,GS,GS,GS,GF},
+    {GF,GS,GS,GS,GS,GS,GS,GS,GS,GF},
+    {GF,GF,GF,GF,GF,GF,GF,GF,GF,GF}
+};
+
+const int mine[10][10] =
+{
+    {BB,BB,BB,BB,BB,BB,BB,BB,BB,GF},
+    {BB,GS,GS,GS,GS,GS,GS,GS,GS,GF},
+    {BB,GS,GS,GS,NN,NN,GS,GS,GS,GF},
+    {BB,GS,GS,NN,NN,NN,NN,GS,GS,GF},
+    {BB,GS,NN,NN,NN,NN,BB,NN,GS,GF},
+    {BB,GS,NN,NN,NN,NN,NN,NN,GS,GF},
+    {BB,GS,GS,NN,NN,NN,NN,GS,GS,GF},
+    {BB,GS,GS,GS,NN,NN,GS,GS,GS,GF},
+    {BB,GS,GS,GS,GS,GS,GS,GS,GS,GF},
+    {BB,GF,GF,GF,GF,GF,GF,GF,GF,GF}
+};
+
+const int one[10][10] =
+{
+    {BB,BB,BB,BB,BB,BB,BB,BB,BB,GF},
+    {BB,GS,GS,GS,GS,GS,GS,GS,GS,GF},
+    {BB,GS,GS,GS,AA,AA,GS,GS,GS,GF},
+    {BB,GS,GS,AA,AA,AA,GS,GS,GS,GF},
+    {BB,GS,GS,GS,AA,AA,GS,GS,GS,GF},
+    {BB,GS,GS,GS,AA,AA,GS,GS,GS,GF},
+    {BB,GS,GS,GS,AA,AA,GS,GS,GS,GF},
+    {BB,GS,GS,AA,AA,AA,AA,GS,GS,GF},
+    {BB,GS,GS,GS,GS,GS,GS,GS,GS,GF},
+    {BB,GF,GF,GF,GF,GF,GF,GF,GF,GF}
+};
+
+const int two[10][10] =
+{
+    {BB,BB,BB,BB,BB,BB,BB,BB,BB,GF},
+    {BB,GS,GS,GS,GS,GS,GS,GS,GS,GF},
+    {BB,GS,GS,GS,VV,VV,GS,GS,GS,GF},
+    {BB,GS,GS,VV,GS,GS,VV,GS,GS,GF},
+    {BB,GS,GS,GS,GS,GS,VV,GS,GS,GF},
+    {BB,GS,GS,GS,GS,VV,GS,GS,GS,GF},
+    {BB,GS,GS,GS,VV,GS,GS,GS,GS,GF},
+    {BB,GS,GS,VV,VV,VV,VV,GS,GS,GF},
+    {BB,GS,GS,GS,GS,GS,GS,GS,GS,GF},
+    {BB,GF,GF,GF,GF,GF,GF,GF,GF,GF}
+};
+
+const int three[10][10] =
+{
+    {BB,BB,BB,BB,BB,BB,BB,BB,BB,GF},
+    {BB,GS,GS,GS,GS,GS,GS,GS,GS,GF},
+    {BB,GS,GS,RR,RR,RR,GS,GS,GS,GF},
+    {BB,GS,GS,GS,GS,GS,RR,GS,GS,GF},
+    {BB,GS,GS,GS,RR,RR,GS,GS,GS,GF},
+    {BB,GS,GS,GS,GS,GS,RR,GS,GS,GF},
+    {BB,GS,GS,GS,GS,GS,RR,GS,GS,GF},
+    {BB,GS,GS,RR,RR,RR,GS,GS,GS,GF},
+    {BB,GS,GS,GS,GS,GS,GS,GS,GS,GF},
+    {BB,GF,GF,GF,GF,GF,GF,GF,GF,GF}
+};
+
+const int flag[10][10] =
+{
+    {BB,BB,BB,BB,BB,BB,BB,BB,BB,GF},
+    {BB,GS,GS,GS,GS,GS,GS,GS,GS,GF},
+    {BB,GS,GS,GS,RR,NN,GS,GS,GS,GF},
+    {BB,GS,GS,RR,RR,NN,GS,GS,GS,GF},
+    {BB,GS,RR,RR,RR,NN,GS,GS,GS,GF},
+    {BB,GS,GS,GS,GS,NN,GS,GS,GS,GF},
+    {BB,GS,GS,GS,GS,NN,GS,GS,GS,GF},
+    {BB,GS,GS,NN,NN,NN,NN,NN,GS,GF},
+    {BB,GS,GS,GS,GS,GS,GS,GS,GS,GF},
+    {BB,GF,GF,GF,GF,GF,GF,GF,GF,GF}
+};
+
+#endif // ESTADOS_H

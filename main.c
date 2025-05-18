@@ -7,19 +7,16 @@
 
 int main(int argc, char *argv[]){
 
-    //Casilla mapa[TAM_GRILLA][TAM_GRILLA] = {0,false}; // Matriz de 'Casillas' con tamaño TAM_GRILLA
-    srand(time(0)); //Semilla rand
-
     int filas = 0, columnas = 0, minasEnMapa = 0;
     printf("ingrese la cantidad de filas: "); scanf("%d", &filas);
     printf("ingrese la cantidad de columnas: "); scanf("%d", &columnas);
     printf("ingrese la cantidad de minas: "); scanf("%d", &minasEnMapa);
 
-    Casilla** mapa = (Casilla**)(CrearMatriz(filas,columnas,sizeof(Casilla)));
-    mapaVacio(mapa, filas , columnas);
-    mapaLlenar(mapa , filas , columnas , minasEnMapa);
+    int minasCord[minasEnMapa][2];
 
-    //int** mapa = CrearMapa(filas, columnas, minasEnMapa, sizeof(int));
+    Casilla** mapa = (Casilla**)(matrizCrear(filas,columnas,sizeof(Casilla))); //Creacion de la matriz
+    mapaVacio(mapa, filas , columnas); //Se establecen los valores defecto de la matriz
+    mapaLlenar(mapa , filas , columnas , minasEnMapa , minasCord); //
 
     //Iniciar SDL con funcion Video
     SDL_Init(SDL_INIT_VIDEO);
@@ -36,6 +33,7 @@ int main(int argc, char *argv[]){
     //Funcion para establecer el modo de mezcla de colores para el renderizado, el modo blend nos permite utilizar transparencia
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
+    putchar('\n');
 
     // TEST ONLY //Impresion de matriz
     for (size_t i = 0; i < filas; i++){
@@ -91,6 +89,8 @@ int main(int argc, char *argv[]){
         SDL_Delay(16); // (60 fps) Esta pausa es para evitar que el procesador se ponga al 100% renderizando constantemente.
     }
 
-    FinalizarSDL(ventana, renderer, EXIT_SUCCESS, mapa, filas); //Funcion para la finalizacion de SDL y sus componentes
+    matrizDestruir(mapa , filas); //Se libera la memoria de la matriz mapa
+    FinalizarSDL(ventana, renderer, EXIT_SUCCESS); //Funcion para la finalizacion de SDL y sus componentes
+
     return 0;
 }
