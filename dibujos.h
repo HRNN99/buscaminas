@@ -24,6 +24,13 @@ typedef struct{
 }Casilla;
 
 void dibujar(SDL_Renderer *renderer, const int[][PIXELES_X_LADO], int oX, int oY);
-void despejar_recursivo(SDL_Window *ventana, SDL_Renderer *renderer,Casilla mapa[][TAM_GRILLA],int x, int y);
+
+void** CrearMatriz(int filas, int columnas, size_t tamElem);
+void mapaVacio(Casilla** mapa, int filas, int columnas);
+void mapaLlenar(Casilla** mapa , int filas , int columnas , int minas);
+
+int _ColocarMinas(int posMinas[][2], int fil,int* x, int* y);
+void _ReiniciarMapa(int** mapa, int filas, int columnas);
+void FinalizarSDL(SDL_Window *ventana, SDL_Renderer *renderer, int estadoExit, int** mapa, int filas);
 
 #endif // DIBUJOS_H_INCLUDED
