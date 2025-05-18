@@ -1,113 +1,109 @@
 #include <stdio.h>
 #include "juego.h"
+#include "estados.h"
 
-const int square1[10][10] =
-{
-    {B,B,B,B,B,B,B,B,B,GF},
-    {B,GS,GS,GS,GS,GS,GS,GS,GS,GF},
-    {B,GS,GS,GS,GS,GS,GS,GS,GS,GF},
-    {B,GS,GS,GS,GS,GS,GS,GS,GS,GF},
-    {B,GS,GS,GS,GS,GS,GS,GS,GS,GF},
-    {B,GS,GS,GS,GS,GS,GS,GS,GS,GF},
-    {B,GS,GS,GS,GS,GS,GS,GS,GS,GF},
-    {B,GS,GS,GS,GS,GS,GS,GS,GS,GF},
-    {B,GS,GS,GS,GS,GS,GS,GS,GS,GF},
-    {B,GF,GF,GF,GF,GF,GF,GF,GF,GF}
-};
+//Funcion destinada a crear una matriz con memoria dinamica
+void** matrizCrear(size_t filas, size_t columnas, size_t tamElem){
 
-const int square2[10][10] =
-{
-    {GF,GF,GF,GF,GF,GF,GF,GF,GF,GF},
-    {GF,GS,GS,GS,GS,GS,GS,GS,GS,GF},
-    {GF,GS,GS,GS,GS,GS,GS,GS,GS,GF},
-    {GF,GS,GS,GS,GS,GS,GS,GS,GS,GF},
-    {GF,GS,GS,GS,GS,GS,GS,GS,GS,GF},
-    {GF,GS,GS,GS,GS,GS,GS,GS,GS,GF},
-    {GF,GS,GS,GS,GS,GS,GS,GS,GS,GF},
-    {GF,GS,GS,GS,GS,GS,GS,GS,GS,GF},
-    {GF,GS,GS,GS,GS,GS,GS,GS,GS,GF},
-    {GF,GF,GF,GF,GF,GF,GF,GF,GF,GF}
-};
+    void** mat = malloc(filas * sizeof(void*));
+    if (!mat){
 
-const int mine[10][10] =
-{
-    {B,B,B,B,B,B,B,B,B,GF},
-    {B,GS,GS,GS,GS,GS,GS,GS,GS,GF},
-    {B,GS,GS,GS,N,N,GS,GS,GS,GF},
-    {B,GS,GS,N,N,N,N,GS,GS,GF},
-    {B,GS,N,N,N,N,B,N,GS,GF},
-    {B,GS,N,N,N,N,N,N,GS,GF},
-    {B,GS,GS,N,N,N,N,GS,GS,GF},
-    {B,GS,GS,GS,N,N,GS,GS,GS,GF},
-    {B,GS,GS,GS,GS,GS,GS,GS,GS,GF},
-    {B,GF,GF,GF,GF,GF,GF,GF,GF,GF}
-};
+        puts("No hay suficiente memoria para las filas.");
+        return NULL;
+    }
 
-const int one[10][10] =
-{
-    {B,B,B,B,B,B,B,B,B,GF},
-    {B,GS,GS,GS,GS,GS,GS,GS,GS,GF},
-    {B,GS,GS,GS,A,A,GS,GS,GS,GF},
-    {B,GS,GS,A,A,A,GS,GS,GS,GF},
-    {B,GS,GS,GS,A,A,GS,GS,GS,GF},
-    {B,GS,GS,GS,A,A,GS,GS,GS,GF},
-    {B,GS,GS,GS,A,A,GS,GS,GS,GF},
-    {B,GS,GS,A,A,A,A,GS,GS,GF},
-    {B,GS,GS,GS,GS,GS,GS,GS,GS,GF},
-    {B,GF,GF,GF,GF,GF,GF,GF,GF,GF}
-};
+    void** ult = mat + filas - 1;
 
-const int two[10][10] =
-{
-    {B,B,B,B,B,B,B,B,B,GF},
-    {B,GS,GS,GS,GS,GS,GS,GS,GS,GF},
-    {B,GS,GS,GS,V,V,GS,GS,GS,GF},
-    {B,GS,GS,V,GS,GS,V,GS,GS,GF},
-    {B,GS,GS,GS,GS,GS,V,GS,GS,GF},
-    {B,GS,GS,GS,GS,V,GS,GS,GS,GF},
-    {B,GS,GS,GS,V,GS,GS,GS,GS,GF},
-    {B,GS,GS,V,V,V,V,GS,GS,GF},
-    {B,GS,GS,GS,GS,GS,GS,GS,GS,GF},
-    {B,GF,GF,GF,GF,GF,GF,GF,GF,GF}
-};
+    for (void** i = mat ; i <= ult ; i++){
 
-const int three[10][10] =
-{
-    {B,B,B,B,B,B,B,B,B,GF},
-    {B,GS,GS,GS,GS,GS,GS,GS,GS,GF},
-    {B,GS,GS,R,R,R,GS,GS,GS,GF},
-    {B,GS,GS,GS,GS,GS,R,GS,GS,GF},
-    {B,GS,GS,GS,R,R,GS,GS,GS,GF},
-    {B,GS,GS,GS,GS,GS,R,GS,GS,GF},
-    {B,GS,GS,GS,GS,GS,R,GS,GS,GF},
-    {B,GS,GS,R,R,R,GS,GS,GS,GF},
-    {B,GS,GS,GS,GS,GS,GS,GS,GS,GF},
-    {B,GF,GF,GF,GF,GF,GF,GF,GF,GF}
-};
+        *i = malloc(columnas * tamElem);
 
-const int flag[10][10] =
-{
-    {B,B,B,B,B,B,B,B,B,GF},
-    {B,GS,GS,GS,GS,GS,GS,GS,GS,GF},
-    {B,GS,GS,GS,R,N,GS,GS,GS,GF},
-    {B,GS,GS,R,R,N,GS,GS,GS,GF},
-    {B,GS,R,R,R,N,GS,GS,GS,GF},
-    {B,GS,GS,GS,GS,N,GS,GS,GS,GF},
-    {B,GS,GS,GS,GS,N,GS,GS,GS,GF},
-    {B,GS,GS,N,N,N,N,N,GS,GF},
-    {B,GS,GS,GS,GS,GS,GS,GS,GS,GF},
-    {B,GF,GF,GF,GF,GF,GF,GF,GF,GF}
-};
+        if (!*i){
+            puts("No hay suficiente memoria para alguna de las filas.");
+            matrizDestruir(mat , (i - mat));
+            return NULL;
+        }
+    }
 
-/////////////////////////////////////////////////////////////////////////////
+    return mat;
+}
 
+//Funcion para liberar la memoria de la matriz creada
+void matrizDestruir(void** mat , size_t filas){
+
+    void** ult = mat + filas - 1;
+
+    for (void** i = mat ; i <= ult ; i++){
+        free(*i);
+    }
+
+    free(mat);
+}
+
+//Funcion que inicializa el mapa de juego en valores por defecto
+void mapaVacio(Casilla** mapa , int filas, int columnas){
+
+    for(int y = 0; y < filas; y++)
+    {
+        for(int x = 0; x < columnas; x++)
+        {
+            mapa[y][x].estado = 0;
+            mapa[y][x].presionada = false;
+        }
+    }
+}
+
+//Funcion que llena el mapa de juego con minas y aledaños
+void mapaLlenar(Casilla** mapa , int filas , int columnas , int minas , int minasCord[][2]){
+
+    int x , y , m=0 ;
+    srand(time(NULL));
+
+    while(m < minas){
+
+        x = rand() % columnas;
+        y = rand() % filas;
+
+        if(mapa[y][x].estado != -1){
+
+            minasCord[m][0] = x;
+            minasCord[m][1] = y;
+
+            mapa[y][x].estado = -1;
+
+            //Sumar alrededro de la mina
+            for (int dy = -1; dy <= 1; dy++)
+            {
+                for (int dx = -1; dx <= 1; dx++)
+                {
+                    if (dy == 0 && dx == 0)
+                        continue;
+
+
+                    int nf = y + dy;
+                    int nc = x + dx;
+
+                    if ((nf >= 0 && nf < filas) && (nc >= 0 && nc < columnas) && (mapa[nf][nc].estado != -1))
+                        mapa[nf][nc].estado++;
+
+                }
+            }
+
+            m++;
+        }
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+//Establecer el renderizado con un color base (negro)
 void fondoColor(SDL_Renderer* renderer){
-    //Establecer el renderizado con un color base (negro)
     SDL_SetRenderDrawColor(renderer, 0,0,0,255); //color
     SDL_RenderClear(renderer); //limpieza
     SDL_RenderPresent(renderer); //Aplicacion
 }
 
+//Funcion que coloca todas las casillas sin valor
 bool casillaColocacion(SDL_Renderer* renderer){
     int offsetX = 0; // Variable para coordenada X
     int offsetY = 0; // Variable para ccoordenada Y
@@ -127,6 +123,7 @@ bool casillaColocacion(SDL_Renderer* renderer){
     return true;
 }
 
+//Funcion que coloca estados en las casillas
 void casillaEstado(SDL_Renderer* renderer , Casilla** mapa , int filas , int columnas , int xGrilla , int yGrilla){
 
     if(xGrilla < 0 || xGrilla >= columnas || yGrilla < 0 || yGrilla >= filas){
@@ -156,6 +153,7 @@ void casillaEstado(SDL_Renderer* renderer , Casilla** mapa , int filas , int col
     }
 }
 
+//Funcion para colocar bandera
 bool casillaBandera(SDL_Renderer* renderer, int xGrilla , int yGrilla){
     dibujar(renderer , flag , xGrilla , yGrilla);
     return true;
