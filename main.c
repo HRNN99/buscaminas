@@ -15,8 +15,11 @@ int main(int argc, char *argv[]){
     int minasCord[minasEnMapa][2];
 
     Casilla** mapa = (Casilla**)(matrizCrear(filas,columnas,sizeof(Casilla))); //Creacion de la matriz
-    mapaVacio(mapa, filas , columnas); //Se establecen los valores defecto de la matriz
-    mapaLlenar(mapa , filas , columnas , minasEnMapa , minasCord); //
+    Juego juego;
+    juego.cantCasillasPresionadas = 0;
+    juego.mapa = mapa;
+    mapaVacio(juego.mapa, filas , columnas); //Se establecen los valores defecto de la matriz
+    mapaLlenar(juego.mapa , filas , columnas , minasEnMapa , minasCord); //
 
     //Iniciar SDL con funcion Video
     SDL_Init(SDL_INIT_VIDEO);
@@ -40,7 +43,7 @@ int main(int argc, char *argv[]){
 
         for (size_t j = 0; j < columnas; j++){
 
-            printf("%3d ", mapa[i][j].estado);
+            printf("%3d ", juego.mapa[i][j].estado);
         }
         printf("\n\n");
     }
@@ -75,21 +78,23 @@ int main(int argc, char *argv[]){
 
                 if (boton == SDL_BUTTON_LEFT){ //Evento clik izquierdo del mouse
                     printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", xGrilla , yGrilla);
-                    casillaEstado(renderer , mapa , filas , columnas , xGrilla , yGrilla);
-
+                    casillaEstado(renderer , &juego , filas , columnas , xGrilla , yGrilla);
+                    if(juego.cantCasillasPresionadas == (filas*columnas)-minasEnMapa)
+                        puts("Ganaste el juego!");
                 }
 
                 else if (boton == SDL_BUTTON_RIGHT){ //Evento click derecho del mouse
                     printf("Hiciste clic derecho en la casilla (%i, %i) colocando bandera\n", xGrilla , yGrilla);
                     casillaBandera(renderer, xGrilla , yGrilla);
                 }
+                printf("Presionadas: %d\n", juego.cantCasillasPresionadas);
             }
         }
 
         SDL_Delay(16); // (60 fps) Esta pausa es para evitar que el procesador se ponga al 100% renderizando constantemente.
     }
 
-    matrizDestruir(mapa , filas); //Se libera la memoria de la matriz mapa
+    matrizDestruir(juego.mapa , filas); //Se libera la memoria de la matriz mapa
     FinalizarSDL(ventana, renderer, EXIT_SUCCESS); //Funcion para la finalizacion de SDL y sus componentes
 
     return 0;
