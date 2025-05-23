@@ -53,7 +53,7 @@ void mapaVacio(Casilla** mapa , int filas, int columnas){
     }
 }
 
-//Funcion que llena el mapa de juego con minas y aledaños
+//Funcion que llena el mapa de juego con minas y aledaï¿½os
 void mapaLlenar(Casilla** mapa , int filas , int columnas , int minas , int minasCord[][2]){
 
     int x , y , m=0 ;
@@ -124,7 +124,9 @@ bool casillaColocacion(SDL_Renderer* renderer){
 }
 
 //Funcion que coloca estados en las casillas
-void casillaEstado(SDL_Renderer* renderer , Casilla** mapa , int filas , int columnas , int xGrilla , int yGrilla){
+void casillaEstado(SDL_Renderer* renderer , Juego* juego , int filas , int columnas , int xGrilla , int yGrilla){
+
+    Casilla** mapa = juego->mapa;
 
     if(xGrilla < 0 || xGrilla >= columnas || yGrilla < 0 || yGrilla >= filas){
         return;
@@ -133,7 +135,8 @@ void casillaEstado(SDL_Renderer* renderer , Casilla** mapa , int filas , int col
     if(!mapa[yGrilla][xGrilla].presionada){
 
         mapa[yGrilla][xGrilla].presionada = true;
-
+        juego->cantCasillasPresionadas +=1;
+        //Se podria optimizar haciendo que square2 sea por ejemplo -2 en el mapa?
         if(mapa[yGrilla][xGrilla].estado != 0){
             dibujar(renderer , eleccion(mapa[yGrilla][xGrilla].estado) , xGrilla , yGrilla);
             return;
@@ -141,15 +144,15 @@ void casillaEstado(SDL_Renderer* renderer , Casilla** mapa , int filas , int col
 
         dibujar(renderer , square2 , xGrilla , yGrilla);
 
-        casillaEstado(renderer , mapa , filas , columnas , xGrilla , yGrilla-1);
-        casillaEstado(renderer , mapa , filas , columnas , xGrilla-1 , yGrilla);
-        casillaEstado(renderer , mapa , filas , columnas , xGrilla+1 , yGrilla);
-        casillaEstado(renderer , mapa , filas , columnas , xGrilla , yGrilla+1);
+        casillaEstado(renderer , juego , filas , columnas , xGrilla , yGrilla-1);
+        casillaEstado(renderer , juego , filas , columnas , xGrilla-1 , yGrilla);
+        casillaEstado(renderer , juego , filas , columnas , xGrilla+1 , yGrilla);
+        casillaEstado(renderer , juego , filas , columnas , xGrilla , yGrilla+1);
 
-        casillaEstado(renderer , mapa , filas , columnas , xGrilla-1 , yGrilla-1);
-        casillaEstado(renderer , mapa , filas , columnas , xGrilla+1 , yGrilla-1);
-        casillaEstado(renderer , mapa , filas , columnas , xGrilla-1 , yGrilla+1);
-        casillaEstado(renderer , mapa , filas , columnas , xGrilla+1 , yGrilla+1);
+        casillaEstado(renderer , juego , filas , columnas , xGrilla-1 , yGrilla-1);
+        casillaEstado(renderer , juego , filas , columnas , xGrilla+1 , yGrilla-1);
+        casillaEstado(renderer , juego , filas , columnas , xGrilla-1 , yGrilla+1);
+        casillaEstado(renderer , juego , filas , columnas , xGrilla+1 , yGrilla+1);
     }
 }
 
