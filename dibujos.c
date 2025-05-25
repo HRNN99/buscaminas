@@ -47,7 +47,7 @@ void FinalizarSDL(SDL_Window *ventana, SDL_Renderer *renderer, int estadoExit)
 }
 
 //Funcion que finaliza una ventana
-void FinalizarVentanaSDL(SDL_Window *ventana, SDL_Renderer *renderer, int estadoExit)
+void FinalizarVentanaSDL(SDL_Window *ventana, SDL_Renderer *renderer)
 {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(ventana);

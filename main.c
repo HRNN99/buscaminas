@@ -7,6 +7,11 @@
 
 int main(int argc, char *argv[]){
 
+//    char *text;
+//    char *composition;
+//    Sint32 cursor;
+//    Sint32 selection_len;
+
     int filas = 0, columnas = 0, minasEnMapa = 0;
     printf("ingrese la cantidad de filas: "); scanf("%d", &filas);
     printf("ingrese la cantidad de columnas: "); scanf("%d", &columnas);
@@ -54,67 +59,77 @@ int main(int argc, char *argv[]){
     fondoColor(renderer); //Funcion para establecer fondo del render color defecto
     casillaColocacion(renderer); //Funcion para colocar todas las casillas visuales
 
+    int boton,xGrilla,yGrilla;
     while (corriendo){ //While para mantener el programa corriendo
 
         SDL_RenderPresent(renderer);
+        SDL_Window *ventanaGanado;
+        SDL_Renderer* rendererGanado;
 
-        while (SDL_PollEvent(&e)){//Registrando eventos
+        if (SDL_PollEvent(&e)){//Registrando eventos
 
-            SDL_Window *ventanaGanado;
-            //Funcion para crear el renderizado en ventana acelerado por hardware
-            SDL_Renderer* rendererGanado;
-            if (e.type == SDL_QUIT){ //Evento de salida
-
-                printf("Saliendo de SDL\n");
-                corriendo = 0;
-            }
-
-            if (e.type == SDL_WINDOWEVENT
-                && e.window.event == SDL_WINDOWEVENT_CLOSE)
-            {
-                printf("Saliendo de pantalla de ganado\n");
-                FinalizarVentanaSDL(ventanaGanado, rendererGanado, EXIT_SUCCESS); //Funcion para la finalizacion de SDL y sus componentes
-            }
-            if (e.type == SDL_MOUSEBUTTONDOWN){ //Se presiono una tecla del mouse
-
-                int x = e.button.x; //Posicion X del click medido en pixeles
-                int y = e.button.y; //Posicion Y del click medido en pixeles
-                int boton = e.button.button; //Alias del boton presionado
-
-                //Se dividen los pixeles para obtener un valor de grilla
-                int xGrilla = e.button.x / (PIXELES_X_LADO * TAM_PIXEL + PX_PADDING);
-                int yGrilla = e.button.y / (PIXELES_X_LADO * TAM_PIXEL + PX_PADDING);
-
-                if (boton == SDL_BUTTON_LEFT){ //Evento clik izquierdo del mouse
-                    printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", xGrilla , yGrilla);
-                    casillaEstado(renderer , &juego , filas , columnas , xGrilla , yGrilla);
-                    if(juego.cantCasillasPresionadas == (filas*columnas)-minasEnMapa){
-                        puts("Ganaste el juego!");
-                         //Funcion para crear ventana con posicion especifica, dimension y banderas.
-                         ventanaGanado = SDL_CreateWindow("Ganaste!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, TAMX-100, TAMY-100, 2);
-                         //Funcion para crear el renderizado en ventana acelerado por hardware
-                         rendererGanado = SDL_CreateRenderer(ventanaGanado, -1, SDL_RENDERER_ACCELERATED);
-                         //Funcion para establecer el modo de mezcla de colores para el renderizado, el modo blend nos permite utilizar transparencia
-                         SDL_SetRenderDrawBlendMode(rendererGanado, SDL_BLENDMODE_BLEND);
-                         SDL_SetRenderDrawColor(rendererGanado, 255,255,255,255); //color
-                         SDL_RenderClear(rendererGanado); //limpieza
-                         SDL_RenderPresent(rendererGanado); //Aplicacion
+             switch (e.type) {
+                case SDL_QUIT:
+                    printf("Saliendo de SDL\n");
+                    corriendo = 0;
+                    matrizDestruir(juego.mapa , filas); //Se libera la memoria de la matriz mapa
+                    FinalizarSDL(ventana, renderer, EXIT_SUCCESS); //Funcion para la finalizacion de SDL y sus componentes
+                    break;
+                case SDL_WINDOWEVENT:
+                    if(e.window.event == SDL_WINDOWEVENT_CLOSE){
+                        printf("Saliendo de pantalla de ganado\n");
+                        FinalizarVentanaSDL(ventanaGanado, rendererGanado); //Funcion para la finalizacion de SDL y sus componentes
                     }
-                }
+                    break;
+                case SDL_MOUSEBUTTONDOWN:
 
-                else if (boton == SDL_BUTTON_RIGHT){ //Evento click derecho del mouse
-                    printf("Hiciste clic derecho en la casilla (%i, %i) colocando bandera\n", xGrilla , yGrilla);
-                    casillaBandera(renderer, xGrilla , yGrilla);
-                }
-                printf("Presionadas: %d\n", juego.cantCasillasPresionadas);
+                    boton = e.button.button; //Alias del boton presionado
+
+                    //Se dividen los pixeles para obtener un valor de grilla
+                    xGrilla = e.button.x / (PIXELES_X_LADO * TAM_PIXEL + PX_PADDING);
+                    yGrilla = e.button.y / (PIXELES_X_LADO * TAM_PIXEL + PX_PADDING);
+
+                    if (boton == SDL_BUTTON_LEFT){ //Evento clik izquierdo del mouse
+                        printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", xGrilla , yGrilla);
+                        casillaEstado(renderer , &juego , filas , columnas , xGrilla , yGrilla);
+                        if(juego.cantCasillasPresionadas == (filas*columnas)-minasEnMapa){
+                            puts("Ganaste el juego!");
+                            //Funcion para crear ventana con posicion especifica, dimension y banderas.
+                            ventanaGanado = SDL_CreateWindow("Ganaste!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, TAMX-100, TAMY-100, 2);
+                            //Funcion para crear el renderizado en ventana acelerado por hardware
+                            rendererGanado = SDL_CreateRenderer(ventanaGanado, -1, SDL_RENDERER_ACCELERATED);
+                            //Funcion para establecer el modo de mezcla de colores para el renderizado, el modo blend nos permite utilizar transparencia
+                            SDL_SetRenderDrawBlendMode(rendererGanado, SDL_BLENDMODE_BLEND);
+                            SDL_SetRenderDrawColor(rendererGanado, 255,255,255,255); //color
+                            SDL_RenderClear(rendererGanado); //limpieza
+                            SDL_RenderPresent(rendererGanado); //Aplicacion
+                        }
+                    }
+
+                    else if (boton == SDL_BUTTON_RIGHT){ //Evento click derecho del mouse
+                        printf("Hiciste clic derecho en la casilla (%i, %i) colocando bandera\n", xGrilla , yGrilla);
+                        casillaBandera(renderer, xGrilla , yGrilla);
+                    }
+                    printf("Presionadas: %d\n", juego.cantCasillasPresionadas);
+                    break;
+//                case SDL_TEXTINPUT:
+//                    /* Add new text onto the end of our text */
+//                    strcat(text, e.text.text);
+//                    break;
+//                case SDL_TEXTEDITING:
+//                    /*
+//                    Update the composition text.
+//                    Update the cursor position.
+//                    Update the selection length (if any).
+//                    */
+//                    composition = e.edit.text;
+//                    cursor = e.edit.start;
+//                    selection_len = e.edit.length;
+//                    break;
             }
         }
 
         SDL_Delay(16); // (60 fps) Esta pausa es para evitar que el procesador se ponga al 100% renderizando constantemente.
     }
-
-    matrizDestruir(juego.mapa , filas); //Se libera la memoria de la matriz mapa
-    FinalizarSDL(ventana, renderer, EXIT_SUCCESS); //Funcion para la finalizacion de SDL y sus componentes
-
     return 0;
 }
