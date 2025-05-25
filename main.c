@@ -60,12 +60,21 @@ int main(int argc, char *argv[]){
 
         while (SDL_PollEvent(&e)){//Registrando eventos
 
+            SDL_Window *ventanaGanado;
+            //Funcion para crear el renderizado en ventana acelerado por hardware
+            SDL_Renderer* rendererGanado;
             if (e.type == SDL_QUIT){ //Evento de salida
 
                 printf("Saliendo de SDL\n");
                 corriendo = 0;
             }
 
+            if (e.type == SDL_WINDOWEVENT
+                && e.window.event == SDL_WINDOWEVENT_CLOSE)
+            {
+                printf("Saliendo de pantalla de ganado\n");
+                FinalizarVentanaSDL(ventanaGanado, rendererGanado, EXIT_SUCCESS); //Funcion para la finalizacion de SDL y sus componentes
+            }
             if (e.type == SDL_MOUSEBUTTONDOWN){ //Se presiono una tecla del mouse
 
                 int x = e.button.x; //Posicion X del click medido en pixeles
@@ -79,8 +88,18 @@ int main(int argc, char *argv[]){
                 if (boton == SDL_BUTTON_LEFT){ //Evento clik izquierdo del mouse
                     printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", xGrilla , yGrilla);
                     casillaEstado(renderer , &juego , filas , columnas , xGrilla , yGrilla);
-                    if(juego.cantCasillasPresionadas == (filas*columnas)-minasEnMapa)
+                    if(juego.cantCasillasPresionadas == (filas*columnas)-minasEnMapa){
                         puts("Ganaste el juego!");
+                         //Funcion para crear ventana con posicion especifica, dimension y banderas.
+                         ventanaGanado = SDL_CreateWindow("Ganaste!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, TAMX-100, TAMY-100, 2);
+                         //Funcion para crear el renderizado en ventana acelerado por hardware
+                         rendererGanado = SDL_CreateRenderer(ventanaGanado, -1, SDL_RENDERER_ACCELERATED);
+                         //Funcion para establecer el modo de mezcla de colores para el renderizado, el modo blend nos permite utilizar transparencia
+                         SDL_SetRenderDrawBlendMode(rendererGanado, SDL_BLENDMODE_BLEND);
+                         SDL_SetRenderDrawColor(rendererGanado, 255,255,255,255); //color
+                         SDL_RenderClear(rendererGanado); //limpieza
+                         SDL_RenderPresent(rendererGanado); //Aplicacion
+                    }
                 }
 
                 else if (boton == SDL_BUTTON_RIGHT){ //Evento click derecho del mouse
