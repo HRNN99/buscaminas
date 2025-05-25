@@ -1603,7 +1603,7 @@
 	"juego.h"
 	"estados.h"
 
-1748028847 source:c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\dibujos.c
+1748186200 source:c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\dibujos.c
 	"dibujos.h"
 
 1748028847 c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\dibujos.h
@@ -1621,7 +1621,7 @@
 
 1748028847 c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\estados.h
 
-1748033499 source:c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\main.c
+1748041748 source:c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\main.c
 	<stdio.h>
 	<stdlib.h>
 	<time.h>
