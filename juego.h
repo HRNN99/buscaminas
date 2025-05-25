@@ -22,8 +22,8 @@ bool casillaColocacion(SDL_Renderer* renderer);
 void casillaEstado(SDL_Renderer* renderer , Juego* juego , int filas , int columnas , int xGrilla , int yGrilla);
 bool casillaBandera(SDL_Renderer* renderer, int xGrilla , int yGrilla);
 
-void** matrizCrear(size_t filas, size_t columnas, size_t tamElem);
-void matrizDestruir(void** mat , size_t filas);
+Casilla** matrizCrear(size_t filas, size_t columnas, size_t tamElem);
+void matrizDestruir(Casilla** mapa , size_t filas);
 void mapaVacio(Casilla** mapa, int filas, int columnas);
 void mapaLlenar(Casilla** mapa , int filas , int columnas , int minas , int minasCord[][2]);
 

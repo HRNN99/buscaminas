@@ -1,20 +1,21 @@
 #include <stdio.h>
 #include "juego.h"
 #include "estados.h"
+#include "time.h"
 
 //Funcion destinada a crear una matriz con memoria dinamica
-void** matrizCrear(size_t filas, size_t columnas, size_t tamElem){
+Casilla** matrizCrear(size_t filas, size_t columnas, size_t tamElem){
 
-    void** mat = malloc(filas * sizeof(void*));
+    Casilla** mat = malloc(filas * sizeof(Casilla*));
     if (!mat){
 
         puts("No hay suficiente memoria para las filas.");
         return NULL;
     }
 
-    void** ult = mat + filas - 1;
+    Casilla** ult = mat + filas - 1;
 
-    for (void** i = mat ; i <= ult ; i++){
+    for (Casilla** i = mat ; i <= ult ; i++){
 
         *i = malloc(columnas * tamElem);
 
@@ -29,11 +30,11 @@ void** matrizCrear(size_t filas, size_t columnas, size_t tamElem){
 }
 
 //Funcion para liberar la memoria de la matriz creada
-void matrizDestruir(void** mat , size_t filas){
+void matrizDestruir(Casilla** mat , size_t filas){
 
-    void** ult = mat + filas - 1;
+    Casilla** ult = mat + filas - 1;
 
-    for (void** i = mat ; i <= ult ; i++){
+    for (Casilla** i = mat ; i <= ult ; i++){
         free(*i);
     }
 
