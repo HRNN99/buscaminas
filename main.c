@@ -19,7 +19,7 @@ int main(int argc, char *argv[]){
 
     int minasCord[minasEnMapa][2];
 
-    Casilla** mapa = (Casilla**)(matrizCrear(filas,columnas,sizeof(Casilla))); //Creacion de la matriz
+    Casilla** mapa = matrizCrear(filas,columnas,sizeof(Casilla)); //Creacion de la matriz
     Juego juego;
     juego.cantCasillasPresionadas = 0;
     juego.mapa = mapa;
