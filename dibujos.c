@@ -6,7 +6,7 @@ SDL_Color colores[] =
     {0,0,0,255}, //Negro
     {255,255,255,255}, //Blanco
     {203,203,203,255}, //Gris Suave
-    {143,143,143,255}, //Gris Fuerte
+    {160,160,160,255}, //Gris Fuerte
     {255,0,0,255}, //Rojo
     {40,155,47,255}, //Verde oscuro
     {0,0,255,255} //Azul

@@ -49,7 +49,7 @@ int main(int argc, char *argv[]){
     int corriendo = 1; //Variable flag true para mantener corriendo el programa
 
     fondoColor(renderer); //Funcion para establecer fondo del render color defecto
-    casillaColocacion(renderer); //Funcion para colocar todas las casillas visuales
+    casillaColocacion(renderer, filas, columnas); //Funcion para colocar todas las casillas visuales
 
     while (corriendo){ //While para mantener el programa corriendo
 
@@ -75,7 +75,7 @@ int main(int argc, char *argv[]){
 
                 if (boton == SDL_BUTTON_LEFT){ //Evento clik izquierdo del mouse
                     printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", xGrilla , yGrilla);
-                    casillaEstado(renderer , mapa , filas , columnas , xGrilla , yGrilla);
+                    casillaEstado(renderer, ventana  , mapa,minasCord,minasEnMapa , filas , columnas , xGrilla , yGrilla);
 
                 }
 

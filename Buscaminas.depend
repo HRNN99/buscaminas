@@ -821,13 +821,20 @@
 	"dibujos.h"
 	"juego.h"
 
-1747439614 source:c:\users\franc\documents\topicosdeprogramacion\buscaminas\dibujos.c
+1748295968 source:c:\users\franc\documents\topicosdeprogramacion\buscaminas\dibujos.c
 	"dibujos.h"
 
-1747439642 c:\users\franc\documents\topicosdeprogramacion\buscaminas\dibujos.h
+1748288810 c:\users\franc\documents\topicosdeprogramacion\buscaminas\dibujos.h
 	<SDL2/SDL.h>
+	<stdio.h>
+	<stdbool.h>
 
-1747439740 source:c:\users\franc\documents\topicosdeprogramacion\buscaminas\main.c
+1748298483 source:c:\users\franc\documents\topicosdeprogramacion\buscaminas\main.c
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	"dibujos.h"
+	"juego.h"
 
 1747527685 caminas-logica
 	<stdio.h>
@@ -1602,4 +1609,14 @@
 	<stdio.h>
 	"juego.h"
 	"estados.h"
+
+1748295437 source:c:\users\franc\documents\topicosdeprogramacion\buscaminas\juego.c
+	<stdio.h>
+	"juego.h"
+	"estados.h"
+
+1748298434 c:\users\franc\documents\topicosdeprogramacion\buscaminas\juego.h
+	"dibujos.h"
+
+1748295651 c:\users\franc\documents\topicosdeprogramacion\buscaminas\estados.h
 

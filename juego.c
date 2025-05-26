@@ -104,16 +104,16 @@ void fondoColor(SDL_Renderer* renderer){
 }
 
 //Funcion que coloca todas las casillas sin valor
-bool casillaColocacion(SDL_Renderer* renderer){
+bool casillaColocacion(SDL_Renderer* renderer, int fil, int col){
     int offsetX = 0; // Variable para coordenada X
     int offsetY = 0; // Variable para ccoordenada Y
 
     int x,y = 0;
-    while(y < TAM_GRILLA){
+    while(y < fil){
         x=0;
-        while(x < TAM_GRILLA){
-            offsetX = x % TAM_GRILLA;
-            offsetY = y % TAM_GRILLA;
+        while(x < col){
+            offsetX = x % col;
+            offsetY = y % fil;
             dibujar(renderer, square1, offsetX, offsetY);
             x++;
         }
@@ -124,8 +124,12 @@ bool casillaColocacion(SDL_Renderer* renderer){
 }
 
 //Funcion que coloca estados en las casillas
-void casillaEstado(SDL_Renderer* renderer , Casilla** mapa , int filas , int columnas , int xGrilla , int yGrilla){
+void casillaEstado(SDL_Renderer* renderer, SDL_Window* window , Casilla** mapa,int minasCord[][2],int minas, int filas , int columnas , int xGrilla , int yGrilla){
 
+
+
+    int x = 0;
+    int y = 0;
     if(xGrilla < 0 || xGrilla >= columnas || yGrilla < 0 || yGrilla >= filas){
         return;
     }
@@ -133,23 +137,29 @@ void casillaEstado(SDL_Renderer* renderer , Casilla** mapa , int filas , int col
     if(!mapa[yGrilla][xGrilla].presionada){
 
         mapa[yGrilla][xGrilla].presionada = true;
+        if(mapa[yGrilla][xGrilla].estado == -1){
+            for(int i = 0; i<minas; i++)
+            {
+                x = minasCord[i][0];
+                y = minasCord[i][1];
+              dibujar(renderer , eleccion(mapa[yGrilla][xGrilla].estado) , x , y);
+            }
 
-        if(mapa[yGrilla][xGrilla].estado != 0){
+        }else if(mapa[yGrilla][xGrilla].estado != 0){
             dibujar(renderer , eleccion(mapa[yGrilla][xGrilla].estado) , xGrilla , yGrilla);
             return;
         }
 
         dibujar(renderer , square2 , xGrilla , yGrilla);
 
-        casillaEstado(renderer , mapa , filas , columnas , xGrilla , yGrilla-1);
-        casillaEstado(renderer , mapa , filas , columnas , xGrilla-1 , yGrilla);
-        casillaEstado(renderer , mapa , filas , columnas , xGrilla+1 , yGrilla);
-        casillaEstado(renderer , mapa , filas , columnas , xGrilla , yGrilla+1);
+        for(int i = -1; i<2; i++)
+        {
+            for(int j = -1; j<2; j++)
+            {
+                casillaEstado(renderer, window , mapa, minasCord, minas , filas , columnas , xGrilla + i, yGrilla + j);
+            }
+        }
 
-        casillaEstado(renderer , mapa , filas , columnas , xGrilla-1 , yGrilla-1);
-        casillaEstado(renderer , mapa , filas , columnas , xGrilla+1 , yGrilla-1);
-        casillaEstado(renderer , mapa , filas , columnas , xGrilla-1 , yGrilla+1);
-        casillaEstado(renderer , mapa , filas , columnas , xGrilla+1 , yGrilla+1);
     }
 }
 

@@ -13,8 +13,8 @@ typedef struct{
 
 //Prototipos
 void fondoColor(SDL_Renderer* renderer);
-bool casillaColocacion(SDL_Renderer* renderer);
-void casillaEstado(SDL_Renderer* renderer , Casilla** mapa , int filas , int columnas , int xGrilla , int yGrilla);
+bool casillaColocacion(SDL_Renderer* renderer, int fil, int col);
+void casillaEstado(SDL_Renderer* renderer, SDL_Window* window , Casilla** mapa,int minasCord[][2],int minas , int filas , int columnas , int xGrilla , int yGrilla);
 bool casillaBandera(SDL_Renderer* renderer, int xGrilla , int yGrilla);
 
 void** matrizCrear(size_t filas, size_t columnas, size_t tamElem);
