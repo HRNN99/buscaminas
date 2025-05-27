@@ -90,7 +90,6 @@ int main(int argc, char *argv[])
             char textoPuntaje[21] = "Puntaje: ";
             char puntajeChar[12];
             strcat(textoPuntaje, itoa(puntajePartida, puntajeChar, 10)); //Armado de String a imprimir
-            printf("%s", textoPuntaje);
             renderizarTexto(font, textoPuntaje, &blanco, rendererGanado, 50, 50);
             renderizarTexto(font, "Ingrese su nombre:", &blanco, rendererGanado, 50, 100);
             renderizarTexto(font, nombreJugador, &blanco, rendererGanado, 50, 120);
@@ -167,20 +166,7 @@ int main(int argc, char *argv[])
                     nombreJugador[strlen(nombreJugador) - 1] = '\0';
                     renderizarGanado = 1;
                 }
-                // Guardado de puntaje al presionar Enter
-//                if (e.key.keysym.sym == SDLK_RETURN && strlen(nombreJugador) > 0)
-//                {
-//                    FILE* aPuntuacion = fopen("puntuacion.txt", "w+r");
-//                    if(!aPuntuacion)
-//                    {
-//                        puts("Error al abrir el archivo puntuacion.txt");
-//                        return 1;
-//                    }
-//                    Jugador jugador;
-//                    jugador.nombre = nombreJugador;
-//                    jugador.puntaje = puntajePartida;
-//                    fclose(aPuntuacion);
-//                }
+
                 break;
             }
         }
