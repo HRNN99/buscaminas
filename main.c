@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
         printf("Error cargando fuente: %s\n", TTF_GetError());
         return 1;
     }
-    char inputText[100] = ""; // Tiene que estar con un espacio porque si no rompe al renderizar una cadena vacia
+    char nombreJugador[100];
     SDL_StartTextInput();
 
     char nombreVentana[100];
@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
     fondoColor(renderer);        // Funcion para establecer fondo del render color defecto
     casillaColocacion(renderer); // Funcion para colocar todas las casillas visuales
 
-    int boton, xGrilla, yGrilla, renderizarGanado = 0;
+    int boton, xGrilla, yGrilla, renderizarGanado = 0, puntajePartida = 0;
     while (corriendo)
     { // While para mantener el programa corriendo
 
@@ -87,15 +87,19 @@ int main(int argc, char *argv[])
             SDL_RenderClear(rendererGanado);
             // Renderizar "Puntaje" y "Nombre:"
             SDL_Color blanco = {255, 255, 255, 255};
-            renderizarTexto(font, "Puntaje: 200", &blanco, rendererGanado, 50, 50);
+            char textoPuntaje[21] = "Puntaje: ";
+            char puntajeChar[12];
+            strcat(textoPuntaje, itoa(puntajePartida, puntajeChar, 10)); //Armado de String a imprimir
+            printf("%s", textoPuntaje);
+            renderizarTexto(font, textoPuntaje, &blanco, rendererGanado, 50, 50);
             renderizarTexto(font, "Ingrese su nombre:", &blanco, rendererGanado, 50, 100);
-            renderizarTexto(font, inputText, &blanco, rendererGanado, 50, 120);
+            renderizarTexto(font, nombreJugador, &blanco, rendererGanado, 50, 120);
 
             // Mostrar todo
             SDL_RenderPresent(rendererGanado);
             renderizarGanado = 0;
         }
-        
+
         if (SDL_PollEvent(&e))
         { // Registrando eventos
 
@@ -131,6 +135,7 @@ int main(int argc, char *argv[])
                     {
                         puts("Ganaste el juego!");
                         renderizarGanado = 1;
+                        *nombreJugador = '\0'; // Limpieza por si se presionaron teclas al jugar
                         // Funcion para crear ventana con posicion especifica, dimension y banderas.
                         ventanaGanado = SDL_CreateWindow("Ganaste!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, TAMX - 100, TAMY - 100, 2);
                         // Funcion para crear el renderizado en ventana acelerado por hardware
@@ -148,18 +153,34 @@ int main(int argc, char *argv[])
                 printf("Presionadas: %d\n", juego.cantCasillasPresionadas);
                 break;
             case SDL_TEXTINPUT:
-                if (strlen(inputText) + strlen(e.text.text) < 100)
+                // Actualizacion de nombreJugador al presionar una tecla
+                if (strlen(nombreJugador) + strlen(e.text.text) < 100)
                 {
-                    strcat(inputText, e.text.text);
+                    strcat(nombreJugador, e.text.text);
                     renderizarGanado = 1;
                 }
                 break;
             case SDL_KEYDOWN:
-                if (e.key.keysym.sym == SDLK_BACKSPACE && strlen(inputText) > 0)
+                // Borrado de letra al presionar borrar
+                if (e.key.keysym.sym == SDLK_BACKSPACE && strlen(nombreJugador) > 0)
                 {
-                    inputText[strlen(inputText) - 1] = '\0';
+                    nombreJugador[strlen(nombreJugador) - 1] = '\0';
                     renderizarGanado = 1;
                 }
+                // Guardado de puntaje al presionar Enter
+//                if (e.key.keysym.sym == SDLK_RETURN && strlen(nombreJugador) > 0)
+//                {
+//                    FILE* aPuntuacion = fopen("puntuacion.txt", "w+r");
+//                    if(!aPuntuacion)
+//                    {
+//                        puts("Error al abrir el archivo puntuacion.txt");
+//                        return 1;
+//                    }
+//                    Jugador jugador;
+//                    jugador.nombre = nombreJugador;
+//                    jugador.puntaje = puntajePartida;
+//                    fclose(aPuntuacion);
+//                }
                 break;
             }
         }
