@@ -83,16 +83,6 @@ int main(int argc, char *argv[])
 
         if (renderizarGanado)
         {
-            // Funcion para crear ventana con posicion especifica, dimension y banderas.
-            ventanaGanado = SDL_CreateWindow("Ganaste!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, TAMX - 100, TAMY - 100, 2);
-            // Funcion para crear el renderizado en ventana acelerado por hardware
-            rendererGanado = SDL_CreateRenderer(ventanaGanado, -1, SDL_RENDERER_ACCELERATED);
-            // Funcion para establecer el modo de mezcla de colores para el renderizado, el modo blend nos permite utilizar transparencia
-            SDL_SetRenderDrawBlendMode(rendererGanado, SDL_BLENDMODE_BLEND);
-
-            // Limpia pantalla
-            SDL_SetRenderDrawColor(rendererGanado, 0, 0, 0, 255); // negro
-            SDL_RenderClear(rendererGanado);
 
             // Renderizar "Puntaje" y "Nombre:"
             SDL_Color blanco = {255, 255, 255, 255};
@@ -153,11 +143,21 @@ int main(int argc, char *argv[])
                 { // Evento clik izquierdo del mouse
                     printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", xGrilla, yGrilla);
                     casillaEstado(renderer, &juego, filas, columnas, xGrilla, yGrilla);
-                    if(juego.cantCasillasPresionadas == (filas*columnas)-minasEnMapa)
-                    //if (1)
+                    if (juego.cantCasillasPresionadas == (filas * columnas) - minasEnMapa)
+                    // if (1)
                     {
                         puts("Ganaste el juego!");
                         renderizarGanado = 1;
+                        // Funcion para crear ventana con posicion especifica, dimension y banderas.
+                        ventanaGanado = SDL_CreateWindow("Ganaste!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, TAMX - 100, TAMY - 100, 2);
+                        // Funcion para crear el renderizado en ventana acelerado por hardware
+                        rendererGanado = SDL_CreateRenderer(ventanaGanado, -1, SDL_RENDERER_ACCELERATED);
+                        // Funcion para establecer el modo de mezcla de colores para el renderizado, el modo blend nos permite utilizar transparencia
+                        SDL_SetRenderDrawBlendMode(rendererGanado, SDL_BLENDMODE_BLEND);
+
+                        // Limpia pantalla
+                        SDL_SetRenderDrawColor(rendererGanado, 0, 0, 0, 255); // negro
+                        SDL_RenderClear(rendererGanado);
                     }
                 }
 
