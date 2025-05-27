@@ -1617,12 +1617,12 @@
 	"estados.h"
 	"time.h"
 
-1748374354 c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\juego.h
+1748382649 c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\juego.h
 	"dibujos.h"
 
 1748028847 c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\estados.h
 
-1748382145 source:c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\main.c
+1748382681 source:c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\main.c
 	<stdio.h>
 	<stdlib.h>
 	<time.h>
