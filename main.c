@@ -6,18 +6,17 @@
 #include "dibujos.h" //Header de estados
 #include "juego.h"
 
+int renderizarTexto(TTF_Font *font, const char *texto, SDL_Color *color, SDL_Renderer *render, int x, int y);
+
 int main(int argc, char *argv[])
 {
-
-    //    char *text;
-    //    char *composition;
-    //    Sint32 cursor;
-    //    Sint32 selection_len;
-
-    int filas = 10, columnas = 10, minasEnMapa = 2;
-    //    printf("ingrese la cantidad de filas: "); scanf("%d", &filas);
-    //    printf("ingrese la cantidad de columnas: "); scanf("%d", &columnas);
-    //    printf("ingrese la cantidad de minas: "); scanf("%d", &minasEnMapa);
+    int filas = 0, columnas = 0, minasEnMapa = 0;
+    printf("ingrese la cantidad de filas: ");
+    scanf("%d", &filas);
+    printf("ingrese la cantidad de columnas: ");
+    scanf("%d", &columnas);
+    printf("ingrese la cantidad de minas: ");
+    scanf("%d", &minasEnMapa);
 
     int minasCord[minasEnMapa][2];
 
@@ -30,6 +29,7 @@ int main(int argc, char *argv[])
 
     // Iniciar SDL con funcion Video
     SDL_Init(SDL_INIT_VIDEO);
+
     // Inicio TTF y busco la fuente. Si no la encuentra imprime un error
     TTF_Init();
     TTF_Font *font = TTF_OpenFont("C:/Windows/Fonts/arial.ttf", 24);
@@ -38,8 +38,9 @@ int main(int argc, char *argv[])
         printf("Error cargando fuente: %s\n", TTF_GetError());
         return 1;
     }
-    char inputText[100] = " "; // Tiene que estar con un espacio porque si no rompe al renderizar una cadena vacia
+    char inputText[100] = ""; // Tiene que estar con un espacio porque si no rompe al renderizar una cadena vacia
     SDL_StartTextInput();
+
     char nombreVentana[100];
     // String formateado para el titulo de ventana
     sprintf(nombreVentana, "Buscaminas %ix%i", filas, columnas);
@@ -58,10 +59,8 @@ int main(int argc, char *argv[])
     // TEST ONLY //Impresion de matriz
     for (size_t i = 0; i < filas; i++)
     {
-
         for (size_t j = 0; j < columnas; j++)
         {
-
             printf("%3d ", juego.mapa[i][j].estado);
         }
         printf("\n\n");
@@ -83,35 +82,20 @@ int main(int argc, char *argv[])
 
         if (renderizarGanado)
         {
-
+            // Limpia pantalla
+            SDL_SetRenderDrawColor(rendererGanado, 0, 0, 0, 255); // negro
+            SDL_RenderClear(rendererGanado);
             // Renderizar "Puntaje" y "Nombre:"
             SDL_Color blanco = {255, 255, 255, 255};
-            SDL_Surface *textSurface = TTF_RenderText_Solid(font, "Puntaje: 200", blanco);
-            SDL_Texture *textTexture = SDL_CreateTextureFromSurface(rendererGanado, textSurface);
-            SDL_Rect textRect = {50, 50, textSurface->w, textSurface->h};
-            SDL_RenderCopy(rendererGanado, textTexture, NULL, &textRect);
-            SDL_FreeSurface(textSurface);
-            SDL_DestroyTexture(textTexture);
-
-            textSurface = TTF_RenderText_Solid(font, "Ingrese su nombre:", blanco);
-            textTexture = SDL_CreateTextureFromSurface(rendererGanado, textSurface);
-            SDL_Rect textRect2 = {50, 100, textSurface->w, textSurface->h};
-            SDL_RenderCopy(rendererGanado, textTexture, NULL, &textRect2);
-            SDL_FreeSurface(textSurface);
-            SDL_DestroyTexture(textTexture);
-
-            // Renderizar entrada del usuario
-            SDL_Surface *inputSurface = TTF_RenderText_Solid(font, inputText, blanco);
-            SDL_Texture *inputTexture = SDL_CreateTextureFromSurface(rendererGanado, inputSurface);
-            SDL_Rect inputRect = {50, 60, inputSurface->w, inputSurface->h};
-            SDL_RenderCopy(rendererGanado, inputTexture, NULL, &inputRect);
-            SDL_FreeSurface(inputSurface);
-            SDL_DestroyTexture(inputTexture);
+            renderizarTexto(font, "Puntaje: 200", &blanco, rendererGanado, 50, 50);
+            renderizarTexto(font, "Ingrese su nombre:", &blanco, rendererGanado, 50, 100);
+            renderizarTexto(font, inputText, &blanco, rendererGanado, 50, 120);
 
             // Mostrar todo
             SDL_RenderPresent(rendererGanado);
             renderizarGanado = 0;
         }
+        
         if (SDL_PollEvent(&e))
         { // Registrando eventos
 
@@ -144,7 +128,6 @@ int main(int argc, char *argv[])
                     printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", xGrilla, yGrilla);
                     casillaEstado(renderer, &juego, filas, columnas, xGrilla, yGrilla);
                     if (juego.cantCasillasPresionadas == (filas * columnas) - minasEnMapa)
-                    // if (1)
                     {
                         puts("Ganaste el juego!");
                         renderizarGanado = 1;
@@ -154,10 +137,6 @@ int main(int argc, char *argv[])
                         rendererGanado = SDL_CreateRenderer(ventanaGanado, -1, SDL_RENDERER_ACCELERATED);
                         // Funcion para establecer el modo de mezcla de colores para el renderizado, el modo blend nos permite utilizar transparencia
                         SDL_SetRenderDrawBlendMode(rendererGanado, SDL_BLENDMODE_BLEND);
-
-                        // Limpia pantalla
-                        SDL_SetRenderDrawColor(rendererGanado, 0, 0, 0, 255); // negro
-                        SDL_RenderClear(rendererGanado);
                     }
                 }
 
@@ -188,4 +167,17 @@ int main(int argc, char *argv[])
         SDL_Delay(16); // (60 fps) Esta pausa es para evitar que el procesador se ponga al 100% renderizando constantemente.
     }
     return 0;
+}
+
+int renderizarTexto(TTF_Font *font, const char *texto, SDL_Color *color, SDL_Renderer *render, int x, int y)
+{
+    if(!strlen(texto) > 0){ //Evita el renderizado con cero caracteres
+        return 1;
+    }
+    SDL_Surface *textSurface = TTF_RenderText_Solid(font, texto, *color);
+    SDL_Texture *textTexture = SDL_CreateTextureFromSurface(render, textSurface);
+    SDL_Rect textRect = {x, y, textSurface->w, textSurface->h};
+    SDL_RenderCopy(render, textTexture, NULL, &textRect);
+    SDL_FreeSurface(textSurface);
+    SDL_DestroyTexture(textTexture);
 }
