@@ -1606,7 +1606,7 @@
 1748216242 source:c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\dibujos.c
 	"dibujos.h"
 
-1748216185 c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\dibujos.h
+1748355740 c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\dibujos.h
 	<SDL2/SDL.h>
 	<stdio.h>
 	<stdbool.h>
@@ -1622,10 +1622,11 @@
 
 1748028847 c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\estados.h
 
-1748216508 source:c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\main.c
+1748356630 source:c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\main.c
 	<stdio.h>
 	<stdlib.h>
 	<time.h>
+	<SDL2/SDL_ttf.h>
 	"dibujos.h"
 	"juego.h"
 
@@ -2004,6 +2005,53 @@
 
 1746569596 c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\sdl2-2.0.22\x86_64-w64-mingw32\include\sdl2\sdl_misc.h
 	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1748353436 c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\sdl2_ttf-2.22.0\x86_64-w64-mingw32\include\sdl2\sdl_ttf.h
+	"SDL.h"
+	"begin_code.h"
+	"close_code.h"
+
+1746569600 c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\sdl2_ttf-2.22.0\x86_64-w64-mingw32\include\sdl2\sdl.h
+	"SDL_main.h"
+	"SDL_stdinc.h"
+	"SDL_assert.h"
+	"SDL_atomic.h"
+	"SDL_audio.h"
+	"SDL_clipboard.h"
+	"SDL_cpuinfo.h"
+	"SDL_endian.h"
+	"SDL_error.h"
+	"SDL_events.h"
+	"SDL_filesystem.h"
+	"SDL_gamecontroller.h"
+	"SDL_haptic.h"
+	"SDL_hidapi.h"
+	"SDL_hints.h"
+	"SDL_joystick.h"
+	"SDL_loadso.h"
+	"SDL_log.h"
+	"SDL_messagebox.h"
+	"SDL_metal.h"
+	"SDL_mutex.h"
+	"SDL_power.h"
+	"SDL_render.h"
+	"SDL_rwops.h"
+	"SDL_sensor.h"
+	"SDL_shape.h"
+	"SDL_system.h"
+	"SDL_thread.h"
+	"SDL_timer.h"
+	"SDL_version.h"
+	"SDL_video.h"
+	"SDL_locale.h"
+	"SDL_misc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1748353436 c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\sdl2-2.0.22\x86_64-w64-mingw32\include\sdl2\sdl_ttf.h
+	"SDL.h"
 	"begin_code.h"
 	"close_code.h"
 
