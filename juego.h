@@ -16,6 +16,10 @@ typedef struct{
     Casilla** mapa;
 } Juego;
 
+typedef struct {
+    char nombre[50];
+    int puntaje;
+} Jugador;
 //Prototipos
 void fondoColor(SDL_Renderer* renderer);
 bool casillaColocacion(SDL_Renderer* renderer);

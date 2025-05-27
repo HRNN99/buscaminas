@@ -166,7 +166,22 @@ int main(int argc, char *argv[])
                     nombreJugador[strlen(nombreJugador) - 1] = '\0';
                     renderizarGanado = 1;
                 }
-
+                // Guardado de puntaje al presionar Enter
+               if (e.key.keysym.sym == SDLK_RETURN && strlen(nombreJugador) > 0)
+               {
+                   FILE* aPuntuacion = fopen("puntuacion.txt", "a");
+                   if(!aPuntuacion)
+                   {
+                       puts("Error al abrir el archivo puntuacion.txt");
+                       return 1;
+                   }
+                   Jugador jugador;
+                   strcpy(jugador.nombre, nombreJugador);
+                   jugador.puntaje = puntajePartida;
+                   fprintf(aPuntuacion, "%05d | %s\n", jugador.puntaje, jugador.nombre);
+                   fclose(aPuntuacion);
+                   renderizarGanado = 0;
+               }
                 break;
             }
         }
