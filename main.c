@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <SDL2/SDL_ttf.h>
 
 #include "dibujos.h" //Header de estados
 #include "juego.h"
@@ -12,10 +13,10 @@ int main(int argc, char *argv[]){
 //    Sint32 cursor;
 //    Sint32 selection_len;
 
-    int filas = 0, columnas = 0, minasEnMapa = 0;
-    printf("ingrese la cantidad de filas: "); scanf("%d", &filas);
-    printf("ingrese la cantidad de columnas: "); scanf("%d", &columnas);
-    printf("ingrese la cantidad de minas: "); scanf("%d", &minasEnMapa);
+    int filas = 10, columnas = 10, minasEnMapa = 2;
+//    printf("ingrese la cantidad de filas: "); scanf("%d", &filas);
+//    printf("ingrese la cantidad de columnas: "); scanf("%d", &columnas);
+//    printf("ingrese la cantidad de minas: "); scanf("%d", &minasEnMapa);
 
     int minasCord[minasEnMapa][2];
 
@@ -28,6 +29,15 @@ int main(int argc, char *argv[]){
 
     //Iniciar SDL con funcion Video
     SDL_Init(SDL_INIT_VIDEO);
+    // Inicio TTF y busco la fuente. Si no la encuentra imprime un error
+    TTF_Init();
+    TTF_Font* font = TTF_OpenFont("C:/Windows/Fonts/arial.ttf", 24);
+    if (!font) {
+        printf("Error cargando fuente: %s\n", TTF_GetError());
+        return 1;
+    }
+    char inputText[100] = "";
+    SDL_StartTextInput();
     char nombreVentana[100];
     //String formateado para el titulo de ventana
     sprintf(nombreVentana, "Buscaminas %ix%i", filas , columnas);
@@ -59,7 +69,7 @@ int main(int argc, char *argv[]){
     fondoColor(renderer); //Funcion para establecer fondo del render color defecto
     casillaColocacion(renderer); //Funcion para colocar todas las casillas visuales
 
-    int boton,xGrilla,yGrilla;
+    int boton,xGrilla,yGrilla, renderizar = 0;
     while (corriendo){ //While para mantener el programa corriendo
 
         SDL_RenderPresent(renderer);
@@ -92,17 +102,51 @@ int main(int argc, char *argv[]){
                     if (boton == SDL_BUTTON_LEFT){ //Evento clik izquierdo del mouse
                         printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", xGrilla , yGrilla);
                         casillaEstado(renderer , &juego , filas , columnas , xGrilla , yGrilla);
-                        if(juego.cantCasillasPresionadas == (filas*columnas)-minasEnMapa){
+//                        if(juego.cantCasillasPresionadas == (filas*columnas)-minasEnMapa){
+                                                        if(1){
+
                             puts("Ganaste el juego!");
+                            renderizar = 1;
                             //Funcion para crear ventana con posicion especifica, dimension y banderas.
                             ventanaGanado = SDL_CreateWindow("Ganaste!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, TAMX-100, TAMY-100, 2);
                             //Funcion para crear el renderizado en ventana acelerado por hardware
                             rendererGanado = SDL_CreateRenderer(ventanaGanado, -1, SDL_RENDERER_ACCELERATED);
                             //Funcion para establecer el modo de mezcla de colores para el renderizado, el modo blend nos permite utilizar transparencia
                             SDL_SetRenderDrawBlendMode(rendererGanado, SDL_BLENDMODE_BLEND);
-                            SDL_SetRenderDrawColor(rendererGanado, 255,255,255,255); //color
-                            SDL_RenderClear(rendererGanado); //limpieza
-                            SDL_RenderPresent(rendererGanado); //Aplicacion
+                            //SDL_SetRenderDrawColor(rendererGanado, 255,255,255,255); //color
+                            //SDL_RenderClear(rendererGanado); //limpieza
+                            //SDL_RenderPresent(rendererGanado); //Aplicacion
+
+                            // Limpia pantalla
+                            SDL_SetRenderDrawColor(rendererGanado, 0, 0, 0, 255); // negro
+                            SDL_RenderClear(rendererGanado);
+
+                            // Renderizar "Puntaje" y "Nombre:"
+                            SDL_Color blanco = {255, 255, 255, 255};
+                            SDL_Surface* textSurface = TTF_RenderText_Solid(font, "Puntaje: 200", blanco);
+                            SDL_Texture* textTexture = SDL_CreateTextureFromSurface(rendererGanado, textSurface);
+                            SDL_Rect textRect = {50, 50, textSurface->w, textSurface->h};
+                            SDL_RenderCopy(rendererGanado, textTexture, NULL, &textRect);
+                            SDL_FreeSurface(textSurface);
+                            SDL_DestroyTexture(textTexture);
+
+                            textSurface = TTF_RenderText_Solid(font, "Ingrese su nombre:", blanco);
+                            textTexture = SDL_CreateTextureFromSurface(rendererGanado, textSurface);
+                            SDL_Rect textRect2 = {50, 100, textSurface->w, textSurface->h};
+                            SDL_RenderCopy(rendererGanado, textTexture, NULL, &textRect2);
+                            SDL_FreeSurface(textSurface);
+                            SDL_DestroyTexture(textTexture);
+
+                            // Renderizar entrada del usuario
+                            // SDL_Surface* inputSurface = TTF_RenderText_Solid(font, inputText, blanco);
+                            // SDL_Texture* inputTexture = SDL_CreateTextureFromSurface(rendererGanado, inputSurface);
+                            // SDL_Rect inputRect = {200, 50, inputSurface->w, inputSurface->h};
+                            // SDL_RenderCopy(rendererGanado, inputTexture, NULL, &inputRect);
+                            // SDL_FreeSurface(inputSurface);
+                            // SDL_DestroyTexture(inputTexture);
+
+                            // Mostrar todo
+                            SDL_RenderPresent(rendererGanado);
                         }
                     }
 
@@ -112,21 +156,18 @@ int main(int argc, char *argv[]){
                     }
                     printf("Presionadas: %d\n", juego.cantCasillasPresionadas);
                     break;
-//                case SDL_TEXTINPUT:
-//                    /* Add new text onto the end of our text */
-//                    strcat(text, e.text.text);
-//                    break;
-//                case SDL_TEXTEDITING:
-//                    /*
-//                    Update the composition text.
-//                    Update the cursor position.
-//                    Update the selection length (if any).
-//                    */
-//                    composition = e.edit.text;
-//                    cursor = e.edit.start;
-//                    selection_len = e.edit.length;
-//                    break;
+                case SDL_TEXTINPUT:
+                    if (strlen(inputText) + strlen(e.text.text) < 100) {
+                        strcat(inputText, e.text.text);
+                    }
+                    break;
+                case SDL_KEYDOWN:
+                    if (e.key.keysym.sym == SDLK_BACKSPACE && strlen(inputText) > 0) {
+                        inputText[strlen(inputText) - 1] = '\0';
+                    }
+                    break;
             }
+
         }
 
         SDL_Delay(16); // (60 fps) Esta pausa es para evitar que el procesador se ponga al 100% renderizando constantemente.
