@@ -1,20 +1,21 @@
 #include <stdio.h>
 #include "juego.h"
 #include "estados.h"
+#include "time.h"
 
 //Funcion destinada a crear una matriz con memoria dinamica
-void** matrizCrear(size_t filas, size_t columnas, size_t tamElem){
+Casilla** matrizCrear(size_t filas, size_t columnas, size_t tamElem){
 
-    void** mat = malloc(filas * sizeof(void*));
+    Casilla** mat = malloc(filas * sizeof(Casilla*));
     if (!mat){
 
         puts("No hay suficiente memoria para las filas.");
         return NULL;
     }
 
-    void** ult = mat + filas - 1;
+    Casilla** ult = mat + filas - 1;
 
-    for (void** i = mat ; i <= ult ; i++){
+    for (Casilla** i = mat ; i <= ult ; i++){
 
         *i = malloc(columnas * tamElem);
 
@@ -29,11 +30,11 @@ void** matrizCrear(size_t filas, size_t columnas, size_t tamElem){
 }
 
 //Funcion para liberar la memoria de la matriz creada
-void matrizDestruir(void** mat , size_t filas){
+void matrizDestruir(Casilla** mat , size_t filas){
 
-    void** ult = mat + filas - 1;
+    Casilla** ult = mat + filas - 1;
 
-    for (void** i = mat ; i <= ult ; i++){
+    for (Casilla** i = mat ; i <= ult ; i++){
         free(*i);
     }
 
@@ -53,7 +54,7 @@ void mapaVacio(Casilla** mapa , int filas, int columnas){
     }
 }
 
-//Funcion que llena el mapa de juego con minas y aledaños
+//Funcion que llena el mapa de juego con minas y aledaï¿½os
 void mapaLlenar(Casilla** mapa , int filas , int columnas , int minas , int minasCord[][2]){
 
     int x , y , m=0 ;
@@ -104,16 +105,16 @@ void fondoColor(SDL_Renderer* renderer){
 }
 
 //Funcion que coloca todas las casillas sin valor
-bool casillaColocacion(SDL_Renderer* renderer){
+bool casillaColocacion(SDL_Renderer* renderer, int fil, int col){
     int offsetX = 0; // Variable para coordenada X
     int offsetY = 0; // Variable para ccoordenada Y
 
     int x,y = 0;
-    while(y < TAM_GRILLA){
+    while(y < fil){
         x=0;
-        while(x < TAM_GRILLA){
-            offsetX = x % TAM_GRILLA;
-            offsetY = y % TAM_GRILLA;
+        while(x < col){
+            offsetX = x % col;
+            offsetY = y % fil;
             dibujar(renderer, square1, offsetX, offsetY);
             x++;
         }
@@ -124,8 +125,12 @@ bool casillaColocacion(SDL_Renderer* renderer){
 }
 
 //Funcion que coloca estados en las casillas
-void casillaEstado(SDL_Renderer* renderer , Casilla** mapa , int filas , int columnas , int xGrilla , int yGrilla){
+void casillaEstado(SDL_Renderer* renderer , SDL_Window* window, Juego* juego, int minasCord[][2],int minas, int filas , int columnas , int xGrilla , int yGrilla){
 
+    Casilla** mapa = juego->mapa;
+
+    int x = 0;
+    int y = 0;
     if(xGrilla < 0 || xGrilla >= columnas || yGrilla < 0 || yGrilla >= filas){
         return;
     }
@@ -133,23 +138,31 @@ void casillaEstado(SDL_Renderer* renderer , Casilla** mapa , int filas , int col
     if(!mapa[yGrilla][xGrilla].presionada){
 
         mapa[yGrilla][xGrilla].presionada = true;
+        juego->cantCasillasPresionadas +=1;
+        //Se podria optimizar haciendo que square2 sea por ejemplo -2 en el mapa?
+        if(mapa[yGrilla][xGrilla].estado == -1){
+            for(int i = 0; i<minas; i++)
+            {
+                x = minasCord[i][0];
+                y = minasCord[i][1];
+              dibujar(renderer , eleccion(mapa[yGrilla][xGrilla].estado) , x , y);
+            }
 
-        if(mapa[yGrilla][xGrilla].estado != 0){
+        }else if(mapa[yGrilla][xGrilla].estado != 0){
             dibujar(renderer , eleccion(mapa[yGrilla][xGrilla].estado) , xGrilla , yGrilla);
             return;
         }
 
         dibujar(renderer , square2 , xGrilla , yGrilla);
 
-        casillaEstado(renderer , mapa , filas , columnas , xGrilla , yGrilla-1);
-        casillaEstado(renderer , mapa , filas , columnas , xGrilla-1 , yGrilla);
-        casillaEstado(renderer , mapa , filas , columnas , xGrilla+1 , yGrilla);
-        casillaEstado(renderer , mapa , filas , columnas , xGrilla , yGrilla+1);
+        for(int i = -1; i<2; i++)
+        {
+            for(int j = -1; j<2; j++)
+            {
+                casillaEstado(renderer, window , juego, minasCord, minas , filas , columnas , xGrilla + i, yGrilla + j);
+            }
+        }
 
-        casillaEstado(renderer , mapa , filas , columnas , xGrilla-1 , yGrilla-1);
-        casillaEstado(renderer , mapa , filas , columnas , xGrilla+1 , yGrilla-1);
-        casillaEstado(renderer , mapa , filas , columnas , xGrilla-1 , yGrilla+1);
-        casillaEstado(renderer , mapa , filas , columnas , xGrilla+1 , yGrilla+1);
     }
 }
 
