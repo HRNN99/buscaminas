@@ -1,30 +1,30 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
+#include <math.h>
 #include <SDL2/SDL_ttf.h>
 
 #include "dibujos.h" //Header de estados
 #include "juego.h"
 
 int renderizarTexto(TTF_Font *font, const char *texto, SDL_Color *color, SDL_Renderer *render, int x, int y);
+int leerConfiguracion(int*, int*,int*, char*);
 
 int main(int argc, char *argv[])
 {
     int filas = 0, columnas = 0, minasEnMapa = 0;
-    printf("ingrese la cantidad de filas: ");
-    scanf("%d", &filas);
-    printf("ingrese la cantidad de columnas: ");
-    scanf("%d", &columnas);
-    printf("ingrese la cantidad de minas: ");
-    scanf("%d", &minasEnMapa);
-
-    int minasCord[minasEnMapa][2];
+    char rutaFuente[100];
+    // Lectura del archivo de configuarcion
+    leerConfiguracion(&filas, &columnas, &minasEnMapa, rutaFuente);
 
     Casilla **mapa = matrizCrear(filas, columnas, sizeof(Casilla)); // Creacion de la matriz
     Juego juego;
     juego.cantCasillasPresionadas = 0;
     juego.mapa = mapa;
     mapaVacio(juego.mapa, filas, columnas);                          // Se establecen los valores defecto de la matriz
+
+    int minasCord[minasEnMapa][2]; // Guardado de posicion de las minas en una matriz aparte
     mapaLlenar(juego.mapa, filas, columnas, minasEnMapa, minasCord); //
 
     // Iniciar SDL con funcion Video
@@ -32,11 +32,11 @@ int main(int argc, char *argv[])
 
     // Inicio TTF y busco la fuente. Si no la encuentra imprime un error
     TTF_Init();
-    TTF_Font *font = TTF_OpenFont("C:/Windows/Fonts/arial.ttf", 24);
+    TTF_Font *font = TTF_OpenFont(rutaFuente, 24);
     if (!font)
     {
         printf("Error cargando fuente: %s\n", TTF_GetError());
-        return 1;
+        return ERROR_FUENTE;
     }
     char nombreJugador[100];
     SDL_StartTextInput();
@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
                     if(!aPuntuacion)
                     {
                         puts("Error al abrir el archivo puntuacion.txt");
-                        return 1;
+                        return ERROR_ARCHIVO;
                     }
                     Jugador jugador;
                     strcpy(jugador.nombre, nombreJugador);
@@ -189,7 +189,7 @@ int main(int argc, char *argv[])
 
         SDL_Delay(16); // (60 fps) Esta pausa es para evitar que el procesador se ponga al 100% renderizando constantemente.
     }
-    return 0;
+    return EJECUCION_OK;
 }
 
 int renderizarTexto(TTF_Font *font, const char *texto, SDL_Color *color, SDL_Renderer *render, int x, int y)
@@ -203,4 +203,46 @@ int renderizarTexto(TTF_Font *font, const char *texto, SDL_Color *color, SDL_Ren
     SDL_RenderCopy(render, textTexture, NULL, &textRect);
     SDL_FreeSurface(textSurface);
     SDL_DestroyTexture(textTexture);
+}
+
+int leerConfiguracion(int* filas, int* columnas, int* minasEnMapa, char* rutaFuente){
+    FILE* config = fopen("buscaminas.conf", "r+t");
+    if (!config)
+    {
+        puts("Error al abrir archivo de configuracion. Cerrando juego...");
+        return ERROR_ARCHIVO;
+    }
+
+    if (fscanf(config, "DIMENSION_MAPA = %d\n", filas) != 1) {
+        puts("Error al leer DIMENSION_MAPA.");
+        fclose(config);
+        return ERROR_ARCHIVO;
+    }
+    if(*filas < 8 || *filas > 32){
+        puts("Error de configuracion DIMENSION_MAPA valores validos entre 8 y 32.");
+        fclose(config);
+        return ERROR_CONFIGURACION;
+    }
+    *columnas = *filas; // Mapa cuadrado siempre
+
+    char minasTexto[5];
+    if (fscanf(config, "CANTIDAD_MINAS = %s\n", minasTexto) != 1) {
+        puts("Error al leer CANTIDAD_MINAS.");
+        fclose(config);
+        return ERROR_ARCHIVO;
+    }
+    char* porcentaje = strchr(minasTexto, '%');
+    *minasEnMapa = atoi(minasTexto);
+
+    // Lo convierto a un porcentual del mapa
+    if (porcentaje) 
+        *minasEnMapa = round(((*filas)*(*columnas))*((float)*minasEnMapa/100));
+
+    if (fscanf(config, "RUTA_FUENTE = %s\n", rutaFuente) != 1) {
+        puts("Error al leer RUTA_FUENTE.");
+        fclose(config);
+        return ERROR_ARCHIVO;
+    }
+    printf("%d, %d, %s", *filas, *minasEnMapa, rutaFuente);
+    fclose(config);
 }
