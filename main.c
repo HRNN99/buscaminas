@@ -126,10 +126,22 @@ int main(int argc, char *argv[])
                 xGrilla = e.button.x / (PIXELES_X_LADO * TAM_PIXEL + PX_PADDING);
                 yGrilla = e.button.y / (PIXELES_X_LADO * TAM_PIXEL + PX_PADDING);
 
-                if (boton == SDL_BUTTON_LEFT){ //Evento clik izquierdo del mouse
-                    printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", xGrilla , yGrilla);
+                if (boton == SDL_BUTTON_LEFT)
+                { // Evento clik izquierdo del mouse
+                    printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", xGrilla, yGrilla);
                     casillaEstado(renderer, ventana, &juego, minasCord, minasEnMapa , filas , columnas , xGrilla , yGrilla);
-
+                    if (juego.cantCasillasPresionadas == (filas * columnas) - minasEnMapa)
+                    {
+                        puts("Ganaste el juego!");
+                        renderizarGanado = 1;
+                        *nombreJugador = '\0'; // Limpieza por si se presionaron teclas al jugar
+                        // Funcion para crear ventana con posicion especifica, dimension y banderas.
+                        ventanaGanado = SDL_CreateWindow("Ganaste!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, TAMX - 100, TAMY - 100, 2);
+                        // Funcion para crear el renderizado en ventana acelerado por hardware
+                        rendererGanado = SDL_CreateRenderer(ventanaGanado, -1, SDL_RENDERER_ACCELERATED);
+                        // Funcion para establecer el modo de mezcla de colores para el renderizado, el modo blend nos permite utilizar transparencia
+                        SDL_SetRenderDrawBlendMode(rendererGanado, SDL_BLENDMODE_BLEND);
+                    }
                 }
 
                 else if (boton == SDL_BUTTON_RIGHT)
