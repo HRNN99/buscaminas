@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
+#include <math.h>
 #include <SDL2/SDL_ttf.h>
 
 #include "dibujos.h" //Header de estados
@@ -221,12 +223,21 @@ int leerConfiguracion(int* filas, int* columnas, int* minasEnMapa, char* rutaFue
         fclose(config);
         return ERROR_CONFIGURACION;
     }
-    *columnas = *filas;
-    if (fscanf(config, "CANTIDAD_MINAS = %d\n", minasEnMapa) != 1) {
+    *columnas = *filas; // Mapa cuadrado siempre
+
+    char minasTexto[5];
+    if (fscanf(config, "CANTIDAD_MINAS = %s\n", minasTexto) != 1) {
         puts("Error al leer CANTIDAD_MINAS.");
         fclose(config);
         return ERROR_ARCHIVO;
     }
+    char* porcentaje = strchr(minasTexto, '%');
+    *minasEnMapa = atoi(minasTexto);
+
+    // Lo convierto a un porcentual del mapa
+    if (porcentaje) 
+        *minasEnMapa = round(((*filas)*(*columnas))*((float)*minasEnMapa/100));
+
     if (fscanf(config, "RUTA_FUENTE = %s\n", rutaFuente) != 1) {
         puts("Error al leer RUTA_FUENTE.");
         fclose(config);
