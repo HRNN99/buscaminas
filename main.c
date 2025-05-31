@@ -39,7 +39,6 @@ int main(int argc, char *argv[])
         return ERROR_FUENTE;
     }
     char nombreJugador[100];
-    SDL_StartTextInput();
 
     char nombreVentana[100];
     // String formateado para el titulo de ventana
@@ -82,6 +81,8 @@ int main(int argc, char *argv[])
 
         if (renderizarGanado)
         {
+            //Inicio la lectura de teclado
+            SDL_StartTextInput();
             // Limpia pantalla
             SDL_SetRenderDrawColor(rendererGanado, 0, 0, 0, 255); // negro
             SDL_RenderClear(rendererGanado);
@@ -169,6 +170,7 @@ int main(int argc, char *argv[])
                 // Guardado de puntaje al presionar Enter
                if (e.key.keysym.sym == SDLK_RETURN && strlen(nombreJugador) > 0)
                {
+                    SDL_StopTextInput(); //Cierro la lectura de teclado
                     FILE* aPuntuacion = fopen("puntuacion.txt", "a");
                     if(!aPuntuacion)
                     {
