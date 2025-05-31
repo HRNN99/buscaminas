@@ -4,7 +4,10 @@
 #include "dibujos.h"
 
 #define eleccion(n) ((n) == 0 ? square2 : (n) == 1 ? one : (n) == 2 ? two : (n) == 3 ? three : mine)
-
+#define ERROR_ARCHIVO 20
+#define ERROR_CONFIGURACION 21
+#define EJECUCION_OK 0
+#define ERROR_FUENTE 10
 //TDA
 typedef struct{
     int estado;
