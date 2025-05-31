@@ -20,5 +20,6 @@
 
 void dibujar(SDL_Renderer *renderer, const int[][PIXELES_X_LADO], int oX, int oY);
 void FinalizarSDL(SDL_Window *ventana, SDL_Renderer *renderer, int estadoExit);
+void FinalizarVentanaSDL(SDL_Window *ventana, SDL_Renderer *renderer);
 
 #endif // DIBUJOS_H_INCLUDED
