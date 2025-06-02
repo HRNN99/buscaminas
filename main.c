@@ -19,12 +19,15 @@ int main(int argc, char *argv[])
     leerConfiguracion(&filas, &columnas, &minasEnMapa, rutaFuente);
 
     Casilla **mapa = matrizCrear(filas, columnas, sizeof(Casilla)); // Creacion de la matriz
+
     Juego juego;
     juego.cantCasillasPresionadas = 0;
     juego.mapa = mapa;
-    mapaVacio(juego.mapa, filas, columnas);                          // Se establecen los valores defecto de la matriz
+
+    mapaVacio(juego.mapa, filas, columnas); // Se establecen los valores defecto de la matriz
 
     int minasCord[minasEnMapa][2]; // Guardado de posicion de las minas en una matriz aparte
+
     mapaLlenar(juego.mapa, filas, columnas, minasEnMapa, minasCord); //
 
     // Iniciar SDL con funcion Video
@@ -44,8 +47,8 @@ int main(int argc, char *argv[])
     // String formateado para el titulo de ventana
     sprintf(nombreVentana, "Buscaminas %ix%i", filas, columnas);
     // Tamaño de ancho y altura de la ventana, utilizo 1 sola variable ya que sera cuadrada
-    int TAMX = columnas * (TAM_PIXEL * PIXELES_X_LADO + PX_PADDING);
-    int TAMY = filas * (TAM_PIXEL * PIXELES_X_LADO + PX_PADDING);
+    int TAMX = columnas * (TAM_PIXEL * PIXELES_X_LADO + PX_PADDING) * 2;
+    int TAMY = filas * (TAM_PIXEL * PIXELES_X_LADO + PX_PADDING) * 2;
     // Funcion para crear ventana con posicion especifica, dimension y banderas.
     SDL_Window *ventana = SDL_CreateWindow(nombreVentana, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, TAMX, TAMY, 2);
     // Funcion para crear el renderizado en ventana acelerado por hardware
@@ -69,7 +72,10 @@ int main(int argc, char *argv[])
     int corriendo = 1; // Variable flag true para mantener corriendo el programa
 
     fondoColor(renderer); //Funcion para establecer fondo del render color defecto
-    casillaColocacion(renderer, filas, columnas); //Funcion para colocar todas las casillas visuales
+
+    Coord picords = interfaz(renderer , filas);
+
+    casillaColocacion(renderer, filas, columnas , &picords); //Funcion para colocar todas las casillas visuales
 
     int boton, xGrilla, yGrilla, renderizarGanado = 0, puntajePartida = 0;
     while (corriendo)
@@ -130,7 +136,7 @@ int main(int argc, char *argv[])
                 if (boton == SDL_BUTTON_LEFT)
                 { // Evento clik izquierdo del mouse
                     printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", xGrilla, yGrilla);
-                    casillaEstado(renderer, ventana, &juego, minasCord, minasEnMapa , filas , columnas , xGrilla , yGrilla);
+                    casillaEstado(renderer, ventana, &juego, minasCord, minasEnMapa , filas , columnas , xGrilla , yGrilla , 1 , 1);
                     if (juego.cantCasillasPresionadas == (filas * columnas) - minasEnMapa)
                     {
                         puts("Ganaste el juego!");
@@ -148,7 +154,7 @@ int main(int argc, char *argv[])
                 else if (boton == SDL_BUTTON_RIGHT)
                 { // Evento click derecho del mouse
                     printf("Hiciste clic derecho en la casilla (%i, %i) colocando bandera\n", xGrilla, yGrilla);
-                    casillaBandera(renderer, xGrilla, yGrilla);
+                    //casillaBandera(renderer, xGrilla, yGrilla , 1 , 1);
                 }
                 printf("Presionadas: %d\n", juego.cantCasillasPresionadas);
                 break;
@@ -209,6 +215,7 @@ int renderizarTexto(TTF_Font *font, const char *texto, SDL_Color *color, SDL_Ren
 
 int leerConfiguracion(int* filas, int* columnas, int* minasEnMapa, char* rutaFuente){
     FILE* config = fopen("buscaminas.conf", "r+t");
+
     if (!config)
     {
         puts("Error al abrir archivo de configuracion. Cerrando juego...");
@@ -220,11 +227,13 @@ int leerConfiguracion(int* filas, int* columnas, int* minasEnMapa, char* rutaFue
         fclose(config);
         return ERROR_ARCHIVO;
     }
+
     if(*filas < 8 || *filas > 32){
         puts("Error de configuracion DIMENSION_MAPA valores validos entre 8 y 32.");
         fclose(config);
         return ERROR_CONFIGURACION;
     }
+
     *columnas = *filas; // Mapa cuadrado siempre
 
     char minasTexto[5];
@@ -233,11 +242,12 @@ int leerConfiguracion(int* filas, int* columnas, int* minasEnMapa, char* rutaFue
         fclose(config);
         return ERROR_ARCHIVO;
     }
+
     char* porcentaje = strchr(minasTexto, '%');
     *minasEnMapa = atoi(minasTexto);
 
     // Lo convierto a un porcentual del mapa
-    if (porcentaje) 
+    if (porcentaje)
         *minasEnMapa = round(((*filas)*(*columnas))*((float)*minasEnMapa/100));
 
     if (fscanf(config, "RUTA_FUENTE = %s\n", rutaFuente) != 1) {
@@ -248,3 +258,4 @@ int leerConfiguracion(int* filas, int* columnas, int* minasEnMapa, char* rutaFue
     printf("%d, %d, %s", *filas, *minasEnMapa, rutaFuente);
     fclose(config);
 }
+

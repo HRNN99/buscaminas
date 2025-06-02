@@ -14,9 +14,9 @@ SDL_Color colores[] =
 };
 
 //Funcion que  dibuja pixel por pixel
-void dibujar(SDL_Renderer *renderer, const int   dibujo[][PIXELES_X_LADO], int oX, int oY){
-    int offsetX = oX * (PIXELES_X_LADO * TAM_PIXEL + PX_PADDING); // Posicion X en pixeles
-    int offsetY = oY * (PIXELES_X_LADO * TAM_PIXEL + PX_PADDING); // Posicion Y en pixeles
+void dibujar(SDL_Renderer *renderer , const int dibujo[][PIXELES_X_LADO] , int gX , int gY , int pXi , int pYi){
+    int pXf = (pXi * TAM_PIXEL) + gX * (PIXELES_X_LADO * TAM_PIXEL + PX_PADDING); // Posicion X en pixeles
+    int pYf = (pYi * TAM_PIXEL) + gY * (PIXELES_X_LADO * TAM_PIXEL + PX_PADDING); // Posicion Y en pixeles
 
     for (int y = 0; y < PIXELES_X_LADO; y++){
 
@@ -30,11 +30,23 @@ void dibujar(SDL_Renderer *renderer, const int   dibujo[][PIXELES_X_LADO], int o
                                    colores[dibujo[y][x]].a);
 
             //Estructura para representar un rectangulo, utilizado para plasmar un pixel
-            SDL_Rect pixel = {offsetX + TAM_PIXEL*x, offsetY + TAM_PIXEL*y, TAM_PIXEL, TAM_PIXEL};
+            SDL_Rect pixel = {pXf + TAM_PIXEL*x , pYf + TAM_PIXEL*y , TAM_PIXEL , TAM_PIXEL};
             //Dibuja un rectangulo lleno en el renderer
             SDL_RenderFillRect(renderer, &pixel);
         }
     }
+}
+
+void rectangulo(SDL_Renderer *renderer , int color , const int gX , const int gY , int W , int H){
+
+    SDL_Rect rect;
+    rect.x = gX * TAM_PIXEL;
+    rect.y = gY * TAM_PIXEL;
+    rect.w = W * (PIXELES_X_LADO * TAM_PIXEL + PX_PADDING);
+    rect.h = H * (PIXELES_X_LADO * TAM_PIXEL + PX_PADDING);
+
+    SDL_SetRenderDrawColor(renderer , colores[color].r , colores[color].g , colores[color].b , colores[color].a);
+    SDL_RenderFillRect(renderer , &rect);
 }
 
 //Funcion que finaliza el SDL
