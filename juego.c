@@ -104,18 +104,40 @@ void fondoColor(SDL_Renderer* renderer){
     SDL_RenderPresent(renderer); //Aplicacion
 }
 
+Coord interfaz(SDL_Renderer* renderer , int dimensionM){
+
+    Coord pcords;
+
+    //Cortorno
+    //int nPix = 1;
+    //int longitud = dimensionM+5;
+    //rectangulo(renderer , GF , 1 , 0 , longitud , 1);
+    //rectangulo(renderer , GF , 0 , 0 , nPix , longitud);
+
+    //rectangulo(renderer , GF , 0 , 0 , dimensionM*PIXELES_X_LADO , 1 , 1);
+    //rectangulo(renderer , GF , 0 , 0 , 1 , dimensionM*PIXELES_X_LADO , 1);
+
+    pcords.x = 1;
+    pcords.y = 1;
+
+    return pcords;
+}
+
 //Funcion que coloca todas las casillas sin valor
-bool casillaColocacion(SDL_Renderer* renderer, int fil, int col){
-    int offsetX = 0; // Variable para coordenada X
-    int offsetY = 0; // Variable para ccoordenada Y
+bool casillaColocacion(SDL_Renderer* renderer , int fil , int col , Coord* picord){
+
+    int gX = 0; // Variable para coordenada X
+    int gY = 0; // Variable para ccoordenada Y
 
     int x,y = 0;
     while(y < fil){
+
         x=0;
         while(x < col){
-            offsetX = x % col;
-            offsetY = y % fil;
-            dibujar(renderer, square1, offsetX, offsetY);
+
+            gX = x % col;
+            gY = y % fil;
+            dibujar(renderer , square1 , gX , gY , picord->x , picord->y);
             x++;
         }
         y++;
@@ -125,41 +147,41 @@ bool casillaColocacion(SDL_Renderer* renderer, int fil, int col){
 }
 
 //Funcion que coloca estados en las casillas
-void casillaEstado(SDL_Renderer* renderer , SDL_Window* window, Juego* juego, int minasCord[][2],int minas, int filas , int columnas , int xGrilla , int yGrilla){
+void casillaEstado(SDL_Renderer* renderer , SDL_Window* window, Juego* juego, int minasCord[][2],int minas, int filas , int columnas , int gX , int gY , int pXi , int pYi){
 
     Casilla** mapa = juego->mapa;
 
-    int x = 0;
-    int y = 0;
-    if(xGrilla < 0 || xGrilla >= columnas || yGrilla < 0 || yGrilla >= filas){
+    int mX = 0;
+    int mY = 0;
+    if(gX < 0 || gX >= columnas || gY < 0 || gY >= filas){
         return;
     }
 
-    if(!mapa[yGrilla][xGrilla].presionada){
+    if(!mapa[gY][gX].presionada){
 
-        mapa[yGrilla][xGrilla].presionada = true;
+        mapa[gY][gX].presionada = true;
         juego->cantCasillasPresionadas +=1;
         //Se podria optimizar haciendo que square2 sea por ejemplo -2 en el mapa?
-        if(mapa[yGrilla][xGrilla].estado == -1){
+        if(mapa[gY][gX].estado == -1){
             for(int i = 0; i<minas; i++)
             {
-                x = minasCord[i][0];
-                y = minasCord[i][1];
-              dibujar(renderer , eleccion(mapa[yGrilla][xGrilla].estado) , x , y);
+                mX = minasCord[i][0];
+                mY = minasCord[i][1];
+              dibujar(renderer , eleccion(mapa[gY][gX].estado) , mX , mY , pXi , pYi);
             }
 
-        }else if(mapa[yGrilla][xGrilla].estado != 0){
-            dibujar(renderer , eleccion(mapa[yGrilla][xGrilla].estado) , xGrilla , yGrilla);
+        }else if(mapa[gY][gX].estado != 0){
+            dibujar(renderer , eleccion(mapa[gY][gX].estado) , gX , gY , pXi , pYi);
             return;
         }
 
-        dibujar(renderer , square2 , xGrilla , yGrilla);
+        dibujar(renderer , square2 , gX , gY , pXi , pYi);
 
         for(int i = -1; i<2; i++)
         {
             for(int j = -1; j<2; j++)
             {
-                casillaEstado(renderer, window , juego, minasCord, minas , filas , columnas , xGrilla + i, yGrilla + j);
+                casillaEstado(renderer , window , juego, minasCord , minas , filas , columnas , gX + i , gY + j , pXi , pYi);
             }
         }
 
@@ -167,7 +189,7 @@ void casillaEstado(SDL_Renderer* renderer , SDL_Window* window, Juego* juego, in
 }
 
 //Funcion para colocar bandera
-bool casillaBandera(SDL_Renderer* renderer, int xGrilla , int yGrilla){
-    dibujar(renderer , flag , xGrilla , yGrilla);
+bool casillaBandera(SDL_Renderer* renderer, int xGrilla , int yGrilla , int pXi , int pYi){
+    dibujar(renderer , flag , xGrilla , yGrilla , pXi , pYi);
     return true;
 }

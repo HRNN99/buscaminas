@@ -806,18 +806,21 @@
 1650910406 D
 	"juego.h"
 
-1747601471 source:c:\proyecto\buscaminas\dibujos.c
+1748836461 source:c:\proyecto\buscaminas\dibujos.c
 	"dibujos.h"
 
-1747601507 c:\proyecto\buscaminas\dibujos.h
+1748844154 c:\proyecto\buscaminas\dibujos.h
 	<SDL2/SDL.h>
 	<stdio.h>
 	<stdbool.h>
 
-1747600227 source:c:\proyecto\buscaminas\main.c
+1748844273 source:c:\proyecto\buscaminas\main.c
 	<stdio.h>
 	<stdlib.h>
 	<time.h>
+	<string.h>
+	<math.h>
+	<SDL2/SDL_ttf.h>
 	"dibujos.h"
 	"juego.h"
 
@@ -1600,15 +1603,16 @@
 	"begin_code.h"
 	"close_code.h"
 
-1747600773 c:\proyecto\buscaminas\estados.h
+1748844154 c:\proyecto\buscaminas\estados.h
 
-1747600910 c:\proyecto\buscaminas\juego.h
+1748825889 c:\proyecto\buscaminas\juego.h
 	"dibujos.h"
 
-1747600638 source:c:\proyecto\buscaminas\juego.c
+1748844178 source:c:\proyecto\buscaminas\juego.c
 	<stdio.h>
 	"juego.h"
 	"estados.h"
+	"time.h"
 
 1748216242 source:c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\dibujos.c
 	"dibujos.h"
@@ -2058,6 +2062,11 @@
 	"close_code.h"
 
 1748353436 c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\sdl2-2.0.22\x86_64-w64-mingw32\include\sdl2\sdl_ttf.h
+	"SDL.h"
+	"begin_code.h"
+	"close_code.h"
+
+1705848875 c:\proyecto\buscaminas\sdl2-2.0.22\x86_64-w64-mingw32\include\sdl2\sdl_ttf.h
 	"SDL.h"
 	"begin_code.h"
 	"close_code.h"
