@@ -104,23 +104,27 @@ void fondoColor(SDL_Renderer* renderer){
     SDL_RenderPresent(renderer); //Aplicacion
 }
 
-Coord interfaz(SDL_Renderer* renderer , int dimensionM){
+void interfaz(SDL_Renderer* renderer, Coord* pcords , int dimensionM){
 
-    Coord pcords;
+    int G=2;
+    int pad = G*4;
 
-    //Cortorno
-    //int nPix = 1;
-    //int longitud = dimensionM+5;
-    //rectangulo(renderer , GF , 1 , 0 , longitud , 1);
-    //rectangulo(renderer , GF , 0 , 0 , nPix , longitud);
+    int anchoM = dimensionM * PIXELES_X_LADO + 4;
+    int altoC = 28;
+    int anchoI = anchoM + 16;
+    int altoI = pad + altoC + pad + anchoM + pad;
 
-    //rectangulo(renderer , GF , 0 , 0 , dimensionM*PIXELES_X_LADO , 1 , 1);
-    //rectangulo(renderer , GF , 0 , 0 , 1 , dimensionM*PIXELES_X_LADO , 1);
+    rectanguloLleno(renderer , GS , pcords->x , pcords->y , anchoI , altoI);
 
-    pcords.x = 1;
-    pcords.y = 1;
+    marco(renderer , pcords->x , pcords->y , anchoI , altoI , G);
 
-    return pcords;
+    pcords->x += pad; pcords->y += pad;
+    marco(renderer , pcords->x , pcords->y , anchoM , altoC ,  G);
+
+    pcords->x += 0; pcords->y += altoC + pad;
+    marco(renderer , pcords->x , pcords->y , anchoM , anchoM , G);
+
+    pcords->x += G; pcords->y += G;
 }
 
 //Funcion que coloca todas las casillas sin valor
@@ -147,7 +151,7 @@ bool casillaColocacion(SDL_Renderer* renderer , int fil , int col , Coord* picor
 }
 
 //Funcion que coloca estados en las casillas
-void casillaEstado(SDL_Renderer* renderer , SDL_Window* window, Juego* juego, int minasCord[][2],int minas, int filas , int columnas , int gX , int gY , int pXi , int pYi){
+void casillaEstado(SDL_Renderer* renderer , SDL_Window* window, Juego* juego, int minasCord[][2],int minas, int filas , int columnas , int gX , int gY , Coord* picords){
 
     Casilla** mapa = juego->mapa;
 
@@ -167,21 +171,21 @@ void casillaEstado(SDL_Renderer* renderer , SDL_Window* window, Juego* juego, in
             {
                 mX = minasCord[i][0];
                 mY = minasCord[i][1];
-              dibujar(renderer , eleccion(mapa[gY][gX].estado) , mX , mY , pXi , pYi);
+              dibujar(renderer , eleccion(mapa[gY][gX].estado) , mX , mY , picords->x , picords->y);
             }
 
         }else if(mapa[gY][gX].estado != 0){
-            dibujar(renderer , eleccion(mapa[gY][gX].estado) , gX , gY , pXi , pYi);
+            dibujar(renderer , eleccion(mapa[gY][gX].estado) , gX , gY , picords->x , picords->y);
             return;
         }
 
-        dibujar(renderer , square2 , gX , gY , pXi , pYi);
+        dibujar(renderer , square2 , gX , gY , picords->x , picords->y);
 
         for(int i = -1; i<2; i++)
         {
             for(int j = -1; j<2; j++)
             {
-                casillaEstado(renderer , window , juego, minasCord , minas , filas , columnas , gX + i , gY + j , pXi , pYi);
+                casillaEstado(renderer , window , juego, minasCord , minas , filas , columnas , gX + i , gY + j , picords);
             }
         }
 
@@ -189,7 +193,6 @@ void casillaEstado(SDL_Renderer* renderer , SDL_Window* window, Juego* juego, in
 }
 
 //Funcion para colocar bandera
-bool casillaBandera(SDL_Renderer* renderer, int xGrilla , int yGrilla , int pXi , int pYi){
-    dibujar(renderer , flag , xGrilla , yGrilla , pXi , pYi);
-    return true;
+void casillaBandera(SDL_Renderer* renderer, int xGrilla , int yGrilla , Coord* picord){
+    dibujar(renderer , flag , xGrilla , yGrilla , picord->x , picord->y);
 }
