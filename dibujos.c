@@ -15,8 +15,8 @@ SDL_Color colores[] =
 
 //Funcion que  dibuja pixel por pixel
 void dibujar(SDL_Renderer *renderer , const int dibujo[][PIXELES_X_LADO] , int gX , int gY , int pXi , int pYi){
-    int pXf = (pXi * TAM_PIXEL) + gX * (PIXELES_X_LADO * TAM_PIXEL + PX_PADDING); // Posicion X en pixeles
-    int pYf = (pYi * TAM_PIXEL) + gY * (PIXELES_X_LADO * TAM_PIXEL + PX_PADDING); // Posicion Y en pixeles
+    int pXf = (pXi * TAM_PIXEL) + gX * (PIXELES_X_LADO * TAM_PIXEL); // Posicion X en pixeles
+    int pYf = (pYi * TAM_PIXEL) + gY * (PIXELES_X_LADO * TAM_PIXEL); // Posicion Y en pixeles
 
     for (int y = 0; y < PIXELES_X_LADO; y++){
 
@@ -37,16 +37,25 @@ void dibujar(SDL_Renderer *renderer , const int dibujo[][PIXELES_X_LADO] , int g
     }
 }
 
-void rectangulo(SDL_Renderer *renderer , int color , const int gX , const int gY , int W , int H){
+void rectanguloLleno(SDL_Renderer *renderer , int color , const int gX , const int gY , int W , int H){
 
     SDL_Rect rect;
     rect.x = gX * TAM_PIXEL;
     rect.y = gY * TAM_PIXEL;
-    rect.w = W * (PIXELES_X_LADO * TAM_PIXEL + PX_PADDING);
-    rect.h = H * (PIXELES_X_LADO * TAM_PIXEL + PX_PADDING);
+    rect.w = W  * TAM_PIXEL;
+    rect.h = H  * TAM_PIXEL;
 
     SDL_SetRenderDrawColor(renderer , colores[color].r , colores[color].g , colores[color].b , colores[color].a);
     SDL_RenderFillRect(renderer , &rect);
+}
+
+void marco(SDL_Renderer* renderer , int X , int Y , int W , int H , int G){
+
+    //Cortorno
+    rectanguloLleno(renderer , GF , X , Y , W , G); //TOP
+    rectanguloLleno(renderer , BB , X , (Y + H - G) , W , G); //BOTTOM
+    rectanguloLleno(renderer , GF , X , Y , G , H); //LEFT
+    rectanguloLleno(renderer , BB , (X + W - G) , Y , G , H); //RIGHT
 }
 
 //Funcion que finaliza el SDL

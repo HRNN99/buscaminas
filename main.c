@@ -47,8 +47,8 @@ int main(int argc, char *argv[])
     // String formateado para el titulo de ventana
     sprintf(nombreVentana, "Buscaminas %ix%i", filas, columnas);
     // Tamaño de ancho y altura de la ventana, utilizo 1 sola variable ya que sera cuadrada
-    int TAMX = columnas * (TAM_PIXEL * PIXELES_X_LADO + PX_PADDING) * 2;
-    int TAMY = filas * (TAM_PIXEL * PIXELES_X_LADO + PX_PADDING) * 2;
+    int TAMX =  TAM_PIXEL * (columnas * PIXELES_X_LADO + 20);
+    int TAMY =  TAM_PIXEL * (filas * PIXELES_X_LADO + 4 + 3*8 + 28);
     // Funcion para crear ventana con posicion especifica, dimension y banderas.
     SDL_Window *ventana = SDL_CreateWindow(nombreVentana, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, TAMX, TAMY, 2);
     // Funcion para crear el renderizado en ventana acelerado por hardware
@@ -73,7 +73,8 @@ int main(int argc, char *argv[])
 
     fondoColor(renderer); //Funcion para establecer fondo del render color defecto
 
-    Coord picords = interfaz(renderer , filas);
+    Coord picords = {0,0};
+    interfaz(renderer , &picords , filas); //Funcion para colocar la interfaz
 
     casillaColocacion(renderer, filas, columnas , &picords); //Funcion para colocar todas las casillas visuales
 
@@ -130,13 +131,13 @@ int main(int argc, char *argv[])
                 boton = e.button.button; // Alias del boton presionado
 
                 // Se dividen los pixeles para obtener un valor de grilla
-                xGrilla = e.button.x / (PIXELES_X_LADO * TAM_PIXEL + PX_PADDING);
-                yGrilla = e.button.y / (PIXELES_X_LADO * TAM_PIXEL + PX_PADDING);
+                xGrilla = (e.button.x - (picords.x*TAM_PIXEL)) / ( PIXELES_X_LADO * TAM_PIXEL);
+                yGrilla = (e.button.y - (picords.y*TAM_PIXEL)) / ( PIXELES_X_LADO * TAM_PIXEL);
 
                 if (boton == SDL_BUTTON_LEFT)
                 { // Evento clik izquierdo del mouse
-                    printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", xGrilla, yGrilla);
-                    casillaEstado(renderer, ventana, &juego, minasCord, minasEnMapa , filas , columnas , xGrilla , yGrilla , 1 , 1);
+                    printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", e.button.x, e.button.y);
+                    casillaEstado(renderer, ventana, &juego, minasCord, minasEnMapa , filas , columnas , xGrilla , yGrilla , &picords);
                     if (juego.cantCasillasPresionadas == (filas * columnas) - minasEnMapa)
                     {
                         puts("Ganaste el juego!");
@@ -154,7 +155,7 @@ int main(int argc, char *argv[])
                 else if (boton == SDL_BUTTON_RIGHT)
                 { // Evento click derecho del mouse
                     printf("Hiciste clic derecho en la casilla (%i, %i) colocando bandera\n", xGrilla, yGrilla);
-                    //casillaBandera(renderer, xGrilla, yGrilla , 1 , 1);
+                    casillaBandera(renderer, xGrilla, yGrilla , &picords);
                 }
                 printf("Presionadas: %d\n", juego.cantCasillasPresionadas);
                 break;
