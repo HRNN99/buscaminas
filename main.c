@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
 
                 if (boton == SDL_BUTTON_LEFT)
                 { // Evento clik izquierdo del mouse
-                    printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", e.button.x, e.button.y);
+                    printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", xGrilla, yGrilla);
                     casillaEstado(renderer, ventana, &juego, minasCord, minasEnMapa , filas , columnas , xGrilla , yGrilla , &picords);
                     if (juego.cantCasillasPresionadas == (filas * columnas) - minasEnMapa)
                     {
