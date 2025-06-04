@@ -167,14 +167,21 @@ void casillaEstado(SDL_Renderer* renderer , SDL_Window* window, Juego* juego, in
         juego->cantCasillasPresionadas +=1;
         //Se podria optimizar haciendo que square2 sea por ejemplo -2 en el mapa?
         if(mapa[gY][gX].estado == -1){
-            for(int i = 0; i<minas; i++)
-            {
+
+            dibujar(renderer , mine2 , gX , gY , picords->x , picords->y);
+
+            for(int i = 0; i<minas; i++){
+
                 mX = minasCord[i][0];
                 mY = minasCord[i][1];
-              dibujar(renderer , eleccion(mapa[gY][gX].estado) , mX , mY , picords->x , picords->y);
-            }
 
-        }else if(mapa[gY][gX].estado != 0){
+                if(gX != mX && gY != mY)
+                    dibujar(renderer , mine , mX , mY , picords->x , picords->y);
+            }
+            return;
+        }
+
+        else if(mapa[gY][gX].estado != 0){
             dibujar(renderer , eleccion(mapa[gY][gX].estado) , gX , gY , picords->x , picords->y);
             return;
         }
@@ -193,6 +200,6 @@ void casillaEstado(SDL_Renderer* renderer , SDL_Window* window, Juego* juego, in
 }
 
 //Funcion para colocar bandera
-void casillaBandera(SDL_Renderer* renderer, int xGrilla , int yGrilla , Coord* picord){
-    dibujar(renderer , flag , xGrilla , yGrilla , picord->x , picord->y);
+void casillaBandera(SDL_Renderer* renderer, int gX , int gY , Coord* picord){
+    dibujar(renderer , flag , gX , gY , picord->x , picord->y);
 }
