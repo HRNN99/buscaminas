@@ -55,7 +55,7 @@ void mapaVacio(Casilla** mapa , int filas, int columnas){
 }
 
 //Funcion que llena el mapa de juego con minas y aleda�os
-void mapaLlenar(Casilla** mapa , int filas , int columnas , int minas , int minasCord[][2]){
+void mapaLlenar(Casilla** mapa , int filas , int columnas , Coord* minasCoord , int minas){
 
     int x , y , m=0 ;
     srand(time(NULL));
@@ -67,8 +67,8 @@ void mapaLlenar(Casilla** mapa , int filas , int columnas , int minas , int mina
 
         if(mapa[y][x].estado != -1){
 
-            minasCord[m][0] = x;
-            minasCord[m][1] = y;
+            minasCoord[m].x = x;
+            minasCoord[m].y = y;
 
             mapa[y][x].estado = -1;
 
@@ -129,6 +129,15 @@ void interfaz(SDL_Renderer* renderer, Coord* pcords , int dimensionM){
     pcords->x += G; pcords->y += G;
 }
 
+void mapaReiniciar(SDL_Renderer* renderer , Coord* pcord , Casilla** mapa , int filas , int columnas , Coord* minasCoord , int minas){
+
+    mapaVacio(mapa , filas , columnas);
+
+    mapaLlenar(mapa , filas , columnas , minasCoord , minas);
+
+    casillaColocacion(renderer , filas , columnas , pcord);
+}
+
 //Funcion que coloca todas las casillas sin valor
 bool casillaColocacion(SDL_Renderer* renderer , int fil , int col , Coord* picord){
 
@@ -153,7 +162,7 @@ bool casillaColocacion(SDL_Renderer* renderer , int fil , int col , Coord* picor
 }
 
 //Funcion que coloca estados en las casillas
-void casillaEstado(SDL_Renderer* renderer , SDL_Window* window, Juego* juego, int minasCord[][2],int minas, int filas , int columnas , int gX , int gY , Coord* picords){
+void casillaEstado(SDL_Renderer* renderer , SDL_Window* window, Juego* juego , Coord* minasCoord , int minas, int filas , int columnas , int gX , int gY , Coord* picords){
 
     Casilla** mapa = juego->mapa;
 
@@ -174,8 +183,8 @@ void casillaEstado(SDL_Renderer* renderer , SDL_Window* window, Juego* juego, in
 
             for(int i = 0; i<minas; i++){
 
-                mX = minasCord[i][0];
-                mY = minasCord[i][1];
+                mX = minasCoord[i].x;
+                mY = minasCoord[i].y;
 
                 if(gX != mX && gY != mY)
                     dibujar(renderer , PIXELES_X_LADO , mine , mX , mY , picords->x , picords->y);
@@ -194,7 +203,7 @@ void casillaEstado(SDL_Renderer* renderer , SDL_Window* window, Juego* juego, in
         {
             for(int j = -1; j<2; j++)
             {
-                casillaEstado(renderer , window , juego, minasCord , minas , filas , columnas , gX + i , gY + j , picords);
+                casillaEstado(renderer , window , juego, minasCoord , minas , filas , columnas , gX + i , gY + j , picords);
             }
         }
 
