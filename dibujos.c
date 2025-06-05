@@ -9,18 +9,22 @@ SDL_Color colores[] =
     {160,160,160,255}, //Gris Fuerte
     {255,0,0,255}, //Rojo
     {40,155,47,255}, //Verde oscuro
-    {0,0,255,255} //Azul
+    {0,0,255,255}, //Azul
 
+    {235,141,235,255},
+    {120,120,120,255},
+    {84,84,84,255},
+    {48,48,48,255}
 };
 
 //Funcion que  dibuja pixel por pixel
-void dibujar(SDL_Renderer *renderer , const int dibujo[][PIXELES_X_LADO] , int gX , int gY , int pXi , int pYi){
-    int pXf = (pXi * TAM_PIXEL) + gX * (PIXELES_X_LADO * TAM_PIXEL); // Posicion X en pixeles
-    int pYf = (pYi * TAM_PIXEL) + gY * (PIXELES_X_LADO * TAM_PIXEL); // Posicion Y en pixeles
+void dibujar(SDL_Renderer *renderer , int pixeles , const int dibujo[][pixeles] , int gX , int gY , int pXi , int pYi){
+    int pXf = (pXi * TAM_PIXEL) + gX * (pixeles * TAM_PIXEL); // Posicion X en pixeles
+    int pYf = (pYi * TAM_PIXEL) + gY * (pixeles * TAM_PIXEL); // Posicion Y en pixeles
 
-    for (int y = 0; y < PIXELES_X_LADO; y++){
+    for (int y = 0; y < pixeles; y++){
 
-        for (int x = 0; x < PIXELES_X_LADO; x++){
+        for (int x = 0; x < pixeles; x++){
 
             //Utilizo los componentes rgba del color elegido en la paleta
             SDL_SetRenderDrawColor(renderer,

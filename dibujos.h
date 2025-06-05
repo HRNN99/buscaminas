@@ -17,7 +17,12 @@
 #define VV 5 //Verde Oscuro
 #define AA 6 //Azul
 
-void dibujar(SDL_Renderer *renderer , const int dibujo[][PIXELES_X_LADO] , int gX , int gY , int pXi , int pYi);
+#define RS 7//Rosa
+#define GA 8//Gris A
+#define GB 9//Gris B
+#define GC 10//Gris C
+
+void dibujar(SDL_Renderer *renderer , int pixeles , const int dibujo[][pixeles] , int gX , int gY , int pXi , int pYi);
 void rectanguloLleno(SDL_Renderer *renderer , int color , const int gX , const int gY , int W , int H);
 void marco(SDL_Renderer* renderer , int X , int Y , int W , int H , int G);
 
