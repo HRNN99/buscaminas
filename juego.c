@@ -119,6 +119,7 @@ void interfaz(SDL_Renderer* renderer, Coord* pcords , int dimensionM){
     marco(renderer , pcords->x , pcords->y , anchoI , altoI , G);
 
     pcords->x += pad; pcords->y += pad;
+    dibujar(renderer , PIXELES_X_LADO*2 , restart_button , dimensionM/2 , 0 , pcords->x , pcords->y);
     marco(renderer , pcords->x , pcords->y , anchoM , altoC ,  G);
 
     pcords->x += 0; pcords->y += altoC + pad;
@@ -141,7 +142,7 @@ bool casillaColocacion(SDL_Renderer* renderer , int fil , int col , Coord* picor
 
             gX = x % col;
             gY = y % fil;
-            dibujar(renderer , square1 , gX , gY , picord->x , picord->y);
+            dibujar(renderer , PIXELES_X_LADO , square1 , gX , gY , picord->x , picord->y);
             x++;
         }
         y++;
@@ -168,7 +169,7 @@ void casillaEstado(SDL_Renderer* renderer , SDL_Window* window, Juego* juego, in
         //Se podria optimizar haciendo que square2 sea por ejemplo -2 en el mapa?
         if(mapa[gY][gX].estado == -1){
 
-            dibujar(renderer , mine2 , gX , gY , picords->x , picords->y);
+            dibujar(renderer , PIXELES_X_LADO , mine2 , gX , gY , picords->x , picords->y);
 
             for(int i = 0; i<minas; i++){
 
@@ -176,17 +177,17 @@ void casillaEstado(SDL_Renderer* renderer , SDL_Window* window, Juego* juego, in
                 mY = minasCord[i][1];
 
                 if(gX != mX && gY != mY)
-                    dibujar(renderer , mine , mX , mY , picords->x , picords->y);
+                    dibujar(renderer , PIXELES_X_LADO , mine , mX , mY , picords->x , picords->y);
             }
             return;
         }
 
         else if(mapa[gY][gX].estado != 0){
-            dibujar(renderer , eleccion(mapa[gY][gX].estado) , gX , gY , picords->x , picords->y);
+            dibujar(renderer , PIXELES_X_LADO , eleccion(mapa[gY][gX].estado) , gX , gY , picords->x , picords->y);
             return;
         }
 
-        dibujar(renderer , square2 , gX , gY , picords->x , picords->y);
+        dibujar(renderer , PIXELES_X_LADO , square2 , gX , gY , picords->x , picords->y);
 
         for(int i = -1; i<2; i++)
         {
@@ -201,5 +202,5 @@ void casillaEstado(SDL_Renderer* renderer , SDL_Window* window, Juego* juego, in
 
 //Funcion para colocar bandera
 void casillaBandera(SDL_Renderer* renderer, int gX , int gY , Coord* picord){
-    dibujar(renderer , flag , gX , gY , picord->x , picord->y);
+    dibujar(renderer , PIXELES_X_LADO , flag , gX , gY , picord->x , picord->y);
 }

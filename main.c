@@ -203,7 +203,7 @@ int main(int argc, char *argv[])
 
 int renderizarTexto(TTF_Font *font, const char *texto, SDL_Color *color, SDL_Renderer *render, int x, int y)
 {
-    if(!strlen(texto) > 0){ //Evita el renderizado con cero caracteres
+    if(!(strlen(texto) > 0)){ //Evita el renderizado con cero caracteres
         return 1;
     }
     SDL_Surface *textSurface = TTF_RenderText_Solid(font, texto, *color);
@@ -212,6 +212,8 @@ int renderizarTexto(TTF_Font *font, const char *texto, SDL_Color *color, SDL_Ren
     SDL_RenderCopy(render, textTexture, NULL, &textRect);
     SDL_FreeSurface(textSurface);
     SDL_DestroyTexture(textTexture);
+
+    return 0;
 }
 
 int leerConfiguracion(int* filas, int* columnas, int* minasEnMapa, char* rutaFuente){
@@ -258,5 +260,7 @@ int leerConfiguracion(int* filas, int* columnas, int* minasEnMapa, char* rutaFue
     }
     printf("%d, %d, %s", *filas, *minasEnMapa, rutaFuente);
     fclose(config);
+
+    return 0;
 }
 
