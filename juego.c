@@ -104,7 +104,7 @@ void fondoColor(SDL_Renderer* renderer){
     SDL_RenderPresent(renderer); //Aplicacion
 }
 
-void interfaz(SDL_Renderer* renderer, Coord* pcords , int dimensionM){
+void interfaz(SDL_Renderer* renderer, Coord* pcords , int dimensionM , Coord* rbutton){
 
     int G=2;
     int pad = G*4;
@@ -122,6 +122,7 @@ void interfaz(SDL_Renderer* renderer, Coord* pcords , int dimensionM){
     marco(renderer , pcords->x , pcords->y , anchoM , altoC ,  G);
 
     dibujar(renderer , PIXELES_X_LADO * 2 , restart_button , 0 , 0 ,  (anchoM / 2) - 7, pcords->y);
+    rbutton->x = ((anchoM / 2) - 7) ; rbutton->y = pcords->y;
 
     pcords->x += 0; pcords->y += altoC + pad;
     marco(renderer , pcords->x , pcords->y , anchoM , anchoM , G);

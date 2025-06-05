@@ -45,10 +45,13 @@ int main(int argc, char *argv[])
     // Funcion para establecer el modo de mezcla de colores para el renderizado, el modo blend nos permite utilizar transparencia
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
+    //////////////////////////////////////////////////////////////////////
+
     fondoColor(renderer); //Funcion para establecer fondo del render color defecto
 
     Coord picords = {0,0};
-    interfaz(renderer , &picords , filas); //Funcion para colocar la interfaz
+    Coord rbutton = {0,0};
+    interfaz(renderer , &picords , filas , &rbutton); //Funcion para colocar la interfaz
 
     //////////////////////////////////////////////////////////////////////
 
@@ -141,6 +144,14 @@ int main(int argc, char *argv[])
                 if (boton == SDL_BUTTON_LEFT)
                 { // Evento clik izquierdo del mouse
 
+                    if((rbutton.x * TAM_PIXEL <= e.button.x && e.button.x <= (rbutton.x + 28) * TAM_PIXEL)
+                        &&(rbutton.y * TAM_PIXEL <= e.button.y && e.button.y <= (rbutton.y + 28) * TAM_PIXEL)){
+
+                        printf("Reiniciaste mapa \n");
+                        mapaReiniciar(renderer , &picords , mapa , filas , columnas , &minasCoord , minasEnMapa);
+                    }
+
+                    else{
                     printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", e.button.x, e.button.y);
                     casillaEstado(renderer, ventana, &juego, &minasCoord, minasEnMapa , filas , columnas , xGrilla , yGrilla , &picords);
                     if (juego.cantCasillasPresionadas == (filas * columnas) - minasEnMapa)
@@ -154,6 +165,7 @@ int main(int argc, char *argv[])
                         rendererGanado = SDL_CreateRenderer(ventanaGanado, -1, SDL_RENDERER_ACCELERATED);
                         // Funcion para establecer el modo de mezcla de colores para el renderizado, el modo blend nos permite utilizar transparencia
                         SDL_SetRenderDrawBlendMode(rendererGanado, SDL_BLENDMODE_BLEND);
+                    }
                     }
                 }
 
