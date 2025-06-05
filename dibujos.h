@@ -16,7 +16,6 @@
 #define RR 4 //Rojo
 #define VV 5 //Verde Oscuro
 #define AA 6 //Azul
-
 #define RS 7//Rosa
 #define GA 8//Gris A
 #define GB 9//Gris B
