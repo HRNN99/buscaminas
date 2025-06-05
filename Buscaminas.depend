@@ -1605,10 +1605,10 @@
 
 1749090924 c:\proyecto\buscaminas\estados.h
 
-1749090111 c:\proyecto\buscaminas\juego.h
+1749110321 c:\proyecto\buscaminas\juego.h
 	"dibujos.h"
 
-1749098727 source:c:\proyecto\buscaminas\juego.c
+1749109263 source:c:\proyecto\buscaminas\juego.c
 	<stdio.h>
 	"juego.h"
 	"estados.h"

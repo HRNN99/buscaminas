@@ -15,20 +15,9 @@ int main(int argc, char *argv[])
 {
     int filas = 0, columnas = 0, minasEnMapa = 0;
     char rutaFuente[100];
+
     // Lectura del archivo de configuarcion
     leerConfiguracion(&filas, &columnas, &minasEnMapa, rutaFuente);
-
-    Casilla **mapa = matrizCrear(filas, columnas, sizeof(Casilla)); // Creacion de la matriz
-
-    Juego juego;
-    juego.cantCasillasPresionadas = 0;
-    juego.mapa = mapa;
-
-    mapaVacio(juego.mapa, filas, columnas); // Se establecen los valores defecto de la matriz
-
-    int minasCord[minasEnMapa][2]; // Guardado de posicion de las minas en una matriz aparte
-
-    mapaLlenar(juego.mapa, filas, columnas, minasEnMapa, minasCord); //
 
     // Iniciar SDL con funcion Video
     SDL_Init(SDL_INIT_VIDEO);
@@ -41,8 +30,8 @@ int main(int argc, char *argv[])
         printf("Error cargando fuente: %s\n", TTF_GetError());
         return ERROR_FUENTE;
     }
-    char nombreJugador[100];
 
+    char nombreJugador[100];
     char nombreVentana[100];
     // String formateado para el titulo de ventana
     sprintf(nombreVentana, "Buscaminas %ix%i", filas, columnas);
@@ -56,31 +45,46 @@ int main(int argc, char *argv[])
     // Funcion para establecer el modo de mezcla de colores para el renderizado, el modo blend nos permite utilizar transparencia
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
-    putchar('\n');
-
-    // TEST ONLY //Impresion de matriz
-    for (size_t i = 0; i < filas; i++)
-    {
-        for (size_t j = 0; j < columnas; j++)
-        {
-            printf("%3d ", juego.mapa[i][j].estado);
-        }
-        printf("\n\n");
-    }
-
-    SDL_Event e;       // Variable para registrar eventos
-    int corriendo = 1; // Variable flag true para mantener corriendo el programa
-
     fondoColor(renderer); //Funcion para establecer fondo del render color defecto
 
     Coord picords = {0,0};
     interfaz(renderer , &picords , filas); //Funcion para colocar la interfaz
 
-    casillaColocacion(renderer, filas, columnas , &picords); //Funcion para colocar todas las casillas visuales
+    //////////////////////////////////////////////////////////////////////
+
+    //Creacion de matriz mapa
+    Casilla **mapa = matrizCrear(filas, columnas, sizeof(Casilla));
+
+    //Vector de coordenadas para las minas
+    Coord minasCoord[minasEnMapa];
+
+    //Iniciacion de valores de mapa
+    mapaReiniciar(renderer , &picords , mapa , filas , columnas , &minasCoord , minasEnMapa);
+
+    Juego juego;
+    juego.cantCasillasPresionadas = 0;
+    juego.mapa = mapa;
+
+    putchar('\n');
+
+    // TEST ONLY //Impresion de matriz
+    for (size_t i = 0; i < filas; i++){
+
+        for (size_t j = 0; j < columnas; j++){
+
+            printf("%3d ", juego.mapa[i][j].estado);
+        }
+        printf("\n\n");
+    }
+
+    //////////////////////////////////////////////////////////////////////
+
+    SDL_Event e; // Variable para registrar eventos
+    int corriendo = 1; // Variable flag true para mantener corriendo el programa
 
     int boton, xGrilla, yGrilla, renderizarGanado = 0, puntajePartida = 0;
-    while (corriendo)
-    { // While para mantener el programa corriendo
+    // While para mantener el programa corriendo
+    while (corriendo){
 
         SDL_RenderPresent(renderer);
         SDL_Window *ventanaGanado;
@@ -136,8 +140,9 @@ int main(int argc, char *argv[])
 
                 if (boton == SDL_BUTTON_LEFT)
                 { // Evento clik izquierdo del mouse
+
                     printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", e.button.x, e.button.y);
-                    casillaEstado(renderer, ventana, &juego, minasCord, minasEnMapa , filas , columnas , xGrilla , yGrilla , &picords);
+                    casillaEstado(renderer, ventana, &juego, &minasCoord, minasEnMapa , filas , columnas , xGrilla , yGrilla , &picords);
                     if (juego.cantCasillasPresionadas == (filas * columnas) - minasEnMapa)
                     {
                         puts("Ganaste el juego!");

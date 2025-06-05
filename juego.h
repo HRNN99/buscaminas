@@ -34,12 +34,12 @@ void fondoColor(SDL_Renderer* renderer);
 void interfaz(SDL_Renderer* renderer, Coord* pcords , int dimensionM);
 
 bool casillaColocacion(SDL_Renderer* renderer , int fil , int col , Coord* picord);
-void casillaEstado(SDL_Renderer* renderer, SDL_Window* window , Juego* mapa,int minasCord[][2],int minas , int filas , int columnas , int xGrilla , int yGrilla , Coord* picords);
 void casillaBandera(SDL_Renderer* renderer, int xGrilla , int yGrilla , Coord* picord);
 
 Casilla** matrizCrear(size_t filas, size_t columnas, size_t tamElem);
 void matrizDestruir(Casilla** mapa , size_t filas);
 void mapaVacio(Casilla** mapa, int filas, int columnas);
-void mapaLlenar(Casilla** mapa , int filas , int columnas , int minas , int minasCord[][2]);
+void mapaLlenar(Casilla** mapa , int filas , int columnas , Coord* minasCoord , int minas);
+void casillaEstado(SDL_Renderer* renderer , SDL_Window* window, Juego* juego , Coord* minasCoord , int minas, int filas , int columnas , int gX , int gY , Coord* picords);
 
 #endif // JUEGO_H
