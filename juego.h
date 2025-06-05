@@ -31,7 +31,7 @@ typedef struct {
 
 //Prototipos
 void fondoColor(SDL_Renderer* renderer);
-void interfaz(SDL_Renderer* renderer, Coord* pcords , int dimensionM);
+void interfaz(SDL_Renderer* renderer, Coord* pcords , int dimensionM , Coord* rbutton);
 
 bool casillaColocacion(SDL_Renderer* renderer , int fil , int col , Coord* picord);
 void casillaBandera(SDL_Renderer* renderer, int xGrilla , int yGrilla , Coord* picord);
