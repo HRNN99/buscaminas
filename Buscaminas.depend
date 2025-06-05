@@ -806,15 +806,15 @@
 1650910406 D
 	"juego.h"
 
-1749088382 source:c:\proyecto\buscaminas\dibujos.c
+1749090587 source:c:\proyecto\buscaminas\dibujos.c
 	"dibujos.h"
 
-1749089608 c:\proyecto\buscaminas\dibujos.h
+1749098432 c:\proyecto\buscaminas\dibujos.h
 	<SDL2/SDL.h>
 	<stdio.h>
 	<stdbool.h>
 
-1749089407 source:c:\proyecto\buscaminas\main.c
+1749098996 source:c:\proyecto\buscaminas\main.c
 	<stdio.h>
 	<stdlib.h>
 	<time.h>
@@ -1603,12 +1603,12 @@
 	"begin_code.h"
 	"close_code.h"
 
-1748904232 c:\proyecto\buscaminas\estados.h
+1749090924 c:\proyecto\buscaminas\estados.h
 
-1749018774 c:\proyecto\buscaminas\juego.h
+1749090111 c:\proyecto\buscaminas\juego.h
 	"dibujos.h"
 
-1749020028 source:c:\proyecto\buscaminas\juego.c
+1749098727 source:c:\proyecto\buscaminas\juego.c
 	<stdio.h>
 	"juego.h"
 	"estados.h"

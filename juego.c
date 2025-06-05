@@ -119,8 +119,9 @@ void interfaz(SDL_Renderer* renderer, Coord* pcords , int dimensionM){
     marco(renderer , pcords->x , pcords->y , anchoI , altoI , G);
 
     pcords->x += pad; pcords->y += pad;
-    dibujar(renderer , PIXELES_X_LADO*2 , restart_button , dimensionM/2 , 0 , pcords->x , pcords->y);
     marco(renderer , pcords->x , pcords->y , anchoM , altoC ,  G);
+
+    dibujar(renderer , PIXELES_X_LADO * 2 , restart_button , 0 , 0 ,  (anchoM / 2) - 7, pcords->y);
 
     pcords->x += 0; pcords->y += altoC + pad;
     marco(renderer , pcords->x , pcords->y , anchoM , anchoM , G);
