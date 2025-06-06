@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
     SDL_Event e; // Variable para registrar eventos
     int corriendo = 1; // Variable flag true para mantener corriendo el programa
 
-    int boton, xGrilla, yGrilla, renderizarGanado = 0, puntajePartida = 0, fontSize = 16, minasEnInterfaz = minasEnMapa;
+    int boton, xGrilla, yGrilla, renderizarGanado = 0, puntajePartida = 0, fontSize = 16, minasEnInterfaz = minasEnMapa, conteoPuntaje = 1;
     time_t start_time = time(NULL); // Get the starting time
     time_t current_time;
     // While para mantener el programa corriendo
@@ -113,8 +113,10 @@ int main(int argc, char *argv[])
             renderizarTexto(font, fontSize, bombasEnMapaTexto, GF, GS, renderer, (pad*3)+anchoM+22, pad+(altoC/2)+fontSize+2);
 
             // Aumento de puntaje por segundo
-            current_time = time(NULL);
-            puntajePartida = difftime(current_time, start_time);
+            if (conteoPuntaje){
+                current_time = time(NULL);
+                puntajePartida = difftime(current_time, start_time);
+            }
         }
 
         if (renderizarGanado)
@@ -135,6 +137,7 @@ int main(int argc, char *argv[])
             // Mostrar todo
             SDL_RenderPresent(rendererGanado);
             renderizarGanado = 0;
+            conteoPuntaje = 0;
         }
 
         if (SDL_PollEvent(&e))
@@ -176,7 +179,7 @@ int main(int argc, char *argv[])
                     } 
                     else{
                         printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", e.button.x, e.button.y);
-                        casillaEstado(renderer, ventana, &juego, &minasCoord, minasEnMapa , filas , columnas , xGrilla , yGrilla , &picords);
+                        casillaEstado(renderer, ventana, &juego, &minasCoord, minasEnMapa , filas , columnas , xGrilla , yGrilla , &picords, &conteoPuntaje);
                         if (juego.cantCasillasPresionadas == (filas * columnas) - minasEnMapa)
                         {
                             puts("Ganaste el juego!");

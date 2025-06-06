@@ -181,7 +181,7 @@ bool casillaColocacion(Casilla **mapa, SDL_Renderer *renderer, int fil, int col,
 }
 
 // Funcion que coloca estados en las casillas
-void casillaEstado(SDL_Renderer *renderer, SDL_Window *window, Juego *juego, Coord *minasCoord, int minas, int filas, int columnas, int gX, int gY, Coord *picords)
+void casillaEstado(SDL_Renderer *renderer, SDL_Window *window, Juego *juego, Coord *minasCoord, int minas, int filas, int columnas, int gX, int gY, Coord *picords, int* conteoPuntaje)
 {
 
     Casilla **mapa = juego->mapa;
@@ -198,12 +198,13 @@ void casillaEstado(SDL_Renderer *renderer, SDL_Window *window, Juego *juego, Coo
 
         mapa[gY][gX].presionada = true;
         juego->cantCasillasPresionadas += 1;
-        // Se podria optimizar haciendo que square2 sea por ejemplo -2 en el mapa?
+        // Juego Perdido
         if (mapa[gY][gX].estado == -1)
         {
-
+            *conteoPuntaje = 0;
             dibujar(renderer, PIXELES_X_LADO, mine2, gX, gY, picords->x, picords->y);
 
+            // Mostrar todas las bombas
             for (int i = 0; i < minas; i++)
             {
 
@@ -228,7 +229,7 @@ void casillaEstado(SDL_Renderer *renderer, SDL_Window *window, Juego *juego, Coo
         {
             for (int j = -1; j < 2; j++)
             {
-                casillaEstado(renderer, window, juego, minasCoord, minas, filas, columnas, gX + i, gY + j, picords);
+                casillaEstado(renderer, window, juego, minasCoord, minas, filas, columnas, gX + i, gY + j, picords, &conteoPuntaje);
             }
         }
     }
