@@ -12,6 +12,7 @@ int leerConfiguracion(int*, int*,int*, char*);
 
 int main(int argc, char *argv[])
 {
+
     int filas = 0, columnas = 0, minasEnMapa = 0;
     char rutaFuente[100];
 
@@ -84,11 +85,9 @@ int main(int argc, char *argv[])
     SDL_Event e; // Variable para registrar eventos
     int corriendo = 1; // Variable flag true para mantener corriendo el programa
 
-    int boton, xGrilla, yGrilla, renderizarGanado = 0, puntajePartida = 0;
-    // time_t start_time = time(NULL); // Get the starting time
-    // time_t current_time;
-    // current_time = time(NULL);
-    // puntajePartida = difftime(current_time, start_time);
+    int boton, xGrilla, yGrilla, renderizarGanado = 0, puntajePartida = 0, fontSize = 16;
+    time_t start_time = time(NULL); // Get the starting time
+    time_t current_time;
     // While para mantener el programa corriendo
     while (corriendo){
         SDL_RenderPresent(renderer);
@@ -103,9 +102,21 @@ int main(int argc, char *argv[])
             int anchoI = anchoM + 16;
             int altoI = pad + altoC + pad + anchoM + pad;
 
-            renderizarTexto(font, 16, "Puntaje:", GF, renderer, pad+14, pad+14);
-            renderizarTexto(font, 16, "Bombas:", GF, renderer, (pad*2)+anchoM+28, pad+14);
+            renderizarTexto(font, fontSize, "Puntaje:", GF, renderer, pad*3, pad+(altoC/2));
+            char puntaje[21] = "";
+            itoa(puntajePartida, puntaje, 10); //Armado de String a imprimir
+            renderizarTexto(font, fontSize, puntaje, GF, renderer, pad*3, pad+(altoC/2)+fontSize+2);
+            renderizarTexto(font, fontSize, "Bombas:", GF, renderer, (pad*3)+anchoM+22, pad+(altoC/2));
+
+            char bombasEnMapaTexto[21] = "";
+            itoa(minasEnMapa, bombasEnMapaTexto, 10); //Armado de String a imprimir
+            renderizarTexto(font, fontSize, bombasEnMapaTexto, GF, renderer, (pad*3)+anchoM+22, pad+(altoC/2)+fontSize+2);
+
+            // Aumento de puntaje por segundo
+            current_time = time(NULL);
+            puntajePartida = difftime(current_time, start_time);
         }
+
         if (renderizarGanado)
         {
             //Inicio la lectura de teclado
@@ -156,35 +167,36 @@ int main(int argc, char *argv[])
                 if (boton == SDL_BUTTON_LEFT)
                 { // Evento clik izquierdo del mouse
 
+                    // Click en boton de reinicio
                     if((rbutton.x * TAM_PIXEL <= e.button.x && e.button.x <= (rbutton.x + 28) * TAM_PIXEL)
                         &&(rbutton.y * TAM_PIXEL <= e.button.y && e.button.y <= (rbutton.y + 28) * TAM_PIXEL)){
 
                         printf("Reiniciaste mapa \n");
                         mapaReiniciar(renderer , &picords , mapa , filas , columnas , &minasCoord , minasEnMapa);
-                    }
-
+                    } 
                     else{
-                    printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", e.button.x, e.button.y);
-                    casillaEstado(renderer, ventana, &juego, &minasCoord, minasEnMapa , filas , columnas , xGrilla , yGrilla , &picords);
-                    if (juego.cantCasillasPresionadas == (filas * columnas) - minasEnMapa)
-                    {
-                        puts("Ganaste el juego!");
-                        renderizarGanado = 1;
-                        *nombreJugador = '\0'; // Limpieza por si se presionaron teclas al jugar
-                        // Funcion para crear ventana con posicion especifica, dimension y banderas.
-                        ventanaGanado = SDL_CreateWindow("Ganaste!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, TAMX - 100, TAMY - 100, 2);
-                        // Funcion para crear el renderizado en ventana acelerado por hardware
-                        rendererGanado = SDL_CreateRenderer(ventanaGanado, -1, SDL_RENDERER_ACCELERATED);
-                        // Funcion para establecer el modo de mezcla de colores para el renderizado, el modo blend nos permite utilizar transparencia
-                        SDL_SetRenderDrawBlendMode(rendererGanado, SDL_BLENDMODE_BLEND);
-                    }
+                        printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", e.button.x, e.button.y);
+                        casillaEstado(renderer, ventana, &juego, &minasCoord, minasEnMapa , filas , columnas , xGrilla , yGrilla , &picords);
+                        if (juego.cantCasillasPresionadas == (filas * columnas) - minasEnMapa)
+                        {
+                            puts("Ganaste el juego!");
+                            renderizarGanado = 1;
+                            *nombreJugador = '\0'; // Limpieza por si se presionaron teclas al jugar
+                            // Funcion para crear ventana con posicion especifica, dimension y banderas.
+                            ventanaGanado = SDL_CreateWindow("Ganaste!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, TAMX - 100, TAMY - 100, 2);
+                            // Funcion para crear el renderizado en ventana acelerado por hardware
+                            rendererGanado = SDL_CreateRenderer(ventanaGanado, -1, SDL_RENDERER_ACCELERATED);
+                            // Funcion para establecer el modo de mezcla de colores para el renderizado, el modo blend nos permite utilizar transparencia
+                            SDL_SetRenderDrawBlendMode(rendererGanado, SDL_BLENDMODE_BLEND);
+                        }
                     }
                 }
 
                 else if (boton == SDL_BUTTON_RIGHT)
                 { // Evento click derecho del mouse
                     printf("Hiciste clic derecho en la casilla (%i, %i) colocando bandera\n", xGrilla, yGrilla);
-                    casillaBandera(renderer, xGrilla, yGrilla , &picords);
+
+                    casillaBandera(renderer, ventana, &juego, &minasCoord, minasEnMapa , filas , columnas , xGrilla , yGrilla , &picords);
                 }
                 printf("Presionadas: %d\n", juego.cantCasillasPresionadas);
                 break;

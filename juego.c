@@ -3,25 +3,29 @@
 #include "estados.h"
 #include "time.h"
 
-//Funcion destinada a crear una matriz con memoria dinamica
-Casilla** matrizCrear(size_t filas, size_t columnas, size_t tamElem){
+// Funcion destinada a crear una matriz con memoria dinamica
+Casilla **matrizCrear(size_t filas, size_t columnas, size_t tamElem)
+{
 
-    Casilla** mat = malloc(filas * sizeof(Casilla*));
-    if (!mat){
+    Casilla **mat = malloc(filas * sizeof(Casilla *));
+    if (!mat)
+    {
 
         puts("No hay suficiente memoria para las filas.");
         return NULL;
     }
 
-    Casilla** ult = mat + filas - 1;
+    Casilla **ult = mat + filas - 1;
 
-    for (Casilla** i = mat ; i <= ult ; i++){
+    for (Casilla **i = mat; i <= ult; i++)
+    {
 
         *i = malloc(columnas * tamElem);
 
-        if (!*i){
+        if (!*i)
+        {
             puts("No hay suficiente memoria para alguna de las filas.");
-            matrizDestruir(mat , (i - mat));
+            matrizDestruir(mat, (i - mat));
             return NULL;
         }
     }
@@ -29,24 +33,27 @@ Casilla** matrizCrear(size_t filas, size_t columnas, size_t tamElem){
     return mat;
 }
 
-//Funcion para liberar la memoria de la matriz creada
-void matrizDestruir(Casilla** mat , size_t filas){
+// Funcion para liberar la memoria de la matriz creada
+void matrizDestruir(Casilla **mat, size_t filas)
+{
 
-    Casilla** ult = mat + filas - 1;
+    Casilla **ult = mat + filas - 1;
 
-    for (Casilla** i = mat ; i <= ult ; i++){
+    for (Casilla **i = mat; i <= ult; i++)
+    {
         free(*i);
     }
 
     free(mat);
 }
 
-//Funcion que inicializa el mapa de juego en valores por defecto
-void mapaVacio(Casilla** mapa , int filas, int columnas){
+// Funcion que inicializa el mapa de juego en valores por defecto
+void mapaVacio(Casilla **mapa, int filas, int columnas)
+{
 
-    for(int y = 0; y < filas; y++)
+    for (int y = 0; y < filas; y++)
     {
-        for(int x = 0; x < columnas; x++)
+        for (int x = 0; x < columnas; x++)
         {
             mapa[y][x].estado = 0;
             mapa[y][x].presionada = false;
@@ -54,25 +61,28 @@ void mapaVacio(Casilla** mapa , int filas, int columnas){
     }
 }
 
-//Funcion que llena el mapa de juego con minas y aleda�os
-void mapaLlenar(Casilla** mapa , int filas , int columnas , Coord* minasCoord , int minas){
+// Funcion que llena el mapa de juego con minas y aleda�os
+void mapaLlenar(Casilla **mapa, int filas, int columnas, Coord *minasCoord, int minas)
+{
 
-    int x , y , m=0 ;
+    int x, y, m = 0;
     srand(time(NULL));
 
-    while(m < minas){
+    while (m < minas)
+    {
 
         x = rand() % columnas;
         y = rand() % filas;
 
-        if(mapa[y][x].estado != -1){
+        if (mapa[y][x].estado != -1)
+        {
 
             minasCoord[m].x = x;
             minasCoord[m].y = y;
 
             mapa[y][x].estado = -1;
 
-            //Sumar alrededro de la mina
+            // Sumar alrededro de la mina
             for (int dy = -1; dy <= 1; dy++)
             {
                 for (int dx = -1; dx <= 1; dx++)
@@ -80,13 +90,11 @@ void mapaLlenar(Casilla** mapa , int filas , int columnas , Coord* minasCoord , 
                     if (dy == 0 && dx == 0)
                         continue;
 
-
                     int nf = y + dy;
                     int nc = x + dx;
 
                     if ((nf >= 0 && nf < filas) && (nc >= 0 && nc < columnas) && (mapa[nf][nc].estado != -1))
                         mapa[nf][nc].estado++;
-
                 }
             }
 
@@ -97,64 +105,73 @@ void mapaLlenar(Casilla** mapa , int filas , int columnas , Coord* minasCoord , 
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-//Establecer el renderizado con un color base (negro)
-void fondoColor(SDL_Renderer* renderer){
-    SDL_SetRenderDrawColor(renderer, 0,0,0,255); //color
-    SDL_RenderClear(renderer); //limpieza
-    SDL_RenderPresent(renderer); //Aplicacion
+// Establecer el renderizado con un color base (negro)
+void fondoColor(SDL_Renderer *renderer)
+{
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // color
+    SDL_RenderClear(renderer);                      // limpieza
+    SDL_RenderPresent(renderer);                    // Aplicacion
 }
 
-void interfaz(SDL_Renderer* renderer, Coord* pcords , int dimensionM , Coord* rbutton){
+void interfaz(SDL_Renderer *renderer, Coord *pcords, int dimensionM, Coord *rbutton)
+{
 
-    int G=2; //Grosor
-    int pad = G*4;
+    int G = 2; // Grosor
+    int pad = G * 4;
 
     int anchoM = dimensionM * PIXELES_X_LADO + 4;
     int altoC = 28;
     int anchoI = anchoM + 16;
     int altoI = pad + altoC + pad + anchoM + pad;
 
-    rectanguloLleno(renderer , GS , pcords->x , pcords->y , anchoI , altoI);
+    rectanguloLleno(renderer, GS, pcords->x, pcords->y, anchoI, altoI);
 
-    marco(renderer , pcords->x , pcords->y , anchoI , altoI , G); // Exterior
+    marco(renderer, pcords->x, pcords->y, anchoI, altoI, G); // Exterior
 
-    pcords->x += pad; pcords->y += pad;
-    marco(renderer , pcords->x , pcords->y , anchoM , altoC ,  G); // Puntaje
+    pcords->x += pad;
+    pcords->y += pad;
+    marco(renderer, pcords->x, pcords->y, anchoM, altoC, G); // Puntaje
 
-    dibujar(renderer , PIXELES_X_LADO * 2 , restart_button , 0 , 0 ,  (anchoM / 2) - 7, pcords->y);
+    dibujar(renderer, PIXELES_X_LADO * 2, restart_button, 0, 0, (anchoM / 2) - 7, pcords->y);
     rbutton->x = ((anchoM / 2) - 7);
     rbutton->y = pcords->y;
 
-    pcords->x += 0; pcords->y += altoC + pad;
-    marco(renderer , pcords->x , pcords->y , anchoM , anchoM , G); // Mapa
+    pcords->x += 0;
+    pcords->y += altoC + pad;
+    marco(renderer, pcords->x, pcords->y, anchoM, anchoM, G); // Mapa
 
-    pcords->x += G; pcords->y += G;
+    pcords->x += G;
+    pcords->y += G;
 }
 
-void mapaReiniciar(SDL_Renderer* renderer , Coord* pcord , Casilla** mapa , int filas , int columnas , Coord* minasCoord , int minas){
+void mapaReiniciar(SDL_Renderer *renderer, Coord *pcord, Casilla **mapa, int filas, int columnas, Coord *minasCoord, int minas)
+{
 
-    mapaVacio(mapa , filas , columnas);
+    mapaVacio(mapa, filas, columnas);
 
-    mapaLlenar(mapa , filas , columnas , minasCoord , minas);
+    mapaLlenar(mapa, filas, columnas, minasCoord, minas);
 
-    casillaColocacion(renderer , filas , columnas , pcord);
+    casillaColocacion(mapa, renderer, filas, columnas, pcord);
 }
 
-//Funcion que coloca todas las casillas sin valor
-bool casillaColocacion(SDL_Renderer* renderer , int fil , int col , Coord* picord){
+// Funcion que coloca todas las casillas sin valor
+bool casillaColocacion(Casilla **mapa, SDL_Renderer *renderer, int fil, int col, Coord *picord)
+{
 
     int gX = 0; // Variable para coordenada X
     int gY = 0; // Variable para ccoordenada Y
 
-    int x,y = 0;
-    while(y < fil){
+    int x, y = 0;
+    while (y < fil)
+    {
 
-        x=0;
-        while(x < col){
-
+        x = 0;
+        while (x < col)
+        {
+            mapa[x][y].estadoBandera = 0; // Uso el ciclo para inicializar todo en 0
             gX = x % col;
             gY = y % fil;
-            dibujar(renderer , PIXELES_X_LADO , square1 , gX , gY , picord->x , picord->y);
+            dibujar(renderer, PIXELES_X_LADO, square1, gX, gY, picord->x, picord->y);
             x++;
         }
         y++;
@@ -163,56 +180,69 @@ bool casillaColocacion(SDL_Renderer* renderer , int fil , int col , Coord* picor
     return true;
 }
 
-//Funcion que coloca estados en las casillas
-void casillaEstado(SDL_Renderer* renderer , SDL_Window* window, Juego* juego , Coord* minasCoord , int minas, int filas , int columnas , int gX , int gY , Coord* picords){
+// Funcion que coloca estados en las casillas
+void casillaEstado(SDL_Renderer *renderer, SDL_Window *window, Juego *juego, Coord *minasCoord, int minas, int filas, int columnas, int gX, int gY, Coord *picords)
+{
 
-    Casilla** mapa = juego->mapa;
+    Casilla **mapa = juego->mapa;
 
     int mX = 0;
     int mY = 0;
-    if(gX < 0 || gX >= columnas || gY < 0 || gY >= filas){
+    if (gX < 0 || gX >= columnas || gY < 0 || gY >= filas)
+    {
         return;
     }
 
-    if(!mapa[gY][gX].presionada){
+    if (!mapa[gY][gX].presionada)
+    {
 
         mapa[gY][gX].presionada = true;
-        juego->cantCasillasPresionadas +=1;
-        //Se podria optimizar haciendo que square2 sea por ejemplo -2 en el mapa?
-        if(mapa[gY][gX].estado == -1){
+        juego->cantCasillasPresionadas += 1;
+        // Se podria optimizar haciendo que square2 sea por ejemplo -2 en el mapa?
+        if (mapa[gY][gX].estado == -1)
+        {
 
-            dibujar(renderer , PIXELES_X_LADO , mine2 , gX , gY , picords->x , picords->y);
+            dibujar(renderer, PIXELES_X_LADO, mine2, gX, gY, picords->x, picords->y);
 
-            for(int i = 0; i<minas; i++){
+            for (int i = 0; i < minas; i++)
+            {
 
                 mX = minasCoord[i].x;
                 mY = minasCoord[i].y;
 
-                if(gX != mX && gY != mY)
-                    dibujar(renderer , PIXELES_X_LADO , mine , mX , mY , picords->x , picords->y);
+                if (gX != mX && gY != mY)
+                    dibujar(renderer, PIXELES_X_LADO, mine, mX, mY, picords->x, picords->y);
             }
             return;
         }
 
-        else if(mapa[gY][gX].estado != 0){
-            dibujar(renderer , PIXELES_X_LADO , eleccion(mapa[gY][gX].estado) , gX , gY , picords->x , picords->y);
-            return;
-        }
-
-        dibujar(renderer , PIXELES_X_LADO , square2 , gX , gY , picords->x , picords->y);
-
-        for(int i = -1; i<2; i++)
+        else if (mapa[gY][gX].estado != 0)
         {
-            for(int j = -1; j<2; j++)
-            {
-                casillaEstado(renderer , window , juego, minasCoord , minas , filas , columnas , gX + i , gY + j , picords);
-            }
+            dibujar(renderer, PIXELES_X_LADO, eleccion(mapa[gY][gX].estado), gX, gY, picords->x, picords->y);
+            return;
         }
 
+        dibujar(renderer, PIXELES_X_LADO, square2, gX, gY, picords->x, picords->y);
+
+        for (int i = -1; i < 2; i++)
+        {
+            for (int j = -1; j < 2; j++)
+            {
+                casillaEstado(renderer, window, juego, minasCoord, minas, filas, columnas, gX + i, gY + j, picords);
+            }
+        }
     }
 }
 
-//Funcion para colocar bandera
-void casillaBandera(SDL_Renderer* renderer, int gX , int gY , Coord* picord){
-    dibujar(renderer , PIXELES_X_LADO , flag , gX , gY , picord->x , picord->y);
+// Funcion para colocar bandera
+// void casillaBandera(SDL_Renderer* renderer, int gX , int gY , Coord* picord){
+void casillaBandera(SDL_Renderer *renderer, SDL_Window *window, Juego *juego, Coord *minasCoord, int minas, int filas, int columnas, int gX, int gY, Coord *picord)
+{
+
+    Casilla **mapa = juego->mapa;
+    //Realizo una iteracion ciclica con el resto
+    // 1%3 = 1, 2%3 = 2, 3%3 = 0;
+    mapa[gX][gY].estadoBandera = (mapa[gX][gY].estadoBandera + 1) % 3;
+
+    dibujar(renderer, PIXELES_X_LADO, eleccionBandera(mapa[gX][gY].estadoBandera), gX, gY, picord->x, picord->y);
 }
