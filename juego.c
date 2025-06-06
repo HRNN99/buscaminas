@@ -235,14 +235,19 @@ void casillaEstado(SDL_Renderer *renderer, SDL_Window *window, Juego *juego, Coo
 }
 
 // Funcion para colocar bandera
-// void casillaBandera(SDL_Renderer* renderer, int gX , int gY , Coord* picord){
-void casillaBandera(SDL_Renderer *renderer, SDL_Window *window, Juego *juego, Coord *minasCoord, int minas, int filas, int columnas, int gX, int gY, Coord *picord)
+void casillaBandera(SDL_Renderer *renderer, Juego *juego, int gX, int gY, Coord *picord, int* minasEnInterfaz)
 {
 
     Casilla **mapa = juego->mapa;
     //Realizo una iteracion ciclica con el resto
     // 1%3 = 1, 2%3 = 2, 3%3 = 0;
     mapa[gX][gY].estadoBandera = (mapa[gX][gY].estadoBandera + 1) % 3;
+
+    //Suma y resta de bombas dependiendo el caso
+    if (mapa[gX][gY].estadoBandera == 1)
+        (*minasEnInterfaz)--;
+    else if (mapa[gX][gY].estadoBandera == 2)
+        (*minasEnInterfaz)++;
 
     dibujar(renderer, PIXELES_X_LADO, eleccionBandera(mapa[gX][gY].estadoBandera), gX, gY, picord->x, picord->y);
 }

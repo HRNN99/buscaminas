@@ -36,8 +36,7 @@ void fondoColor(SDL_Renderer* renderer);
 void interfaz(SDL_Renderer* renderer, Coord* pcords , int dimensionM , Coord* rbutton);
 
 bool casillaColocacion(Casilla** mapa, SDL_Renderer* renderer , int fil , int col , Coord* picord);
-//void casillaBandera(SDL_Renderer* renderer, int xGrilla , int yGrilla , Coord* picord);
-void casillaBandera(SDL_Renderer* renderer , SDL_Window* window, Juego* juego , Coord* minasCoord , int minas, int filas , int columnas , int gX , int gY , Coord* picords);
+void casillaBandera(SDL_Renderer *renderer, Juego *juego, int gX, int gY, Coord *picord, int* minasEnInterfaz);
 
 Casilla** matrizCrear(size_t filas, size_t columnas, size_t tamElem);
 void matrizDestruir(Casilla** mapa , size_t filas);
