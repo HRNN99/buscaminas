@@ -102,15 +102,15 @@ int main(int argc, char *argv[])
             int anchoI = anchoM + 16;
             int altoI = pad + altoC + pad + anchoM + pad;
 
-            renderizarTexto(font, fontSize, "Puntaje:", GF, renderer, pad*3, pad+(altoC/2));
+            renderizarTexto(font, fontSize, "Puntaje:", GF, GS, renderer, pad*3, pad+(altoC/2));
             char puntaje[21] = "";
             itoa(puntajePartida, puntaje, 10); //Armado de String a imprimir
-            renderizarTexto(font, fontSize, puntaje, GF, renderer, pad*3, pad+(altoC/2)+fontSize+2);
-            renderizarTexto(font, fontSize, "Bombas:", GF, renderer, (pad*3)+anchoM+22, pad+(altoC/2));
+            renderizarTexto(font, fontSize, puntaje, GF, GS, renderer, pad*3, pad+(altoC/2)+fontSize+2);
+            renderizarTexto(font, fontSize, "Bombas:", GF, GS,renderer, (pad*3)+anchoM+22, pad+(altoC/2));
 
             char bombasEnMapaTexto[21] = "";
             itoa(minasEnInterfaz, bombasEnMapaTexto, 10); //Armado de String a imprimir
-            renderizarTexto(font, fontSize, bombasEnMapaTexto, GF, renderer, (pad*3)+anchoM+22, pad+(altoC/2)+fontSize+2);
+            renderizarTexto(font, fontSize, bombasEnMapaTexto, GF, GS, renderer, (pad*3)+anchoM+22, pad+(altoC/2)+fontSize+2);
 
             // Aumento de puntaje por segundo
             current_time = time(NULL);
@@ -128,9 +128,9 @@ int main(int argc, char *argv[])
             char textoPuntaje[21] = "Puntaje: ";
             char puntajeChar[12];
             strcat(textoPuntaje, itoa(puntajePartida, puntajeChar, 10)); //Armado de String a imprimir
-            renderizarTexto(font, 24, textoPuntaje, BB, rendererGanado, 50, 50);
-            renderizarTexto(font, 24, "Ingrese su nombre:", BB, rendererGanado, 50, 100);
-            renderizarTexto(font, 24, nombreJugador, BB, rendererGanado, 50, 120);
+            renderizarTexto(font, 24, textoPuntaje, BB, GS,rendererGanado, 50, 50);
+            renderizarTexto(font, 24, "Ingrese su nombre:", BB, GS, rendererGanado, 50, 100);
+            renderizarTexto(font, 24, nombreJugador, BB, GS,rendererGanado, 50, 120);
 
             // Mostrar todo
             SDL_RenderPresent(rendererGanado);
