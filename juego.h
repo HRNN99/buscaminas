@@ -18,6 +18,8 @@ typedef struct{
 
 typedef struct{
     int cantCasillasPresionadas;
+    int puntaje;
+    bool finPartida;
     Casilla** mapa;
 } Juego;
 
@@ -42,6 +44,6 @@ Casilla** matrizCrear(size_t filas, size_t columnas, size_t tamElem);
 void matrizDestruir(Casilla** mapa , size_t filas);
 void mapaVacio(Casilla** mapa, int filas, int columnas);
 void mapaLlenar(Casilla** mapa , int filas , int columnas , Coord* minasCoord , int minas);
-void casillaEstado(SDL_Renderer* renderer , SDL_Window* window, Juego* juego , Coord* minasCoord , int minas, int filas , int columnas , int gX , int gY , Coord* picords, int* conteoPuntaje);
+void casillaEstado(SDL_Renderer* renderer , SDL_Window* window, Juego* juego , Coord* minasCoord , int minas, int filas , int columnas , int gX , int gY , Coord* picords);
 
 #endif // JUEGO_H
