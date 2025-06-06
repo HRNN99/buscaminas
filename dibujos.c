@@ -78,6 +78,20 @@ void FinalizarVentanaSDL(SDL_Window *ventana, SDL_Renderer *renderer)
     SDL_DestroyWindow(ventana);
 }
 
+int renderizarTexto(TTF_Font *font, const char *texto, int color, SDL_Renderer *render, int x, int y)
+{
+    SDL_Color sdlColor = colores[color];
+    if(!(strlen(texto) > 0)){ //Evita el renderizado con cero caracteres
+        return 1;
+    }
+    SDL_Surface *textSurface = TTF_RenderText_Solid(font, texto, sdlColor);
+    SDL_Texture *textTexture = SDL_CreateTextureFromSurface(render, textSurface);
+    SDL_Rect textRect = {x, y, textSurface->w, textSurface->h};
+    SDL_RenderCopy(render, textTexture, NULL, &textRect);
+    SDL_FreeSurface(textSurface);
+    SDL_DestroyTexture(textTexture);
 
+    return 0;
+}
 
 

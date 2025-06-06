@@ -8,7 +8,6 @@
 #include "dibujos.h" //Header de estados
 #include "juego.h"
 
-int renderizarTexto(TTF_Font *font, const char *texto, SDL_Color *color, SDL_Renderer *render, int x, int y);
 int leerConfiguracion(int*, int*,int*, char*);
 
 int main(int argc, char *argv[])
@@ -86,13 +85,16 @@ int main(int argc, char *argv[])
     int corriendo = 1; // Variable flag true para mantener corriendo el programa
 
     int boton, xGrilla, yGrilla, renderizarGanado = 0, puntajePartida = 0;
+    // time_t start_time = time(NULL); // Get the starting time
+    // time_t current_time;
+    // current_time = time(NULL);
+    // puntajePartida = difftime(current_time, start_time);
     // While para mantener el programa corriendo
     while (corriendo){
-
         SDL_RenderPresent(renderer);
         SDL_Window *ventanaGanado;
         SDL_Renderer *rendererGanado;
-
+        //renderizarTexto(font, "Ingrese su nombre:", GF, renderer, 2*4, 2*4);
         if (renderizarGanado)
         {
             //Inicio la lectura de teclado
@@ -101,13 +103,12 @@ int main(int argc, char *argv[])
             SDL_SetRenderDrawColor(rendererGanado, 0, 0, 0, 255); // negro
             SDL_RenderClear(rendererGanado);
             // Renderizar "Puntaje" y "Nombre:"
-            SDL_Color blanco = {255, 255, 255, 255};
             char textoPuntaje[21] = "Puntaje: ";
             char puntajeChar[12];
             strcat(textoPuntaje, itoa(puntajePartida, puntajeChar, 10)); //Armado de String a imprimir
-            renderizarTexto(font, textoPuntaje, &blanco, rendererGanado, 50, 50);
-            renderizarTexto(font, "Ingrese su nombre:", &blanco, rendererGanado, 50, 100);
-            renderizarTexto(font, nombreJugador, &blanco, rendererGanado, 50, 120);
+            renderizarTexto(font, textoPuntaje, BB, rendererGanado, 50, 50);
+            renderizarTexto(font, "Ingrese su nombre:", BB, rendererGanado, 50, 100);
+            renderizarTexto(font, nombreJugador, BB, rendererGanado, 50, 120);
 
             // Mostrar todo
             SDL_RenderPresent(rendererGanado);
@@ -216,21 +217,6 @@ int main(int argc, char *argv[])
         SDL_Delay(16); // (60 fps) Esta pausa es para evitar que el procesador se ponga al 100% renderizando constantemente.
     }
     return EJECUCION_OK;
-}
-
-int renderizarTexto(TTF_Font *font, const char *texto, SDL_Color *color, SDL_Renderer *render, int x, int y)
-{
-    if(!(strlen(texto) > 0)){ //Evita el renderizado con cero caracteres
-        return 1;
-    }
-    SDL_Surface *textSurface = TTF_RenderText_Solid(font, texto, *color);
-    SDL_Texture *textTexture = SDL_CreateTextureFromSurface(render, textSurface);
-    SDL_Rect textRect = {x, y, textSurface->w, textSurface->h};
-    SDL_RenderCopy(render, textTexture, NULL, &textRect);
-    SDL_FreeSurface(textSurface);
-    SDL_DestroyTexture(textTexture);
-
-    return 0;
 }
 
 int leerConfiguracion(int* filas, int* columnas, int* minasEnMapa, char* rutaFuente){
