@@ -144,8 +144,15 @@ void interfaz(SDL_Renderer *renderer, Coord *pcords, int dimensionM, Coord *rbut
     pcords->y += G;
 }
 
-void mapaReiniciar(SDL_Renderer *renderer, Coord *pcord, Casilla **mapa, int filas, int columnas, Coord *minasCoord, int minas)
+void mapaReiniciar(SDL_Renderer *renderer, Coord *pcord, Juego *juego, int filas, int columnas, Coord *minasCoord, int minas)
 {
+
+    Casilla **mapa = juego->mapa;
+
+    juego->puntaje = 0;
+    juego->finPartida = false;
+    juego->cantCasillasPresionadas = 0;
+    juego->start_time = time(NULL); // Iniciar el contador cuando inicia el juego
 
     mapaVacio(mapa, filas, columnas);
 

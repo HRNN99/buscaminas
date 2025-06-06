@@ -61,13 +61,11 @@ int main(int argc, char *argv[])
     //Vector de coordenadas para las minas
     Coord minasCoord[minasEnMapa];
 
-    //Iniciacion de valores de mapa
-    mapaReiniciar(renderer , &picords , mapa , filas , columnas , &minasCoord , minasEnMapa);
-
     Juego juego;
-    juego.cantCasillasPresionadas = 0;
     juego.mapa = mapa;
-    juego.finPartida = false;
+
+    //Iniciacion de valores de mapa
+    mapaReiniciar(renderer , &picords , &juego , filas , columnas , &minasCoord , minasEnMapa);
 
     putchar('\n');
 
@@ -87,7 +85,6 @@ int main(int argc, char *argv[])
     int corriendo = 1; // Variable flag true para mantener corriendo el programa
 
     int boton, xGrilla, yGrilla, renderizarGanado = 0, puntajePartida = 0, fontSize = 16, minasEnInterfaz = minasEnMapa;
-    time_t start_time = time(NULL); // Get the starting time
     time_t current_time;
     // While para mantener el programa corriendo
     while (corriendo){
@@ -116,7 +113,7 @@ int main(int argc, char *argv[])
             // Aumento de puntaje por segundo
             if (!juego.finPartida){
                 current_time = time(NULL);
-                puntajePartida = difftime(current_time, start_time);
+                puntajePartida = difftime(current_time, juego.start_time);
             }
         }
 
@@ -176,7 +173,7 @@ int main(int argc, char *argv[])
                         &&(rbutton.y * TAM_PIXEL <= e.button.y && e.button.y <= (rbutton.y + 28) * TAM_PIXEL)){
 
                         printf("Reiniciaste mapa \n");
-                        mapaReiniciar(renderer , &picords , mapa , filas , columnas , &minasCoord , minasEnMapa);
+                        mapaReiniciar(renderer , &picords , &juego , filas , columnas , &minasCoord , minasEnMapa);
                     } 
                     else{
                         printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", e.button.x, e.button.y);
@@ -195,7 +192,6 @@ int main(int argc, char *argv[])
                         }
                     }
                 }
-
                 else if (boton == SDL_BUTTON_RIGHT)
                 { // Evento click derecho del mouse
                     printf("Hiciste clic derecho en la casilla (%i, %i) colocando bandera\n", xGrilla, yGrilla);
