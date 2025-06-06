@@ -15,6 +15,14 @@ int main(int argc, char *argv[])
 {
     int filas = 0, columnas = 0, minasEnMapa = 0;
     char rutaFuente[100];
+
+    //Creacion archivo log
+    
+    FILE* archivoLog = fopen("partida.log", "w + t");
+    Log log;
+    setLog(&log, NULL, -1, -1, "Inicio del juego");
+    escribirArchivoLog(archivoLog, &log);
+
     // Lectura del archivo de configuarcion
     leerConfiguracion(&filas, &columnas, &minasEnMapa, rutaFuente);
 
@@ -130,6 +138,8 @@ int main(int argc, char *argv[])
                 if (boton == SDL_BUTTON_LEFT)
                 { // Evento clik izquierdo del mouse
                     printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", xGrilla, yGrilla);
+
+                    escribirArchivoLog(archivoLog, &log);
                     casillaEstado(renderer, ventana, &juego, minasCord, minasEnMapa , filas , columnas , xGrilla , yGrilla);
                     if (juego.cantCasillasPresionadas == (filas * columnas) - minasEnMapa)
                     {
@@ -184,6 +194,7 @@ int main(int argc, char *argv[])
                     fclose(aPuntuacion);
                     renderizarGanado = 0;
                     FinalizarVentanaSDL(ventanaGanado, rendererGanado); // Funcion para la finalizacion de SDL y sus componentes
+                    fclose(archivoLog);
                }
                 break;
             }
@@ -247,4 +258,17 @@ int leerConfiguracion(int* filas, int* columnas, int* minasEnMapa, char* rutaFue
     }
     printf("%d, %d, %s", *filas, *minasEnMapa, rutaFuente);
     fclose(config);
+    
 }
+
+int escribirArchivoLog(FILE* archivoLog, Log* log)
+{
+    if(log->coordXY[0] == -1 && log->coordXY[1] == -1)
+    {
+          fprintf(archivoLog, "%s|%s \n", log->fechaHora, log->tipoEvento);
+    }else
+    {
+        fprintf(archivoLog, "%s|%s|coord x = %d|coord y = %d \n", log->fechaHora, log->tipoEvento, log->coordXY[0],log->coordXY[1]);
+    }
+}
+    
