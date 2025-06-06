@@ -19,6 +19,7 @@ typedef struct{
 typedef struct{
     int cantCasillasPresionadas;
     int puntaje;
+    int cantMinasEnInterfaz;
     bool finPartida;
     time_t start_time;
     Casilla** mapa;
