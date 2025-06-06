@@ -94,7 +94,18 @@ int main(int argc, char *argv[])
         SDL_RenderPresent(renderer);
         SDL_Window *ventanaGanado;
         SDL_Renderer *rendererGanado;
-        //renderizarTexto(font, "Ingrese su nombre:", GF, renderer, 2*4, 2*4);
+        if(1){
+            int G=2;
+            int pad = G*4;
+
+            int anchoM = filas * PIXELES_X_LADO + 4;
+            int altoC = 28;
+            int anchoI = anchoM + 16;
+            int altoI = pad + altoC + pad + anchoM + pad;
+
+            renderizarTexto(font, 16, "Puntaje:", GF, renderer, pad+14, pad+14);
+            renderizarTexto(font, 16, "Bombas:", GF, renderer, (pad*2)+anchoM+28, pad+14);
+        }
         if (renderizarGanado)
         {
             //Inicio la lectura de teclado
@@ -106,9 +117,9 @@ int main(int argc, char *argv[])
             char textoPuntaje[21] = "Puntaje: ";
             char puntajeChar[12];
             strcat(textoPuntaje, itoa(puntajePartida, puntajeChar, 10)); //Armado de String a imprimir
-            renderizarTexto(font, textoPuntaje, BB, rendererGanado, 50, 50);
-            renderizarTexto(font, "Ingrese su nombre:", BB, rendererGanado, 50, 100);
-            renderizarTexto(font, nombreJugador, BB, rendererGanado, 50, 120);
+            renderizarTexto(font, 24, textoPuntaje, BB, rendererGanado, 50, 50);
+            renderizarTexto(font, 24, "Ingrese su nombre:", BB, rendererGanado, 50, 100);
+            renderizarTexto(font, 24, nombreJugador, BB, rendererGanado, 50, 120);
 
             // Mostrar todo
             SDL_RenderPresent(rendererGanado);
@@ -124,7 +135,7 @@ int main(int argc, char *argv[])
                 printf("Saliendo de SDL\n");
                 corriendo = 0;
                 matrizDestruir(juego.mapa, filas);             // Se libera la memoria de la matriz mapa
-                FinalizarSDL(ventana, renderer, EXIT_SUCCESS); // Funcion para la finalizacion de SDL y sus componentes
+                FinalizarSDL(ventana, renderer, font, EXIT_SUCCESS); // Funcion para la finalizacion de SDL y sus componentes
                 break;
             case SDL_WINDOWEVENT:
                 if (e.window.event == SDL_WINDOWEVENT_CLOSE)

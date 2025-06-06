@@ -63,8 +63,9 @@ void marco(SDL_Renderer* renderer , int X , int Y , int W , int H , int G){
 }
 
 //Funcion que finaliza el SDL
-void FinalizarSDL(SDL_Window *ventana, SDL_Renderer *renderer, int estadoExit)
+void FinalizarSDL(SDL_Window *ventana, SDL_Renderer *renderer, TTF_Font *font, int estadoExit)
 {
+    TTF_CloseFont(font);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(ventana);
     SDL_Quit();
@@ -78,8 +79,9 @@ void FinalizarVentanaSDL(SDL_Window *ventana, SDL_Renderer *renderer)
     SDL_DestroyWindow(ventana);
 }
 
-int renderizarTexto(TTF_Font *font, const char *texto, int color, SDL_Renderer *render, int x, int y)
+int renderizarTexto(TTF_Font *font, int size, const char *texto, int color, SDL_Renderer *render, int x, int y)
 {
+    TTF_SetFontSize(font, size);
     SDL_Color sdlColor = colores[color];
     if(!(strlen(texto) > 0)){ //Evita el renderizado con cero caracteres
         return 1;
