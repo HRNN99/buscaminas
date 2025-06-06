@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
     SDL_Event e; // Variable para registrar eventos
     int corriendo = 1; // Variable flag true para mantener corriendo el programa
 
-    int boton, xGrilla, yGrilla, renderizarGanado = 0, puntajePartida = 0, fontSize = 16;
+    int boton, xGrilla, yGrilla, renderizarGanado = 0, puntajePartida = 0, fontSize = 16, minasEnInterfaz = minasEnMapa;
     time_t start_time = time(NULL); // Get the starting time
     time_t current_time;
     // While para mantener el programa corriendo
@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
             renderizarTexto(font, fontSize, "Bombas:", GF, renderer, (pad*3)+anchoM+22, pad+(altoC/2));
 
             char bombasEnMapaTexto[21] = "";
-            itoa(minasEnMapa, bombasEnMapaTexto, 10); //Armado de String a imprimir
+            itoa(minasEnInterfaz, bombasEnMapaTexto, 10); //Armado de String a imprimir
             renderizarTexto(font, fontSize, bombasEnMapaTexto, GF, renderer, (pad*3)+anchoM+22, pad+(altoC/2)+fontSize+2);
 
             // Aumento de puntaje por segundo
@@ -195,8 +195,7 @@ int main(int argc, char *argv[])
                 else if (boton == SDL_BUTTON_RIGHT)
                 { // Evento click derecho del mouse
                     printf("Hiciste clic derecho en la casilla (%i, %i) colocando bandera\n", xGrilla, yGrilla);
-
-                    casillaBandera(renderer, ventana, &juego, &minasCoord, minasEnMapa , filas , columnas , xGrilla , yGrilla , &picords);
+                    casillaBandera(renderer, &juego, xGrilla , yGrilla , &picords, &minasEnInterfaz);
                 }
                 printf("Presionadas: %d\n", juego.cantCasillasPresionadas);
                 break;
