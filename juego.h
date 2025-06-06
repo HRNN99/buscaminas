@@ -23,6 +23,14 @@ typedef struct {
     char nombre[50];
     int puntaje;
 } Jugador;
+
+typedef struct
+{
+    char tipoEvento[15];
+    struct tm *fechaHora;
+    int coordXY[2];
+} Log;
+
 //Prototipos
 void fondoColor(SDL_Renderer* renderer);
 bool casillaColocacion(SDL_Renderer* renderer, int fil, int col);
@@ -34,4 +42,6 @@ void matrizDestruir(Casilla** mapa , size_t filas);
 void mapaVacio(Casilla** mapa, int filas, int columnas);
 void mapaLlenar(Casilla** mapa , int filas , int columnas , int minas , int minasCord[][2]);
 
+//Log
+void setLog(Log* log, time_t fecha, int coordX, int coordY, char tipoEvento[15]);
 #endif // JUEGO_H

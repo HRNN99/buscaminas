@@ -171,3 +171,13 @@ bool casillaBandera(SDL_Renderer* renderer, int xGrilla , int yGrilla){
     dibujar(renderer , flag , xGrilla , yGrilla);
     return true;
 }
+
+//funciones Log
+void setLog(Log* log, time_t fecha, int coordX, int coordY, char tipoEvento[15])
+{
+    time_t ahora = time(fecha);
+    log->fechaHora = gmtime(&ahora);
+    strcpy(log->tipoEvento, "Inicio del juego");
+    log->coordXY[0] = -1;
+    log->coordXY[1] = -1;
+}
