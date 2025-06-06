@@ -210,7 +210,8 @@ void casillaEstado(SDL_Renderer *renderer, SDL_Window *window, Juego *juego, Coo
     if (mapa[gY][gX].estado == -1)
     {
         juego->finPartida = true;
-        dibujar(renderer, PIXELES_X_LADO, mine2, gX, gY, picords->x, picords->y);
+        if(mapa[gX][gY].estadoBandera == 0)
+            dibujar(renderer, PIXELES_X_LADO, mine2, gX, gY, picords->x, picords->y);
 
         // Mostrar todas las bombas
         for (int i = 0; i < minas; i++)
@@ -219,21 +220,24 @@ void casillaEstado(SDL_Renderer *renderer, SDL_Window *window, Juego *juego, Coo
             mX = minasCoord[i].x;
             mY = minasCoord[i].y;
 
-            if (gX != mX && gY != mY)
+            if (gX != mX && gY != mY && mapa[gX][gY].estadoBandera == 0)
                 dibujar(renderer, PIXELES_X_LADO, mine, mX, mY, picords->x, picords->y);
         }
         return;
     }
 
-    juego->cantCasillasPresionadas += 1;
+    if(mapa[gX][gY].estadoBandera == 0)
+        juego->cantCasillasPresionadas += 1;
 
     if (mapa[gY][gX].estado != 0)
     {
-        dibujar(renderer, PIXELES_X_LADO, eleccion(mapa[gY][gX].estado), gX, gY, picords->x, picords->y);
+        if(mapa[gX][gY].estadoBandera == 0)
+            dibujar(renderer, PIXELES_X_LADO, eleccion(mapa[gY][gX].estado), gX, gY, picords->x, picords->y);
         return;
     }
 
-    dibujar(renderer, PIXELES_X_LADO, square2, gX, gY, picords->x, picords->y);
+    if(mapa[gX][gY].estadoBandera == 0)
+        dibujar(renderer, PIXELES_X_LADO, square2, gX, gY, picords->x, picords->y);
 
     for (int i = -1; i < 2; i++)
     {
