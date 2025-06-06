@@ -106,7 +106,7 @@ void fondoColor(SDL_Renderer* renderer){
 
 void interfaz(SDL_Renderer* renderer, Coord* pcords , int dimensionM , Coord* rbutton){
 
-    int G=2;
+    int G=2; //Grosor
     int pad = G*4;
 
     int anchoM = dimensionM * PIXELES_X_LADO + 4;
@@ -116,16 +116,17 @@ void interfaz(SDL_Renderer* renderer, Coord* pcords , int dimensionM , Coord* rb
 
     rectanguloLleno(renderer , GS , pcords->x , pcords->y , anchoI , altoI);
 
-    marco(renderer , pcords->x , pcords->y , anchoI , altoI , G);
+    marco(renderer , pcords->x , pcords->y , anchoI , altoI , G); // Exterior
 
     pcords->x += pad; pcords->y += pad;
-    marco(renderer , pcords->x , pcords->y , anchoM , altoC ,  G);
+    marco(renderer , pcords->x , pcords->y , anchoM , altoC ,  G); // Puntaje
 
     dibujar(renderer , PIXELES_X_LADO * 2 , restart_button , 0 , 0 ,  (anchoM / 2) - 7, pcords->y);
-    rbutton->x = ((anchoM / 2) - 7) ; rbutton->y = pcords->y;
+    rbutton->x = ((anchoM / 2) - 7);
+    rbutton->y = pcords->y;
 
     pcords->x += 0; pcords->y += altoC + pad;
-    marco(renderer , pcords->x , pcords->y , anchoM , anchoM , G);
+    marco(renderer , pcords->x , pcords->y , anchoM , anchoM , G); // Mapa
 
     pcords->x += G; pcords->y += G;
 }
