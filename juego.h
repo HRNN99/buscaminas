@@ -26,11 +26,6 @@ typedef struct{
 } Juego;
 
 typedef struct {
-    char nombre[50];
-    int puntaje;
-} Jugador;
-
-typedef struct {
     int x;
     int y;
 } Coord;

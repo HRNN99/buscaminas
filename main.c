@@ -225,10 +225,7 @@ int main(int argc, char *argv[])
                         puts("Error al abrir el archivo puntuacion.txt");
                         return ERROR_ARCHIVO;
                     }
-                    Jugador jugador;
-                    strcpy(jugador.nombre, nombreJugador);
-                    jugador.puntaje = juego.puntaje;
-                    fprintf(aPuntuacion, "%05d | %s\n", jugador.puntaje, jugador.nombre);
+                    fprintf(aPuntuacion, "%05d | %s\n", juego.puntaje, nombreJugador);
                     fclose(aPuntuacion);
                     renderizarGanado = 0;
                     FinalizarVentanaSDL(ventanaGanado, rendererGanado); // Funcion para la finalizacion de SDL y sus componentes
