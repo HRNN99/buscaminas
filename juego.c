@@ -192,54 +192,55 @@ bool casillaColocacion(Casilla **mapa, SDL_Renderer *renderer, int fil, int col,
 void casillaEstado(SDL_Renderer *renderer, SDL_Window *window, Juego *juego, Coord *minasCoord, int minas, int filas, int columnas, int gX, int gY, Coord *picords)
 {
 
+    if (gX < 0 || gX >= columnas || gY < 0 || gY >= filas)
+        return;
+
     Casilla **mapa = juego->mapa;
+
+    // No hacer nada si ya está presionada o tiene bandera
+    if (mapa[gY][gX].presionada)
+        return;
 
     int mX = 0;
     int mY = 0;
-    if (gX < 0 || gX >= columnas || gY < 0 || gY >= filas)
+
+    mapa[gY][gX].presionada = true;
+
+    // Juego Perdido
+    if (mapa[gY][gX].estado == -1)
     {
+        juego->finPartida = true;
+        dibujar(renderer, PIXELES_X_LADO, mine2, gX, gY, picords->x, picords->y);
+
+        // Mostrar todas las bombas
+        for (int i = 0; i < minas; i++)
+        {
+
+            mX = minasCoord[i].x;
+            mY = minasCoord[i].y;
+
+            if (gX != mX && gY != mY)
+                dibujar(renderer, PIXELES_X_LADO, mine, mX, mY, picords->x, picords->y);
+        }
         return;
     }
 
-    if (!mapa[gY][gX].presionada)
+    juego->cantCasillasPresionadas += 1;
+
+    if (mapa[gY][gX].estado != 0)
     {
+        dibujar(renderer, PIXELES_X_LADO, eleccion(mapa[gY][gX].estado), gX, gY, picords->x, picords->y);
+        return;
+    }
 
-        mapa[gY][gX].presionada = true;
-        // Juego Perdido
-        if (mapa[gY][gX].estado == -1)
+    dibujar(renderer, PIXELES_X_LADO, square2, gX, gY, picords->x, picords->y);
+
+    for (int i = -1; i < 2; i++)
+    {
+        for (int j = -1; j < 2; j++)
         {
-            juego->finPartida = true;
-            dibujar(renderer, PIXELES_X_LADO, mine2, gX, gY, picords->x, picords->y);
-
-            // Mostrar todas las bombas
-            for (int i = 0; i < minas; i++)
-            {
-
-                mX = minasCoord[i].x;
-                mY = minasCoord[i].y;
-
-                if (gX != mX && gY != mY)
-                    dibujar(renderer, PIXELES_X_LADO, mine, mX, mY, picords->x, picords->y);
-            }
-            return;
-        }
-
-        juego->cantCasillasPresionadas += 1;
-
-        if (mapa[gY][gX].estado != 0)
-        {
-            dibujar(renderer, PIXELES_X_LADO, eleccion(mapa[gY][gX].estado), gX, gY, picords->x, picords->y);
-            return;
-        }
-
-        dibujar(renderer, PIXELES_X_LADO, square2, gX, gY, picords->x, picords->y);
-
-        for (int i = -1; i < 2; i++)
-        {
-            for (int j = -1; j < 2; j++)
-            {
-                casillaEstado(renderer, window, juego, minasCoord, minas, filas, columnas, gX + i, gY + j, picords);
-            }
+            if (i == 0 && j == 0) continue; // Evita repetirse a sí mismo
+            casillaEstado(renderer, window, juego, minasCoord, minas, filas, columnas, gX + i, gY + j, picords);
         }
     }
 }
