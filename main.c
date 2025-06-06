@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
     SDL_Event e; // Variable para registrar eventos
     int corriendo = 1; // Variable flag true para mantener corriendo el programa
 
-    int boton, xGrilla, yGrilla, renderizarGanado = 0, puntajePartida = 0, fontSize = 16, minasEnInterfaz = minasEnMapa;
+    int boton, xGrilla, yGrilla, renderizarGanado = 0, fontSize = 16;
     time_t current_time;
     // While para mantener el programa corriendo
     while (corriendo){
@@ -102,18 +102,18 @@ int main(int argc, char *argv[])
 
             renderizarTexto(font, fontSize, "Puntaje:", GF, GS, renderer, pad*3, pad+(altoC/2));
             char puntaje[21] = "";
-            itoa(puntajePartida, puntaje, 10); //Armado de String a imprimir
+            itoa(juego.puntaje, puntaje, 10); //Armado de String a imprimir
             renderizarTexto(font, fontSize, puntaje, GF, GS, renderer, pad*3, pad+(altoC/2)+fontSize+2);
-            renderizarTexto(font, fontSize, "Bombas:", GF, GS,renderer, (pad*3)+anchoM+22, pad+(altoC/2));
+            renderizarTexto(font, fontSize, "Minas:", GF, GS,renderer, (pad*3)+anchoM+22, pad+(altoC/2));
 
             char bombasEnMapaTexto[21] = "";
-            itoa(minasEnInterfaz, bombasEnMapaTexto, 10); //Armado de String a imprimir
+            itoa(juego.cantMinasEnInterfaz, bombasEnMapaTexto, 10); //Armado de String a imprimir
             renderizarTexto(font, fontSize, bombasEnMapaTexto, GF, GS, renderer, (pad*3)+anchoM+22, pad+(altoC/2)+fontSize+2);
 
             // Aumento de puntaje por segundo
             if (!juego.finPartida){
                 current_time = time(NULL);
-                puntajePartida = difftime(current_time, juego.start_time);
+                juego.puntaje = difftime(current_time, juego.start_time);
             }
         }
 
@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
             // Renderizar "Puntaje" y "Nombre:"
             char textoPuntaje[21] = "Puntaje: ";
             char puntajeChar[12];
-            strcat(textoPuntaje, itoa(puntajePartida, puntajeChar, 10)); //Armado de String a imprimir
+            strcat(textoPuntaje, itoa(juego.puntaje, puntajeChar, 10)); //Armado de String a imprimir
             renderizarTexto(font, 24, textoPuntaje, BB, GS,rendererGanado, 50, 50);
             renderizarTexto(font, 24, "Ingrese su nombre:", BB, GS, rendererGanado, 50, 100);
             renderizarTexto(font, 24, nombreJugador, BB, GS,rendererGanado, 50, 120);
@@ -175,9 +175,10 @@ int main(int argc, char *argv[])
                         printf("Reiniciaste mapa \n");
                         mapaReiniciar(renderer , &picords , &juego , filas , columnas , &minasCoord , minasEnMapa);
                     } 
-                    else{
+                    else if(!juego.finPartida){
                         printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", e.button.x, e.button.y);
                         casillaEstado(renderer, ventana, &juego, &minasCoord, minasEnMapa , filas , columnas , xGrilla , yGrilla , &picords);
+
                         if (juego.cantCasillasPresionadas == (filas * columnas) - minasEnMapa)
                         {
                             puts("Ganaste el juego!");
@@ -192,10 +193,10 @@ int main(int argc, char *argv[])
                         }
                     }
                 }
-                else if (boton == SDL_BUTTON_RIGHT)
+                else if (boton == SDL_BUTTON_RIGHT && !juego.finPartida)
                 { // Evento click derecho del mouse
                     printf("Hiciste clic derecho en la casilla (%i, %i) colocando bandera\n", xGrilla, yGrilla);
-                    casillaBandera(renderer, &juego, xGrilla , yGrilla , &picords, &minasEnInterfaz);
+                    casillaBandera(renderer, &juego, xGrilla , yGrilla , &picords, &juego.cantMinasEnInterfaz);
                 }
                 printf("Presionadas: %d\n", juego.cantCasillasPresionadas);
                 break;
@@ -226,7 +227,7 @@ int main(int argc, char *argv[])
                     }
                     Jugador jugador;
                     strcpy(jugador.nombre, nombreJugador);
-                    jugador.puntaje = puntajePartida;
+                    jugador.puntaje = juego.puntaje;
                     fprintf(aPuntuacion, "%05d | %s\n", jugador.puntaje, jugador.nombre);
                     fclose(aPuntuacion);
                     renderizarGanado = 0;

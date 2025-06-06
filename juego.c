@@ -150,6 +150,7 @@ void mapaReiniciar(SDL_Renderer *renderer, Coord *pcord, Juego *juego, int filas
     Casilla **mapa = juego->mapa;
 
     juego->puntaje = 0;
+    juego->cantMinasEnInterfaz = minas;
     juego->finPartida = false;
     juego->cantCasillasPresionadas = 0;
     juego->start_time = time(NULL); // Iniciar el contador cuando inicia el juego
@@ -204,7 +205,6 @@ void casillaEstado(SDL_Renderer *renderer, SDL_Window *window, Juego *juego, Coo
     {
 
         mapa[gY][gX].presionada = true;
-        juego->cantCasillasPresionadas += 1;
         // Juego Perdido
         if (mapa[gY][gX].estado == -1)
         {
@@ -224,7 +224,9 @@ void casillaEstado(SDL_Renderer *renderer, SDL_Window *window, Juego *juego, Coo
             return;
         }
 
-        else if (mapa[gY][gX].estado != 0)
+        juego->cantCasillasPresionadas += 1;
+
+        if (mapa[gY][gX].estado != 0)
         {
             dibujar(renderer, PIXELES_X_LADO, eleccion(mapa[gY][gX].estado), gX, gY, picords->x, picords->y);
             return;
