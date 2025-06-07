@@ -190,10 +190,10 @@ bool casillaColocacion(Casilla **mapa, SDL_Renderer *renderer, int fil, int col,
 }
 
 // Funcion que coloca estados en las casillas
-void casillaEstado(SDL_Renderer *renderer, SDL_Window *window, Juego *juego, Coord *minasCoord, int minas, int filas, int columnas, int gX, int gY, Coord *picords)
+void casillaEstado(SDL_Renderer *renderer, SDL_Window *window, Juego *juego, Coord *minasCoord, int minas, int gX, int gY, Coord *picords)
 {
 
-    if (gX < 0 || gX >= columnas || gY < 0 || gY >= filas)
+    if (gX < 0 || gX >= juego->dimMapa || gY < 0 || gY >= juego->dimMapa)
         return;
 
     Casilla *casillaSeleccionada = &juego->mapa[gY][gX]; //TODO: porque esta invertido?
@@ -240,7 +240,7 @@ void casillaEstado(SDL_Renderer *renderer, SDL_Window *window, Juego *juego, Coo
         for (int j = -1; j < 2; j++)
         {
             if (i == 0 && j == 0) continue; // Evita repetirse a sí mismo
-            casillaEstado(renderer, window, juego, minasCoord, minas, filas, columnas, gX + i, gY + j, picords);
+            casillaEstado(renderer, window, juego, minasCoord, minas, gX + i, gY + j, picords);
         }
     }
 }

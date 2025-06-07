@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
                     }
                     else if(!juego.finPartida){
                         printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", e.button.x, e.button.y);
-                        casillaEstado(renderer, ventana, &juego, &minasCoord, minasEnMapa , filas , columnas , xGrilla , yGrilla , &picords);
+                        casillaEstado(renderer, ventana, &juego, &minasCoord, minasEnMapa, xGrilla , yGrilla , &picords);
 
                         if (juego.cantCasillasPresionadas == (filas * columnas) - minasEnMapa)
                         {
@@ -193,7 +193,7 @@ int main(int argc, char *argv[])
                         }
                     }
                 }
-                else if (boton == SDL_BUTTON_RIGHT && !juego.finPartida && !juego.mapa[xGrilla][yGrilla].presionada)
+                else if (boton == SDL_BUTTON_RIGHT && !juego.finPartida && !juego.mapa[yGrilla][xGrilla].presionada)
                 { // Evento click derecho del mouse
                     printf("Hiciste clic derecho en la casilla (%i, %i) colocando bandera\n", xGrilla, yGrilla);
                     casillaBandera(renderer, &juego, xGrilla , yGrilla , &picords, &juego.cantMinasEnInterfaz);
