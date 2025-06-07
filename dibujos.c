@@ -63,8 +63,9 @@ void marco(SDL_Renderer* renderer , int X , int Y , int W , int H , int G){
 }
 
 //Funcion que finaliza el SDL
-void FinalizarSDL(SDL_Window *ventana, SDL_Renderer *renderer, int estadoExit)
+void FinalizarSDL(SDL_Window *ventana, SDL_Renderer *renderer, TTF_Font *font, int estadoExit)
 {
+    TTF_CloseFont(font);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(ventana);
     SDL_Quit();
@@ -78,6 +79,30 @@ void FinalizarVentanaSDL(SDL_Window *ventana, SDL_Renderer *renderer)
     SDL_DestroyWindow(ventana);
 }
 
+int renderizarTexto(TTF_Font *font, int size, const char *texto, int colorTexto, int colorFondo, SDL_Renderer *render, int x, int y)
+{
+    TTF_SetFontSize(font, size);
+    SDL_Color sdlColor = colores[colorTexto];
+    if(!(strlen(texto) > 0)){ //Evita el renderizado con cero caracteres
+        return 1;
+    }
 
+    //Creo la textura del texto
+    SDL_Surface *textSurface = TTF_RenderText_Solid(font, texto, sdlColor);
+    SDL_Texture *textTexture = SDL_CreateTextureFromSurface(render, textSurface);
+
+    // Creo un rectangulo por detras de las letras para evitar limpiar el render
+    SDL_Rect rectFondo = {x, y, textSurface->w, textSurface->h};
+    SDL_SetRenderDrawColor(render , colores[colorFondo].r , colores[colorFondo].g , colores[colorFondo].b , colores[colorFondo].a);
+    SDL_RenderFillRect(render , &rectFondo);
+
+    // Escribo el texto
+    SDL_Rect textRect = {x, y, textSurface->w, textSurface->h};
+    SDL_RenderCopy(render, textTexture, NULL, &textRect);
+    SDL_FreeSurface(textSurface);
+    SDL_DestroyTexture(textTexture);
+
+    return 0;
+}
 
 
