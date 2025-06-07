@@ -8,11 +8,11 @@
 #include "dibujos.h" //Header de estados
 #include "juego.h"
 
-int renderizarTexto(TTF_Font *font, const char *texto, SDL_Color *color, SDL_Renderer *render, int x, int y);
 int leerConfiguracion(int*, int*,int*, char*);
 
 int main(int argc, char *argv[])
 {
+
     int filas = 0, columnas = 0, minasEnMapa = 0;
     char rutaFuente[100];
 
@@ -61,12 +61,11 @@ int main(int argc, char *argv[])
     //Vector de coordenadas para las minas
     Coord minasCoord[minasEnMapa];
 
-    //Iniciacion de valores de mapa
-    mapaReiniciar(renderer , &picords , mapa , filas , columnas , &minasCoord , minasEnMapa);
-
     Juego juego;
-    juego.cantCasillasPresionadas = 0;
     juego.mapa = mapa;
+
+    //Iniciacion de valores de mapa
+    mapaReiniciar(renderer , &picords , &juego , filas , columnas , &minasCoord , minasEnMapa);
 
     putchar('\n');
 
@@ -85,13 +84,38 @@ int main(int argc, char *argv[])
     SDL_Event e; // Variable para registrar eventos
     int corriendo = 1; // Variable flag true para mantener corriendo el programa
 
-    int boton, xGrilla, yGrilla, renderizarGanado = 0, puntajePartida = 0;
+    int boton, xGrilla, yGrilla, renderizarGanado = 0, fontSize = 16, casillasLibresDeMinas = (filas * columnas) - minasEnMapa;
+    time_t current_time;
     // While para mantener el programa corriendo
     while (corriendo){
-
         SDL_RenderPresent(renderer);
         SDL_Window *ventanaGanado;
         SDL_Renderer *rendererGanado;
+        if(1){
+            int G=2;
+            int pad = G*4;
+
+            int anchoM = filas * PIXELES_X_LADO + 4;
+            int altoC = 28;
+            int anchoI = anchoM + 16;
+            int altoI = pad + altoC + pad + anchoM + pad;
+
+            renderizarTexto(font, fontSize, "Puntaje:", GF, GS, renderer, pad*3, pad+(altoC/2));
+            char puntaje[21] = "";
+            itoa(juego.puntaje, puntaje, 10); //Armado de String a imprimir
+            renderizarTexto(font, fontSize, puntaje, GF, GS, renderer, pad*3, pad+(altoC/2)+fontSize+2);
+            renderizarTexto(font, fontSize, "Minas:", GF, GS,renderer, (pad*3)+anchoM+22, pad+(altoC/2));
+
+            char bombasEnMapaTexto[21] = "";
+            itoa(juego.cantMinasEnInterfaz, bombasEnMapaTexto, 10); //Armado de String a imprimir
+            renderizarTexto(font, fontSize, bombasEnMapaTexto, GF, GS, renderer, (pad*3)+anchoM+22, pad+(altoC/2)+fontSize+2);
+
+            // Aumento de puntaje por segundo
+            if (!juego.finPartida){
+                current_time = time(NULL);
+                juego.puntaje = difftime(current_time, juego.start_time);
+            }
+        }
 
         if (renderizarGanado)
         {
@@ -101,17 +125,17 @@ int main(int argc, char *argv[])
             SDL_SetRenderDrawColor(rendererGanado, 0, 0, 0, 255); // negro
             SDL_RenderClear(rendererGanado);
             // Renderizar "Puntaje" y "Nombre:"
-            SDL_Color blanco = {255, 255, 255, 255};
             char textoPuntaje[21] = "Puntaje: ";
             char puntajeChar[12];
-            strcat(textoPuntaje, itoa(puntajePartida, puntajeChar, 10)); //Armado de String a imprimir
-            renderizarTexto(font, textoPuntaje, &blanco, rendererGanado, 50, 50);
-            renderizarTexto(font, "Ingrese su nombre:", &blanco, rendererGanado, 50, 100);
-            renderizarTexto(font, nombreJugador, &blanco, rendererGanado, 50, 120);
+            strcat(textoPuntaje, itoa(juego.puntaje, puntajeChar, 10)); //Armado de String a imprimir
+            renderizarTexto(font, 24, textoPuntaje, BB, GS,rendererGanado, 50, 50);
+            renderizarTexto(font, 24, "Ingrese su nombre:", BB, GS, rendererGanado, 50, 100);
+            renderizarTexto(font, 24, nombreJugador, BB, GS,rendererGanado, 50, 120);
 
             // Mostrar todo
             SDL_RenderPresent(rendererGanado);
             renderizarGanado = 0;
+            juego.finPartida = true;
         }
 
         if (SDL_PollEvent(&e))
@@ -123,7 +147,7 @@ int main(int argc, char *argv[])
                 printf("Saliendo de SDL\n");
                 corriendo = 0;
                 matrizDestruir(juego.mapa, filas);             // Se libera la memoria de la matriz mapa
-                FinalizarSDL(ventana, renderer, EXIT_SUCCESS); // Funcion para la finalizacion de SDL y sus componentes
+                FinalizarSDL(ventana, renderer, font, EXIT_SUCCESS); // Funcion para la finalizacion de SDL y sus componentes
                 break;
             case SDL_WINDOWEVENT:
                 if (e.window.event == SDL_WINDOWEVENT_CLOSE)
@@ -144,35 +168,35 @@ int main(int argc, char *argv[])
                 if (boton == SDL_BUTTON_LEFT)
                 { // Evento clik izquierdo del mouse
 
+                    // Click en boton de reinicio
                     if((rbutton.x * TAM_PIXEL <= e.button.x && e.button.x <= (rbutton.x + 28) * TAM_PIXEL)
                         &&(rbutton.y * TAM_PIXEL <= e.button.y && e.button.y <= (rbutton.y + 28) * TAM_PIXEL)){
 
                         printf("Reiniciaste mapa \n");
-                        mapaReiniciar(renderer , &picords , mapa , filas , columnas , &minasCoord , minasEnMapa);
+                        mapaReiniciar(renderer , &picords , &juego , filas , columnas , &minasCoord , minasEnMapa);
                     }
+                    else if(!juego.finPartida){
+                        printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", e.button.x, e.button.y);
+                        casillaEstado(renderer, ventana, &juego, &minasCoord, minasEnMapa, xGrilla , yGrilla , &picords);
 
-                    else{
-                    printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", e.button.x, e.button.y);
-                    casillaEstado(renderer, ventana, &juego, &minasCoord, minasEnMapa , filas , columnas , xGrilla , yGrilla , &picords);
-                    if (juego.cantCasillasPresionadas == (filas * columnas) - minasEnMapa)
-                    {
-                        puts("Ganaste el juego!");
-                        renderizarGanado = 1;
-                        *nombreJugador = '\0'; // Limpieza por si se presionaron teclas al jugar
-                        // Funcion para crear ventana con posicion especifica, dimension y banderas.
-                        ventanaGanado = SDL_CreateWindow("Ganaste!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, TAMX - 100, TAMY - 100, 2);
-                        // Funcion para crear el renderizado en ventana acelerado por hardware
-                        rendererGanado = SDL_CreateRenderer(ventanaGanado, -1, SDL_RENDERER_ACCELERATED);
-                        // Funcion para establecer el modo de mezcla de colores para el renderizado, el modo blend nos permite utilizar transparencia
-                        SDL_SetRenderDrawBlendMode(rendererGanado, SDL_BLENDMODE_BLEND);
-                    }
+                        if (juego.cantCasillasPresionadas == casillasLibresDeMinas)
+                        {
+                            puts("Ganaste el juego!");
+                            renderizarGanado = 1;
+                            *nombreJugador = '\0'; // Limpieza por si se presionaron teclas al jugar
+                            // Funcion para crear ventana con posicion especifica, dimension y banderas.
+                            ventanaGanado = SDL_CreateWindow("Ganaste!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, TAMX - 100, TAMY - 100, 2);
+                            // Funcion para crear el renderizado en ventana acelerado por hardware
+                            rendererGanado = SDL_CreateRenderer(ventanaGanado, -1, SDL_RENDERER_ACCELERATED);
+                            // Funcion para establecer el modo de mezcla de colores para el renderizado, el modo blend nos permite utilizar transparencia
+                            SDL_SetRenderDrawBlendMode(rendererGanado, SDL_BLENDMODE_BLEND);
+                        }
                     }
                 }
-
-                else if (boton == SDL_BUTTON_RIGHT)
+                else if (boton == SDL_BUTTON_RIGHT && !juego.finPartida && !juego.mapa[yGrilla][xGrilla].presionada)
                 { // Evento click derecho del mouse
                     printf("Hiciste clic derecho en la casilla (%i, %i) colocando bandera\n", xGrilla, yGrilla);
-                    casillaBandera(renderer, xGrilla, yGrilla , &picords);
+                    casillaBandera(renderer, &juego, xGrilla , yGrilla , &picords, &juego.cantMinasEnInterfaz);
                 }
                 printf("Presionadas: %d\n", juego.cantCasillasPresionadas);
                 break;
@@ -201,10 +225,7 @@ int main(int argc, char *argv[])
                         puts("Error al abrir el archivo puntuacion.txt");
                         return ERROR_ARCHIVO;
                     }
-                    Jugador jugador;
-                    strcpy(jugador.nombre, nombreJugador);
-                    jugador.puntaje = puntajePartida;
-                    fprintf(aPuntuacion, "%05d | %s\n", jugador.puntaje, jugador.nombre);
+                    fprintf(aPuntuacion, "%05d | %s\n", juego.puntaje, nombreJugador);
                     fclose(aPuntuacion);
                     renderizarGanado = 0;
                     FinalizarVentanaSDL(ventanaGanado, rendererGanado); // Funcion para la finalizacion de SDL y sus componentes
@@ -216,21 +237,6 @@ int main(int argc, char *argv[])
         SDL_Delay(16); // (60 fps) Esta pausa es para evitar que el procesador se ponga al 100% renderizando constantemente.
     }
     return EJECUCION_OK;
-}
-
-int renderizarTexto(TTF_Font *font, const char *texto, SDL_Color *color, SDL_Renderer *render, int x, int y)
-{
-    if(!(strlen(texto) > 0)){ //Evita el renderizado con cero caracteres
-        return 1;
-    }
-    SDL_Surface *textSurface = TTF_RenderText_Solid(font, texto, *color);
-    SDL_Texture *textTexture = SDL_CreateTextureFromSurface(render, textSurface);
-    SDL_Rect textRect = {x, y, textSurface->w, textSurface->h};
-    SDL_RenderCopy(render, textTexture, NULL, &textRect);
-    SDL_FreeSurface(textSurface);
-    SDL_DestroyTexture(textTexture);
-
-    return 0;
 }
 
 int leerConfiguracion(int* filas, int* columnas, int* minasEnMapa, char* rutaFuente){

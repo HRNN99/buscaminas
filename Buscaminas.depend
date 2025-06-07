@@ -1614,29 +1614,32 @@
 	"estados.h"
 	"time.h"
 
-1748216242 source:c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\dibujos.c
+1749240531 source:c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\dibujos.c
 	"dibujos.h"
 
-1748355740 c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\dibujos.h
+1749240555 c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\dibujos.h
 	<SDL2/SDL.h>
 	<stdio.h>
 	<stdbool.h>
+	<SDL2/SDL_ttf.h>
 
-1748216595 source:c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\juego.c
+1749246846 source:c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\juego.c
 	<stdio.h>
 	"juego.h"
 	"estados.h"
 	"time.h"
 
-1748382649 c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\juego.h
+1749246788 c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\juego.h
 	"dibujos.h"
 
-1748028847 c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\estados.h
+1749234109 c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\estados.h
 
-1748382681 source:c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\main.c
+1749246864 source:c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\main.c
 	<stdio.h>
 	<stdlib.h>
 	<time.h>
+	<string.h>
+	<math.h>
 	<SDL2/SDL_ttf.h>
 	"dibujos.h"
 	"juego.h"
