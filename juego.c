@@ -195,10 +195,11 @@ void casillaEstado(SDL_Renderer *renderer, SDL_Window *window, Juego *juego, Coo
     if (gX < 0 || gX >= columnas || gY < 0 || gY >= filas)
         return;
 
-    Casilla *casillaSeleccionada = &juego->mapa[gY][gX];
+    Casilla *casillaSeleccionada = &juego->mapa[gY][gX]; //TODO: porque esta invertido?
+    Casilla *casillaBandera = &juego->mapa[gX][gY]; 
 
     // No hacer nada si ya está presionada o tiene bandera
-    if (casillaSeleccionada->presionada || &juego->mapa[gX][gY].estadoBandera != 0)
+    if (casillaSeleccionada->presionada || casillaBandera->estadoBandera != 0)
         return;
 
     casillaSeleccionada->presionada = true;
