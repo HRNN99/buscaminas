@@ -150,6 +150,7 @@ void mapaReiniciar(SDL_Renderer *renderer, Coord *pcord, Juego *juego, int filas
     Casilla **mapa = juego->mapa;
 
     juego->puntaje = 0;
+    juego->dimMapa = filas;
     juego->cantMinasEnInterfaz = minas;
     juego->finPartida = false;
     juego->cantCasillasPresionadas = 0;
@@ -224,7 +225,7 @@ void casillaEstado(SDL_Renderer *renderer, SDL_Window *window, Juego *juego, Coo
     }
 
     juego->cantCasillasPresionadas++;
-    
+
     // Dibuja numero y termina
     if (casillaSeleccionada->estado > 0)
     {
@@ -247,6 +248,8 @@ void casillaEstado(SDL_Renderer *renderer, SDL_Window *window, Juego *juego, Coo
 // Funcion para colocar bandera
 void casillaBandera(SDL_Renderer *renderer, Juego *juego, int gX, int gY, Coord *picord, int* minasEnInterfaz)
 {
+    if (gX < 0 || gX >= juego->dimMapa || gY < 0 || gY >= juego->dimMapa)
+        return;
 
     Casilla **mapa = juego->mapa;
     //Realizo una iteracion ciclica con el resto
