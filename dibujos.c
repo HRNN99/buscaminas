@@ -38,10 +38,11 @@ void dibujar(SDL_Renderer *renderer, const int   dibujo[][PIXELES_X_LADO], int o
 }
 
 //Funcion que finaliza el SDL
-void FinalizarSDL(SDL_Window *ventana, SDL_Renderer *renderer, int estadoExit)
+void FinalizarSDL(SDL_Window *ventana, SDL_Renderer *renderer, int estadoExit, FILE* archivoLog)
 {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(ventana);
+    fclose(archivoLog);
     SDL_Quit();
     exit(estadoExit);
 }

@@ -10,6 +10,7 @@
 
 int renderizarTexto(TTF_Font *font, const char *texto, SDL_Color *color, SDL_Renderer *render, int x, int y);
 int leerConfiguracion(int*, int*,int*, char*);
+int escribirArchivoLog(FILE* archivoLog, Log* log);
 
 int main(int argc, char *argv[])
 {
@@ -18,7 +19,12 @@ int main(int argc, char *argv[])
 
     //Creacion archivo log
 
-    FILE* archivoLog = fopen("partida.log", "w + t");
+    FILE* archivoLog = fopen("partida.log", "w");
+    if(!archivoLog)
+    {
+        puts("Error creando el archivo log");
+        return ERROR_ARCHIVO;
+    }
     Log log;
     setLog(&log, -1, -1, "Inicio del juego");
     escribirArchivoLog(archivoLog, &log);
@@ -84,8 +90,8 @@ int main(int argc, char *argv[])
 
     while (corriendo)
     { // While para mantener el programa corriendo
-        
-        
+
+
         SDL_RenderPresent(renderer);
         SDL_Window *ventanaGanado;
         SDL_Renderer *rendererGanado;
@@ -116,14 +122,18 @@ int main(int argc, char *argv[])
             switch (e.type)
             {
             case SDL_QUIT:
+                setLog(&log, -1, -1, "Salida de SDL");
+                escribirArchivoLog(archivoLog, &log);
                 printf("Saliendo de SDL\n");
                 corriendo = 0;
                 matrizDestruir(juego.mapa, filas);             // Se libera la memoria de la matriz mapa
-                FinalizarSDL(ventana, renderer, EXIT_SUCCESS); // Funcion para la finalizacion de SDL y sus componentes
+                FinalizarSDL(ventana, renderer, EXIT_SUCCESS, archivoLog); // Funcion para la finalizacion de SDL y sus componentes
                 break;
             case SDL_WINDOWEVENT:
                 if (e.window.event == SDL_WINDOWEVENT_CLOSE)
                 {
+                    setLog(&log, -1, -1, "Salida de pantalla de ganado");
+                    escribirArchivoLog(archivoLog, &log);
                     printf("Saliendo de pantalla de ganado\n");
                     renderizarGanado = 0;
                     FinalizarVentanaSDL(ventanaGanado, rendererGanado); // Funcion para la finalizacion de SDL y sus componentes
@@ -145,6 +155,8 @@ int main(int argc, char *argv[])
                     casillaEstado(renderer, ventana, &juego, minasCord, minasEnMapa , filas , columnas , xGrilla , yGrilla);
                     if (juego.cantCasillasPresionadas == (filas * columnas) - minasEnMapa)
                     {
+                        setLog(&log, -1, -1, "Juego ganado");
+                        escribirArchivoLog(archivoLog, &log);
                         puts("Ganaste el juego!");
                         renderizarGanado = 1;
                         *nombreJugador = '\0'; // Limpieza por si se presionaron teclas al jugar
@@ -188,7 +200,10 @@ int main(int argc, char *argv[])
                     FILE* aPuntuacion = fopen("puntuacion.txt", "a");
                     if(!aPuntuacion)
                     {
+                        setLog(&log, -1, -1, "Error al abrir el archivo de puntuacion.");
+                        escribirArchivoLog(archivoLog, &log);
                         puts("Error al abrir el archivo puntuacion.txt");
+                        fclose(archivoLog);
                         return ERROR_ARCHIVO;
                     }
                     Jugador jugador;
@@ -198,7 +213,7 @@ int main(int argc, char *argv[])
                     fclose(aPuntuacion);
                     renderizarGanado = 0;
                     FinalizarVentanaSDL(ventanaGanado, rendererGanado); // Funcion para la finalizacion de SDL y sus componentes
-                    fclose(archivoLog);
+
                }
                 break;
             }
@@ -206,6 +221,7 @@ int main(int argc, char *argv[])
 
         SDL_Delay(16); // (60 fps) Esta pausa es para evitar que el procesador se ponga al 100% renderizando constantemente.
     }
+    fclose(archivoLog);
     return EJECUCION_OK;
 }
 
@@ -270,14 +286,14 @@ int escribirArchivoLog(FILE* archivoLog, Log* log)
     if(log->coordXY[0] == -1 && log->coordXY[1] == -1)
     {
         fprintf(archivoLog, "[%d-%d-%d %02d:%02d:%02d] %-15s\n",
-            log->fechaHora->tm_year + 1900, log->fechaHora->tm_mon + 1, log->fechaHora->tm_mday,
-            log->fechaHora->tm_hour, log->fechaHora->tm_min, log->fechaHora->tm_sec,
-            log->tipoEvento);
+            log->fechaHora.tm_year + 1900, log->fechaHora.tm_mon + 1, log->fechaHora.tm_mday,
+            log->fechaHora.tm_hour, log->fechaHora.tm_min, log->fechaHora.tm_sec, log->tipoEvento);
     }else
     {
         fprintf(archivoLog, "[%d-%d-%d %02d:%02d:%02d] %-15s | coordenadas: (%d , %d)\n",
-            log->fechaHora->tm_year + 1900, log->fechaHora->tm_mon + 1, log->fechaHora->tm_mday,
-            log->fechaHora->tm_hour, log->fechaHora->tm_min, log->fechaHora->tm_sec,
-            log->tipoEvento, log->coordXY[0], log->coordXY[1]);
+            log->fechaHora.tm_year + 1900, log->fechaHora.tm_mon + 1, log->fechaHora.tm_mday,
+            log->fechaHora.tm_hour, log->fechaHora.tm_min, log->fechaHora.tm_sec, log->tipoEvento, 
+            log->coordXY[0], log->coordXY[1]);
     }
+    return 0;
 }

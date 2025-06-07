@@ -821,15 +821,15 @@
 	"dibujos.h"
 	"juego.h"
 
-1749254829 source:c:\users\franc\documents\topicosdeprogramacion\buscaminas\dibujos.c
+1749312457 source:c:\users\franc\documents\topicosdeprogramacion\buscaminas\dibujos.c
 	"dibujos.h"
 
-1749254829 c:\users\franc\documents\topicosdeprogramacion\buscaminas\dibujos.h
+1749312478 c:\users\franc\documents\topicosdeprogramacion\buscaminas\dibujos.h
 	<SDL2/SDL.h>
 	<stdio.h>
 	<stdbool.h>
 
-1749263893 source:c:\users\franc\documents\topicosdeprogramacion\buscaminas\main.c
+1749313692 source:c:\users\franc\documents\topicosdeprogramacion\buscaminas\main.c
 	<stdio.h>
 	<stdlib.h>
 	<time.h>
@@ -2065,14 +2065,15 @@
 	"begin_code.h"
 	"close_code.h"
 
-1749263954 source:c:\users\franc\documents\topicosdeprogramacion\buscaminas\juego.c
+1749313852 source:c:\users\franc\documents\topicosdeprogramacion\buscaminas\juego.c
 	<stdio.h>
 	"juego.h"
 	"estados.h"
 	"time.h"
 
-1749262639 c:\users\franc\documents\topicosdeprogramacion\buscaminas\juego.h
+1749313859 c:\users\franc\documents\topicosdeprogramacion\buscaminas\juego.h
 	"dibujos.h"
+	<time.h>
 
 1749254829 c:\users\franc\documents\topicosdeprogramacion\buscaminas\estados.h
 

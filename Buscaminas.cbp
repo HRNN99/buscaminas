@@ -16,9 +16,10 @@
 					<Add directory="SDL2-2.0.22/x86_64-w64-mingw32/include" />
 				</Compiler>
 				<Linker>
-					<Add option="-lmingw32 -lSDL2main -lSDL2" />
+					<Add option="-lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf" />
 					<Add library="SDL2" />
 					<Add directory="SDL2-2.0.22/x86_64-w64-mingw32/lib" />
+					<Add directory="SDL2_ttf-2.22.0/x86_64-w64-mingw32/lib" />
 				</Linker>
 			</Target>
 			<Target title="Release">
