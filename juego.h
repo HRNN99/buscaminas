@@ -2,6 +2,7 @@
 #define JUEGO_H
 
 #include "dibujos.h"
+#include <time.h>
 
 #define eleccion(n) ((n) == 0 ? square2 : (n) == 1 ? one : (n) == 2 ? two : (n) == 3 ? three : mine)
 #define ERROR_ARCHIVO 20
@@ -26,8 +27,8 @@ typedef struct {
 
 typedef struct
 {
-    char tipoEvento[15];
-    struct tm *fechaHora;
+    char tipoEvento[20];
+    struct tm fechaHora;
     int coordXY[2];
 } Log;
 
@@ -43,5 +44,5 @@ void mapaVacio(Casilla** mapa, int filas, int columnas);
 void mapaLlenar(Casilla** mapa , int filas , int columnas , int minas , int minasCord[][2]);
 
 //Log
-void setLog(Log* log, int coordX, int coordY, char tipoEvento[15]);
+void setLog(Log* log, int coordX, int coordY, char tipoEvento[80]);
 #endif // JUEGO_H

@@ -173,10 +173,11 @@ bool casillaBandera(SDL_Renderer* renderer, int xGrilla , int yGrilla){
 }
 
 //funciones Log
-void setLog(Log* log, int coordX, int coordY, char tipoEvento[15])
+void setLog(Log* log, int coordX, int coordY, char tipoEvento[80])
 {
     time_t ahora = time(NULL);
-    log->fechaHora = localtime(&ahora);
+    struct tm* aux = localtime(&ahora);
+    log->fechaHora = *aux; // Asignar la fecha y hora actual al log
     strcpy(log->tipoEvento, tipoEvento);
     log->coordXY[0] = coordX;
     log->coordXY[1] = coordY;
