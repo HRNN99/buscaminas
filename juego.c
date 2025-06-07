@@ -203,7 +203,6 @@ void casillaEstado(SDL_Renderer *renderer, SDL_Window *window, Juego *juego, Coo
         return;
 
     casillaSeleccionada->presionada = true;
-    juego->cantCasillasPresionadas++;
 
     // Juego Perdido
     if (casillaSeleccionada->estado == -1)
@@ -224,6 +223,8 @@ void casillaEstado(SDL_Renderer *renderer, SDL_Window *window, Juego *juego, Coo
         return;
     }
 
+    juego->cantCasillasPresionadas++;
+    
     // Dibuja numero y termina
     if (casillaSeleccionada->estado > 0)
     {
