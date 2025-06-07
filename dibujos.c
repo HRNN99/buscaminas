@@ -63,11 +63,12 @@ void marco(SDL_Renderer* renderer , int X , int Y , int W , int H , int G){
 }
 
 //Funcion que finaliza el SDL
-void FinalizarSDL(SDL_Window *ventana, SDL_Renderer *renderer, TTF_Font *font, int estadoExit)
+void FinalizarSDL(SDL_Window *ventana, SDL_Renderer *renderer, TTF_Font *font, int estadoExit, FILE* archivoLog)
 {
     TTF_CloseFont(font);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(ventana);
+    fclose(archivoLog);
     SDL_Quit();
     exit(estadoExit);
 }

@@ -264,3 +264,14 @@ void casillaBandera(SDL_Renderer *renderer, Juego *juego, int gX, int gY, Coord 
 
     dibujar(renderer, PIXELES_X_LADO, eleccionBandera(mapa[gX][gY].estadoBandera), gX, gY, picord->x, picord->y);
 }
+
+//funciones Log
+void setLog(Log* log, int coordX, int coordY, char tipoEvento[80])
+{
+    time_t ahora = time(NULL);
+    struct tm* aux = localtime(&ahora);
+    log->fechaHora = *aux; // Asignar la fecha y hora actual al log
+    strcpy(log->tipoEvento, tipoEvento);
+    log->coordXY[0] = coordX;
+    log->coordXY[1] = coordY;
+}
