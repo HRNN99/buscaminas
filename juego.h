@@ -42,7 +42,7 @@ Casilla** matrizCrear(size_t filas, size_t columnas, size_t tamElem);
 void matrizDestruir(Casilla** mapa , size_t filas);
 void mapaVacio(Casilla** mapa, int filas, int columnas);
 void mapaLlenar(Casilla** mapa , int filas , int columnas , Coord* minasCoord , int minas);
-void casillaEstado(SDL_Renderer* renderer , SDL_Window* window, Juego* juego , Coord* minasCoord , int minas, int filas , int columnas , int gX , int gY , Coord* picords);
+void casillaEstado(SDL_Renderer* renderer , SDL_Window* window, Juego* juego , Coord* minasCoord , int minas, int gX , int gY , Coord* picords);
 void mapaReiniciar(SDL_Renderer *renderer, Coord *pcord, Juego *juego, int filas, int columnas, Coord *minasCoord, int minas);
 
 #endif // JUEGO_H
