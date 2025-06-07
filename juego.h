@@ -43,5 +43,5 @@ void mapaVacio(Casilla** mapa, int filas, int columnas);
 void mapaLlenar(Casilla** mapa , int filas , int columnas , int minas , int minasCord[][2]);
 
 //Log
-void setLog(Log* log, time_t fecha, int coordX, int coordY, char tipoEvento[15]);
+void setLog(Log* log, int coordX, int coordY, char tipoEvento[15]);
 #endif // JUEGO_H

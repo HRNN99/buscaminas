@@ -17,10 +17,10 @@ int main(int argc, char *argv[])
     char rutaFuente[100];
 
     //Creacion archivo log
-    
+
     FILE* archivoLog = fopen("partida.log", "w + t");
     Log log;
-    setLog(&log, NULL, -1, -1, "Inicio del juego");
+    setLog(&log, -1, -1, "Inicio del juego");
     escribirArchivoLog(archivoLog, &log);
 
     // Lectura del archivo de configuarcion
@@ -80,13 +80,15 @@ int main(int argc, char *argv[])
     casillaColocacion(renderer, filas, columnas); //Funcion para colocar todas las casillas visuales
 
     int boton, xGrilla, yGrilla, renderizarGanado = 0, puntajePartida = 0;
+
+
     while (corriendo)
     { // While para mantener el programa corriendo
-
+        
+        
         SDL_RenderPresent(renderer);
         SDL_Window *ventanaGanado;
         SDL_Renderer *rendererGanado;
-
         if (renderizarGanado)
         {
             //Inicio la lectura de teclado
@@ -138,7 +140,7 @@ int main(int argc, char *argv[])
                 if (boton == SDL_BUTTON_LEFT)
                 { // Evento clik izquierdo del mouse
                     printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", xGrilla, yGrilla);
-
+                    setLog(&log, xGrilla, yGrilla, "click izquierdo");
                     escribirArchivoLog(archivoLog, &log);
                     casillaEstado(renderer, ventana, &juego, minasCord, minasEnMapa , filas , columnas , xGrilla , yGrilla);
                     if (juego.cantCasillasPresionadas == (filas * columnas) - minasEnMapa)
@@ -158,6 +160,8 @@ int main(int argc, char *argv[])
                 else if (boton == SDL_BUTTON_RIGHT)
                 { // Evento click derecho del mouse
                     printf("Hiciste clic derecho en la casilla (%i, %i) colocando bandera\n", xGrilla, yGrilla);
+                    setLog(&log, xGrilla, yGrilla, "click derecho");
+                    escribirArchivoLog(archivoLog, &log);
                     casillaBandera(renderer, xGrilla, yGrilla);
                 }
                 printf("Presionadas: %d\n", juego.cantCasillasPresionadas);
@@ -248,7 +252,7 @@ int leerConfiguracion(int* filas, int* columnas, int* minasEnMapa, char* rutaFue
     *minasEnMapa = atoi(minasTexto);
 
     // Lo convierto a un porcentual del mapa
-    if (porcentaje) 
+    if (porcentaje)
         *minasEnMapa = round(((*filas)*(*columnas))*((float)*minasEnMapa/100));
 
     if (fscanf(config, "RUTA_FUENTE = %s\n", rutaFuente) != 1) {
@@ -258,17 +262,22 @@ int leerConfiguracion(int* filas, int* columnas, int* minasEnMapa, char* rutaFue
     }
     printf("%d, %d, %s", *filas, *minasEnMapa, rutaFuente);
     fclose(config);
-    
+
 }
 
 int escribirArchivoLog(FILE* archivoLog, Log* log)
 {
     if(log->coordXY[0] == -1 && log->coordXY[1] == -1)
     {
-          fprintf(archivoLog, "%s|%s \n", log->fechaHora, log->tipoEvento);
+        fprintf(archivoLog, "[%d-%d-%d %02d:%02d:%02d] %-15s\n",
+            log->fechaHora->tm_year + 1900, log->fechaHora->tm_mon + 1, log->fechaHora->tm_mday,
+            log->fechaHora->tm_hour, log->fechaHora->tm_min, log->fechaHora->tm_sec,
+            log->tipoEvento);
     }else
     {
-        fprintf(archivoLog, "%s|%s|coord x = %d|coord y = %d \n", log->fechaHora, log->tipoEvento, log->coordXY[0],log->coordXY[1]);
+        fprintf(archivoLog, "[%d-%d-%d %02d:%02d:%02d] %-15s | coordenadas: (%d , %d)\n",
+            log->fechaHora->tm_year + 1900, log->fechaHora->tm_mon + 1, log->fechaHora->tm_mday,
+            log->fechaHora->tm_hour, log->fechaHora->tm_min, log->fechaHora->tm_sec,
+            log->tipoEvento, log->coordXY[0], log->coordXY[1]);
     }
 }
-    
