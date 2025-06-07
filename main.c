@@ -9,12 +9,25 @@
 #include "juego.h"
 
 int leerConfiguracion(int*, int*,int*, char*);
+int escribirArchivoLog(FILE* archivoLog, Log* log);
 
 int main(int argc, char *argv[])
 {
 
     int filas = 0, columnas = 0, minasEnMapa = 0;
     char rutaFuente[100];
+
+    //Creacion archivo log
+
+    FILE* archivoLog = fopen("partida.log", "w");
+    if(!archivoLog)
+    {
+        puts("Error creando el archivo log");
+        return ERROR_ARCHIVO;
+    }
+    Log log;
+    setLog(&log, -1, -1, "Inicio del juego");
+    escribirArchivoLog(archivoLog, &log);
 
     // Lectura del archivo de configuarcion
     leerConfiguracion(&filas, &columnas, &minasEnMapa, rutaFuente);
@@ -144,14 +157,18 @@ int main(int argc, char *argv[])
             switch (e.type)
             {
             case SDL_QUIT:
+                setLog(&log, -1, -1, "Salida de SDL");
+                escribirArchivoLog(archivoLog, &log);
                 printf("Saliendo de SDL\n");
                 corriendo = 0;
                 matrizDestruir(juego.mapa, filas);             // Se libera la memoria de la matriz mapa
-                FinalizarSDL(ventana, renderer, font, EXIT_SUCCESS); // Funcion para la finalizacion de SDL y sus componentes
+                FinalizarSDL(ventana, renderer, font, EXIT_SUCCESS, archivoLog); // Funcion para la finalizacion de SDL y sus componentes
                 break;
             case SDL_WINDOWEVENT:
                 if (e.window.event == SDL_WINDOWEVENT_CLOSE)
                 {
+                    setLog(&log, -1, -1, "Salida de pantalla de ganado");
+                    escribirArchivoLog(archivoLog, &log);
                     printf("Saliendo de pantalla de ganado\n");
                     renderizarGanado = 0;
                     FinalizarVentanaSDL(ventanaGanado, rendererGanado); // Funcion para la finalizacion de SDL y sus componentes
@@ -167,7 +184,6 @@ int main(int argc, char *argv[])
 
                 if (boton == SDL_BUTTON_LEFT)
                 { // Evento clik izquierdo del mouse
-
                     // Click en boton de reinicio
                     if((rbutton.x * TAM_PIXEL <= e.button.x && e.button.x <= (rbutton.x + 28) * TAM_PIXEL)
                         &&(rbutton.y * TAM_PIXEL <= e.button.y && e.button.y <= (rbutton.y + 28) * TAM_PIXEL)){
@@ -177,10 +193,14 @@ int main(int argc, char *argv[])
                     }
                     else if(!juego.finPartida){
                         printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", e.button.x, e.button.y);
+                        setLog(&log, xGrilla, yGrilla, "click izquierdo");
+                        escribirArchivoLog(archivoLog, &log);
                         casillaEstado(renderer, ventana, &juego, &minasCoord, minasEnMapa, xGrilla , yGrilla , &picords);
 
                         if (juego.cantCasillasPresionadas == casillasLibresDeMinas)
                         {
+                            setLog(&log, -1, -1, "Juego ganado");
+                            escribirArchivoLog(archivoLog, &log);
                             puts("Ganaste el juego!");
                             renderizarGanado = 1;
                             *nombreJugador = '\0'; // Limpieza por si se presionaron teclas al jugar
@@ -196,6 +216,8 @@ int main(int argc, char *argv[])
                 else if (boton == SDL_BUTTON_RIGHT && !juego.finPartida && !juego.mapa[yGrilla][xGrilla].presionada)
                 { // Evento click derecho del mouse
                     printf("Hiciste clic derecho en la casilla (%i, %i) colocando bandera\n", xGrilla, yGrilla);
+                    setLog(&log, xGrilla, yGrilla, "click derecho");
+                    escribirArchivoLog(archivoLog, &log);
                     casillaBandera(renderer, &juego, xGrilla , yGrilla , &picords, &juego.cantMinasEnInterfaz);
                 }
                 printf("Presionadas: %d\n", juego.cantCasillasPresionadas);
@@ -222,13 +244,17 @@ int main(int argc, char *argv[])
                     FILE* aPuntuacion = fopen("puntuacion.txt", "a");
                     if(!aPuntuacion)
                     {
+                        setLog(&log, -1, -1, "Error al abrir el archivo de puntuacion.");
+                        escribirArchivoLog(archivoLog, &log);
                         puts("Error al abrir el archivo puntuacion.txt");
+                        fclose(archivoLog);
                         return ERROR_ARCHIVO;
                     }
                     fprintf(aPuntuacion, "%05d | %s\n", juego.puntaje, nombreJugador);
                     fclose(aPuntuacion);
                     renderizarGanado = 0;
                     FinalizarVentanaSDL(ventanaGanado, rendererGanado); // Funcion para la finalizacion de SDL y sus componentes
+
                }
                 break;
             }
@@ -236,6 +262,7 @@ int main(int argc, char *argv[])
 
         SDL_Delay(16); // (60 fps) Esta pausa es para evitar que el procesador se ponga al 100% renderizando constantemente.
     }
+    fclose(archivoLog);
     return EJECUCION_OK;
 }
 
@@ -287,3 +314,19 @@ int leerConfiguracion(int* filas, int* columnas, int* minasEnMapa, char* rutaFue
     return 0;
 }
 
+int escribirArchivoLog(FILE* archivoLog, Log* log)
+{
+    if(log->coordXY[0] == -1 && log->coordXY[1] == -1)
+    {
+        fprintf(archivoLog, "[%d-%d-%d %02d:%02d:%02d] %-15s\n",
+            log->fechaHora.tm_year + 1900, log->fechaHora.tm_mon + 1, log->fechaHora.tm_mday,
+            log->fechaHora.tm_hour, log->fechaHora.tm_min, log->fechaHora.tm_sec, log->tipoEvento);
+    }else
+    {
+        fprintf(archivoLog, "[%d-%d-%d %02d:%02d:%02d] %-15s | coordenadas: (%d , %d)\n",
+            log->fechaHora.tm_year + 1900, log->fechaHora.tm_mon + 1, log->fechaHora.tm_mday,
+            log->fechaHora.tm_hour, log->fechaHora.tm_min, log->fechaHora.tm_sec, log->tipoEvento, 
+            log->coordXY[0], log->coordXY[1]);
+    }
+    return 0;
+}

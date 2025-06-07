@@ -2,6 +2,7 @@
 #define JUEGO_H
 
 #include "dibujos.h"
+#include <time.h>
 
 #define eleccion(n) ((n) == 0 ? square2 : (n) == 1 ? one : (n) == 2 ? two : (n) == 3 ? three : mine)
 #define eleccionBandera(n) ((n) == 0 ? square1 : (n) == 1 ? flag : symbol)
@@ -31,6 +32,13 @@ typedef struct {
     int y;
 } Coord;
 
+typedef struct
+{
+    char tipoEvento[20];
+    struct tm fechaHora;
+    int coordXY[2];
+} Log;
+
 //Prototipos
 void fondoColor(SDL_Renderer* renderer);
 void interfaz(SDL_Renderer* renderer, Coord* pcords , int dimensionM , Coord* rbutton);
@@ -45,4 +53,6 @@ void mapaLlenar(Casilla** mapa , int filas , int columnas , Coord* minasCoord , 
 void casillaEstado(SDL_Renderer* renderer , SDL_Window* window, Juego* juego , Coord* minasCoord , int minas, int gX , int gY , Coord* picords);
 void mapaReiniciar(SDL_Renderer *renderer, Coord *pcord, Juego *juego, int filas, int columnas, Coord *minasCoord, int minas);
 
+//Log
+void setLog(Log* log, int coordX, int coordY, char tipoEvento[80]);
 #endif // JUEGO_H

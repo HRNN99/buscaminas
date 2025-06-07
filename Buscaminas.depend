@@ -824,18 +824,21 @@
 	"dibujos.h"
 	"juego.h"
 
-1748295968 source:c:\users\franc\documents\topicosdeprogramacion\buscaminas\dibujos.c
+1749312457 source:c:\users\franc\documents\topicosdeprogramacion\buscaminas\dibujos.c
 	"dibujos.h"
 
-1748288810 c:\users\franc\documents\topicosdeprogramacion\buscaminas\dibujos.h
+1749312478 c:\users\franc\documents\topicosdeprogramacion\buscaminas\dibujos.h
 	<SDL2/SDL.h>
 	<stdio.h>
 	<stdbool.h>
 
-1748298483 source:c:\users\franc\documents\topicosdeprogramacion\buscaminas\main.c
+1749313692 source:c:\users\franc\documents\topicosdeprogramacion\buscaminas\main.c
 	<stdio.h>
 	<stdlib.h>
 	<time.h>
+	<string.h>
+	<math.h>
+	<SDL2/SDL_ttf.h>
 	"dibujos.h"
 	"juego.h"
 
@@ -1617,22 +1620,23 @@
 1749240531 source:c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\dibujos.c
 	"dibujos.h"
 
-1749240555 c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\dibujos.h
+1749322898 c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\dibujos.h
 	<SDL2/SDL.h>
 	<stdio.h>
 	<stdbool.h>
 	<SDL2/SDL_ttf.h>
 
-1749246846 source:c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\juego.c
+1749322715 source:c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\juego.c
 	<stdio.h>
 	"juego.h"
 	"estados.h"
 	"time.h"
 
-1749246788 c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\juego.h
+1749322929 c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\juego.h
 	"dibujos.h"
+	<time.h>
 
-1749234109 c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\estados.h
+1749322685 c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\estados.h
 
 1749246864 source:c:\users\hvillalba\onedrive - baufest\documentos\progra\buscaminas\main.c
 	<stdio.h>
