@@ -195,49 +195,42 @@ void casillaEstado(SDL_Renderer *renderer, SDL_Window *window, Juego *juego, Coo
     if (gX < 0 || gX >= columnas || gY < 0 || gY >= filas)
         return;
 
-    Casilla **mapa = juego->mapa;
+    Casilla *casillaSeleccionada = &juego->mapa[gY][gX];
 
     // No hacer nada si ya está presionada o tiene bandera
-    if (mapa[gY][gX].presionada)
+    if (casillaSeleccionada->presionada || &juego->mapa[gX][gY].estadoBandera != 0)
         return;
 
-    int mX = 0;
-    int mY = 0;
-
-    mapa[gY][gX].presionada = true;
+    casillaSeleccionada->presionada = true;
+    juego->cantCasillasPresionadas++;
 
     // Juego Perdido
-    if (mapa[gY][gX].estado == -1)
+    if (casillaSeleccionada->estado == -1)
     {
         juego->finPartida = true;
-        if(mapa[gX][gY].estadoBandera == 0)
-            dibujar(renderer, PIXELES_X_LADO, mine2, gX, gY, picords->x, picords->y);
+        dibujar(renderer, PIXELES_X_LADO, mine2, gX, gY, picords->x, picords->y);
 
         // Mostrar todas las bombas
         for (int i = 0; i < minas; i++)
         {
 
-            mX = minasCoord[i].x;
-            mY = minasCoord[i].y;
+            int mX = minasCoord[i].x;
+            int mY = minasCoord[i].y;
 
-            if (gX != mX && gY != mY && mapa[gX][gY].estadoBandera == 0)
+            if (gX != mX && gY != mY)
                 dibujar(renderer, PIXELES_X_LADO, mine, mX, mY, picords->x, picords->y);
         }
         return;
     }
 
-    if(mapa[gX][gY].estadoBandera == 0)
-        juego->cantCasillasPresionadas += 1;
-
-    if (mapa[gY][gX].estado != 0)
+    // Dibuja numero y termina
+    if (casillaSeleccionada->estado > 0)
     {
-        if(mapa[gX][gY].estadoBandera == 0)
-            dibujar(renderer, PIXELES_X_LADO, eleccion(mapa[gY][gX].estado), gX, gY, picords->x, picords->y);
+        dibujar(renderer, PIXELES_X_LADO, eleccion(casillaSeleccionada->estado), gX, gY, picords->x, picords->y);
         return;
     }
 
-    if(mapa[gX][gY].estadoBandera == 0)
-        dibujar(renderer, PIXELES_X_LADO, square2, gX, gY, picords->x, picords->y);
+    dibujar(renderer, PIXELES_X_LADO, square2, gX, gY, picords->x, picords->y);
 
     for (int i = -1; i < 2; i++)
     {
