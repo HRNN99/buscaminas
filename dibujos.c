@@ -93,7 +93,7 @@ int renderizarTexto(TTF_Font *font, int size, const char *texto, int colorTexto,
 
     // Creo un rectangulo por detras de las letras para evitar limpiar el render
     SDL_Rect rectFondo = {x, y, textSurface->w, textSurface->h};
-    SDL_SetRenderDrawColor(render , colores[GS].r , colores[GS].g , colores[GS].b , colores[GS].a);
+    SDL_SetRenderDrawColor(render , colores[colorFondo].r , colores[colorFondo].g , colores[colorFondo].b , colores[colorFondo].a);
     SDL_RenderFillRect(render , &rectFondo);
 
     // Escribo el texto
