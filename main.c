@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
     SDL_Event e; // Variable para registrar eventos
     int corriendo = 1; // Variable flag true para mantener corriendo el programa
 
-    int boton, xGrilla, yGrilla, renderizarGanado = 0, fontSize = 16;
+    int boton, xGrilla, yGrilla, renderizarGanado = 0, fontSize = 16, casillasLibresDeMinas = (filas * columnas) - minasEnMapa;
     time_t current_time;
     // While para mantener el programa corriendo
     while (corriendo){
@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
                         printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", e.button.x, e.button.y);
                         casillaEstado(renderer, ventana, &juego, &minasCoord, minasEnMapa, xGrilla , yGrilla , &picords);
 
-                        if (juego.cantCasillasPresionadas == (filas * columnas) - minasEnMapa)
+                        if (juego.cantCasillasPresionadas == casillasLibresDeMinas)
                         {
                             puts("Ganaste el juego!");
                             renderizarGanado = 1;
