@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
 
     int filas = 0, columnas = 0, minasEnMapa = 0;
     char rutaFuente[100];
-
+    Puntaje puntaje;
     //Creacion archivo log
 
     FILE* archivoLog = fopen("partida.log", "w");
@@ -255,7 +255,8 @@ int main(int argc, char *argv[])
                if (e.key.keysym.sym == SDLK_RETURN && strlen(nombreJugador) > 0)
                {
                     SDL_StopTextInput(); //Cierro la lectura de teclado
-                    FILE* aPuntuacion = fopen("puntuacion.txt", "a");
+                    FILE* aPuntuacion = fopen("puntuacion.txt", "a+");
+                    // fseek(aPuntuacion, 48, SEEK_END);
                     if(!aPuntuacion)
                     {
                         setLog(&log, -1, -1, "Error al abrir el archivo de puntuacion.");
@@ -263,6 +264,27 @@ int main(int argc, char *argv[])
                         puts("Error al abrir el archivo puntuacion.txt");
                         fclose(archivoLog);
                         return ERROR_ARCHIVO;
+                    }
+                    char linea[48];
+                    while(fgets(linea, sizeof(linea)+1, aPuntuacion)){
+                        
+                        char* act = strchr(linea, '\n'); // Busco la fin de linea, si no esta es porque la linea es mas larga de lo definido
+                        if(!act){
+                            puts("Error linea");
+                            return ERROR_LINEA_LARGA;
+                        }
+
+                        //Nombre
+                        *act = '\0';
+                        act = strchr(linea, '|');
+                        sscanf(act + 2, "%s", puntaje.nombre);
+
+                        //Puntaje
+                        *act = '\0';
+                        act = strchr(linea, '|');
+                        sscanf(act + 2, "%05d", puntaje.puntos);
+
+                        printf("%d, %s\n", puntaje.puntos, puntaje.nombre);
                     }
                     fprintf(aPuntuacion, "%05d | %s\n", juego.puntaje, nombreJugador);
                     fclose(aPuntuacion);

@@ -10,6 +10,8 @@
 #define ERROR_CONFIGURACION 21
 #define EJECUCION_OK 0
 #define ERROR_FUENTE 10
+#define ERROR_LINEA_LARGA 11
+
 //TDA
 typedef struct{
     int estado;
@@ -38,6 +40,12 @@ typedef struct
     struct tm fechaHora;
     int coordXY[2];
 } Log;
+
+typedef struct
+{
+    char nombre[20];
+    int puntos;
+} Puntaje;
 
 //Prototipos
 void fondoColor(SDL_Renderer* renderer);
