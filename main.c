@@ -138,9 +138,12 @@ int main(int argc, char *argv[])
         {
             //Inicio la lectura de teclado
             SDL_StartTextInput();
-            // Limpia pantalla
+            // Ventana
             rectanguloLleno(rendererGanado, GS, 0, 0, TAMX_GANADO, TAMY_GANADO);
             marcoInvertido(rendererGanado, 0, 0, (TAMX_GANADO)/2, (TAMY_GANADO)/2, 2);
+            // Boton cerrar ventana
+            rectanguloLlenoAbsoluto(rendererGanado, NN, TAMX_GANADO-15-20-6 , 15+4, 20, 20);
+            marcoInvertido(rendererGanado, (TAMX_GANADO/2)-15-8, 15-8, 15, 15, 2);
             // Renderizar "Puntaje" y "Nombre:"
             char textoPuntaje[21] = "Puntaje: ";
             char puntajeChar[12];

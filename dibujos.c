@@ -53,6 +53,18 @@ void rectanguloLleno(SDL_Renderer *renderer , int color , const int gX , const i
     SDL_RenderFillRect(renderer , &rect);
 }
 
+void rectanguloLlenoAbsoluto(SDL_Renderer *renderer , int color , const int gX , const int gY , int W , int H){
+
+    SDL_Rect rect;
+    rect.x = gX;
+    rect.y = gY;
+    rect.w = W;
+    rect.h = H;
+
+    SDL_SetRenderDrawColor(renderer , colores[color].r , colores[color].g , colores[color].b , colores[color].a);
+    SDL_RenderFillRect(renderer , &rect);
+}
+
 void marco(SDL_Renderer* renderer , int X , int Y , int W , int H , int G){
 
     //Cortorno
