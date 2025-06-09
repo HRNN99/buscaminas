@@ -12,6 +12,7 @@
 typedef struct{
     int estado;
     bool presionada;
+    bool bandera;
 }Casilla;
 
 typedef struct{

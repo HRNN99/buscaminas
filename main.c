@@ -151,20 +151,20 @@ int main(int argc, char *argv[])
                         mapaReiniciar(renderer , &picords , mapa , filas , columnas , &minasCoord , minasEnMapa);
                     }
 
-                    else{
-                        SDL_Delay(32);
-                        if(SDL_PollEvent(&e))
+                    else
+                    {
+                        
+                        if (mapa[yGrilla][xGrilla].presionada == true && mapa[yGrilla][xGrilla].estado != 0)
                         {
-                            
-                            if (e.button.button == SDL_BUTTON_RIGHT)
+                            SDL_Delay(10);//tiempo de espera para registrar segundo evento de click
+                            if (SDL_PollEvent(&e) && e.button.button == SDL_BUTTON_RIGHT)
                             {
-                                printf("Hiciste doble click\n");
-                                break;
+                                printf("Hiciste clic simultaneo en la casilla (%i,%i)\n", e.button.x, e.button.y);
                             }
                         }else
                         {
                             printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", e.button.x, e.button.y);
-                            casillaEstado(renderer, ventana, &juego, &minasCoord, minasEnMapa , filas , columnas , xGrilla , yGrilla , &picords);
+                            casillaEstado(renderer, ventana, &juego, &minasCoord, minasEnMapa, filas, columnas, xGrilla, yGrilla, &picords);
                             if (juego.cantCasillasPresionadas == (filas * columnas) - minasEnMapa)
                             {
                                 puts("Ganaste el juego!");
@@ -178,20 +178,20 @@ int main(int argc, char *argv[])
                                 SDL_SetRenderDrawBlendMode(rendererGanado, SDL_BLENDMODE_BLEND);
                             }
                         }
+
                         
                     }
                 }
 
                 else if (boton == SDL_BUTTON_RIGHT)
                 { // Evento click derecho del mouse
-                    SDL_Delay(32);
+                    SDL_Delay(32);//tiempo de espera para registrar segundo evento de click
                         if(SDL_PollEvent(&e))
                         {
                             
                             if (e.button.button == SDL_BUTTON_LEFT)
                             {
-                                printf("Hiciste doble click\n");
-                                break;
+                                
                             }
                         }else
                         {

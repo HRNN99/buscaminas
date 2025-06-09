@@ -50,6 +50,7 @@ void mapaVacio(Casilla** mapa , int filas, int columnas){
         {
             mapa[y][x].estado = 0;
             mapa[y][x].presionada = false;
+            mapa[y][x].bandera = false;
         }
     }
 }
@@ -209,6 +210,21 @@ void casillaEstado(SDL_Renderer* renderer , SDL_Window* window, Juego* juego , C
         }
 
     }
+    else
+    {
+        for(int i = -1; i<2; i++)
+        {
+            for(int j = -1; j<2; j++)
+            {
+                if(mapa[gY + i][gX + j].bandera == true)
+                {
+                    continue; // Si la casilla ya tiene bandera, no se hace nada
+                }
+                casillaEstado(renderer , window , juego, minasCoord , minas , filas , columnas , gX + i , gY + j , picords);
+            }
+        }
+    }
+    
 }
 
 //Funcion para colocar bandera
