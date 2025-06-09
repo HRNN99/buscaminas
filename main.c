@@ -140,7 +140,7 @@ int main(int argc, char *argv[])
             SDL_StartTextInput();
             // Limpia pantalla
             rectanguloLleno(rendererGanado, GS, 0, 0, TAMX_GANADO, TAMY_GANADO);
-            marco(rendererGanado, 0, 0, (TAMX_GANADO)/2, (TAMY_GANADO)/2, 2);
+            marcoInvertido(rendererGanado, 0, 0, (TAMX_GANADO)/2, (TAMY_GANADO)/2, 2);
             // Renderizar "Puntaje" y "Nombre:"
             char textoPuntaje[21] = "Puntaje: ";
             char puntajeChar[12];

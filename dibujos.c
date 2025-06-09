@@ -62,6 +62,15 @@ void marco(SDL_Renderer* renderer , int X , int Y , int W , int H , int G){
     rectanguloLleno(renderer , BB , (X + W - G) , Y , G , H); //RIGHT
 }
 
+void marcoInvertido(SDL_Renderer* renderer , int X , int Y , int W , int H , int G){
+
+    //Cortorno
+    rectanguloLleno(renderer , BB , X , Y , W , G); //TOP
+    rectanguloLleno(renderer , GF , X , (Y + H - G) , W , G); //BOTTOM
+    rectanguloLleno(renderer , BB , X , Y , G , H); //LEFT
+    rectanguloLleno(renderer , GF , (X + W - G) , Y , G , H); //RIGHT
+}
+
 //Funcion que finaliza el SDL
 void FinalizarSDL(SDL_Window *ventana, SDL_Renderer *renderer, TTF_Font *font, int estadoExit, FILE* archivoLog)
 {
