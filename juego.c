@@ -125,10 +125,10 @@ bool casillaColocacion(SDL_Renderer* renderer, int fil, int col){
 }
 
 //Funcion que coloca estados en las casillas
-void casillaEstado(SDL_Renderer* renderer , SDL_Window* window, Juego* juego, int minasCord[][2],int minas, int filas , int columnas , int xGrilla , int yGrilla){
+int casillaEstado(SDL_Renderer* renderer , SDL_Window* window, Juego* juego, int minasCord[][2],int minas, int filas , int columnas , int xGrilla , int yGrilla){
 
     Casilla** mapa = juego->mapa;
-
+    int ret = 0;
     int x = 0;
     int y = 0;
     if(xGrilla < 0 || xGrilla >= columnas || yGrilla < 0 || yGrilla >= filas){
@@ -147,7 +147,7 @@ void casillaEstado(SDL_Renderer* renderer , SDL_Window* window, Juego* juego, in
                 y = minasCord[i][1];
               dibujar(renderer , eleccion(mapa[yGrilla][xGrilla].estado) , x , y);
             }
-
+            ret = 1; // Retorno 1 para indicar que se ha presionado una mina
         }else if(mapa[yGrilla][xGrilla].estado != 0){
             dibujar(renderer , eleccion(mapa[yGrilla][xGrilla].estado) , xGrilla , yGrilla);
             return;
@@ -164,6 +164,7 @@ void casillaEstado(SDL_Renderer* renderer , SDL_Window* window, Juego* juego, in
         }
 
     }
+    return ret;
 }
 
 //Funcion para colocar bandera

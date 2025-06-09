@@ -152,10 +152,22 @@ int main(int argc, char *argv[])
                     printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", xGrilla, yGrilla);
                     setLog(&log, xGrilla, yGrilla, "click izquierdo");
                     escribirArchivoLog(archivoLog, &log);
-                    casillaEstado(renderer, ventana, &juego, minasCord, minasEnMapa , filas , columnas , xGrilla , yGrilla);
+                    if(casillaEstado(renderer, ventana, &juego, minasCord, minasEnMapa , filas , columnas , xGrilla , yGrilla)) //caso de que se pierda el juego
+                    {
+                        setLog(&log, xGrilla, yGrilla, "Juego perdido");
+                        escribirArchivoLog(archivoLog, &log);
+                        puts("Perdiste el juego!");
+                        renderizarGanado = 1;
+                    }
+                    else
+                    {
+                        // Si la casilla no es una mina se suma al contador de casillas presionadas
+                        juego.cantCasillasPresionadas++;
+                        puntajePartida += 10; // Sumar puntaje por cada casilla presionada
+                    }
                     if (juego.cantCasillasPresionadas == (filas * columnas) - minasEnMapa)
                     {
-                        setLog(&log, -1, -1, "Juego ganado");
+                        setLog(&log, xGrilla, yGrilla, "Juego ganado");
                         escribirArchivoLog(archivoLog, &log);
                         puts("Ganaste el juego!");
                         renderizarGanado = 1;

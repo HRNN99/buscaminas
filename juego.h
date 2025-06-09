@@ -27,7 +27,7 @@ typedef struct {
 
 typedef struct
 {
-    char tipoEvento[20];
+    char tipoEvento[80];
     struct tm fechaHora;
     int coordXY[2];
 } Log;
@@ -35,7 +35,7 @@ typedef struct
 //Prototipos
 void fondoColor(SDL_Renderer* renderer);
 bool casillaColocacion(SDL_Renderer* renderer, int fil, int col);
-void casillaEstado(SDL_Renderer* renderer, SDL_Window* window , Juego* mapa,int minasCord[][2],int minas , int filas , int columnas , int xGrilla , int yGrilla);
+int casillaEstado(SDL_Renderer* renderer, SDL_Window* window , Juego* mapa,int minasCord[][2],int minas , int filas , int columnas , int xGrilla , int yGrilla);
 bool casillaBandera(SDL_Renderer* renderer, int xGrilla , int yGrilla);
 
 Casilla** matrizCrear(size_t filas, size_t columnas, size_t tamElem);
