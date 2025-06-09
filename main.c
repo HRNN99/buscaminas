@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
                             }
                         }else
                         {
-                            printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", e.button.x, e.button.y);
+                            printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", xGrilla, yGrilla);
                             casillaEstado(renderer, ventana, &juego, &minasCoord, minasEnMapa, filas, columnas, xGrilla, yGrilla, &picords);
                             if (juego.cantCasillasPresionadas == (filas * columnas) - minasEnMapa)
                             {
@@ -186,17 +186,19 @@ int main(int argc, char *argv[])
                 else if (boton == SDL_BUTTON_RIGHT)
                 { // Evento click derecho del mouse
                     SDL_Delay(32);//tiempo de espera para registrar segundo evento de click
-                        if(SDL_PollEvent(&e))
+                        if (mapa[yGrilla][xGrilla].presionada == true && mapa[yGrilla][xGrilla].estado != 0)
                         {
-                            
-                            if (e.button.button == SDL_BUTTON_LEFT)
+                            SDL_Delay(10);//tiempo de espera para registrar segundo evento de click
+                            if (SDL_PollEvent(&e) && e.button.button == SDL_BUTTON_LEFT)
                             {
-                                
+                                printf("Hiciste clic simultaneo en la casilla (%i,%i)\n", xGrilla, yGrilla);
                             }
+
                         }else
                         {
-                    printf("Hiciste clic derecho en la casilla (%i, %i) colocando bandera\n", xGrilla, yGrilla);
-                    casillaBandera(renderer, xGrilla, yGrilla , &picords);}
+                            printf("Hiciste clic derecho en la casilla (%i, %i) colocando bandera\n", xGrilla, yGrilla);
+                            casillaBandera(renderer, xGrilla, yGrilla , &picords);
+                        }
                 }
                 printf("Presionadas: %d\n", juego.cantCasillasPresionadas);
                 break;
