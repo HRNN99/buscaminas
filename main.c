@@ -152,27 +152,51 @@ int main(int argc, char *argv[])
                     }
 
                     else{
-                    printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", e.button.x, e.button.y);
-                    casillaEstado(renderer, ventana, &juego, &minasCoord, minasEnMapa , filas , columnas , xGrilla , yGrilla , &picords);
-                    if (juego.cantCasillasPresionadas == (filas * columnas) - minasEnMapa)
-                    {
-                        puts("Ganaste el juego!");
-                        renderizarGanado = 1;
-                        *nombreJugador = '\0'; // Limpieza por si se presionaron teclas al jugar
-                        // Funcion para crear ventana con posicion especifica, dimension y banderas.
-                        ventanaGanado = SDL_CreateWindow("Ganaste!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, TAMX - 100, TAMY - 100, 2);
-                        // Funcion para crear el renderizado en ventana acelerado por hardware
-                        rendererGanado = SDL_CreateRenderer(ventanaGanado, -1, SDL_RENDERER_ACCELERATED);
-                        // Funcion para establecer el modo de mezcla de colores para el renderizado, el modo blend nos permite utilizar transparencia
-                        SDL_SetRenderDrawBlendMode(rendererGanado, SDL_BLENDMODE_BLEND);
-                    }
+                        SDL_Delay(32);
+                        if(SDL_PollEvent(&e))
+                        {
+                            
+                            if (e.button.button == SDL_BUTTON_RIGHT)
+                            {
+                                printf("Hiciste doble click\n");
+                                break;
+                            }
+                        }else
+                        {
+                            printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", e.button.x, e.button.y);
+                            casillaEstado(renderer, ventana, &juego, &minasCoord, minasEnMapa , filas , columnas , xGrilla , yGrilla , &picords);
+                            if (juego.cantCasillasPresionadas == (filas * columnas) - minasEnMapa)
+                            {
+                                puts("Ganaste el juego!");
+                                renderizarGanado = 1;
+                                *nombreJugador = '\0'; // Limpieza por si se presionaron teclas al jugar
+                                // Funcion para crear ventana con posicion especifica, dimension y banderas.
+                                ventanaGanado = SDL_CreateWindow("Ganaste!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, TAMX - 100, TAMY - 100, 2);
+                                // Funcion para crear el renderizado en ventana acelerado por hardware
+                                rendererGanado = SDL_CreateRenderer(ventanaGanado, -1, SDL_RENDERER_ACCELERATED);
+                                // Funcion para establecer el modo de mezcla de colores para el renderizado, el modo blend nos permite utilizar transparencia
+                                SDL_SetRenderDrawBlendMode(rendererGanado, SDL_BLENDMODE_BLEND);
+                            }
+                        }
+                        
                     }
                 }
 
                 else if (boton == SDL_BUTTON_RIGHT)
                 { // Evento click derecho del mouse
+                    SDL_Delay(32);
+                        if(SDL_PollEvent(&e))
+                        {
+                            
+                            if (e.button.button == SDL_BUTTON_LEFT)
+                            {
+                                printf("Hiciste doble click\n");
+                                break;
+                            }
+                        }else
+                        {
                     printf("Hiciste clic derecho en la casilla (%i, %i) colocando bandera\n", xGrilla, yGrilla);
-                    casillaBandera(renderer, xGrilla, yGrilla , &picords);
+                    casillaBandera(renderer, xGrilla, yGrilla , &picords);}
                 }
                 printf("Presionadas: %d\n", juego.cantCasillasPresionadas);
                 break;
