@@ -148,10 +148,17 @@ int main(int argc, char *argv[])
             char textoPuntaje[21] = "Puntaje: ";
             char puntajeChar[12];
             strcat(textoPuntaje, itoa(juego.puntaje, puntajeChar, 10)); //Armado de String a imprimir
-            renderizarTexto(font, 24, textoPuntaje, BB, GS,rendererGanado, 20, 50);
-            renderizarTexto(font, 16, "Ingrese su nombre:", BB, GS, rendererGanado, 20, 100);
-            renderizarTexto(font, 16, nombreJugador, BB, GS,rendererGanado, 20, 130);
-
+            int posYtexto = 15;
+            int margenX = 20;
+            renderizarTexto(font, 30, "Ganaste!", BB, GS,rendererGanado, margenX, posYtexto);
+            renderizarTexto(font, 24, textoPuntaje, BB, GS,rendererGanado, margenX, posYtexto+=45);
+            renderizarTexto(font, 16, "Ingrese su nombre:", BB, GS, rendererGanado, margenX, posYtexto+=35);
+            rectanguloLlenoAbsoluto(rendererGanado, BB, margenX, posYtexto+=40, 5,2); // Linea antes del nombre
+            renderizarTexto(font, 20, nombreJugador, BB, GS,rendererGanado, 35, posYtexto-10); // Fix Y por como toma esa coordenada
+            // Renderizar mejores posiciones
+            renderizarTexto(font, 16, "Pepito 15", BB, GS,rendererGanado, margenX+20, posYtexto+=30);
+            renderizarTexto(font, 16, "Juan 45", BB, GS,rendererGanado, margenX+20, posYtexto+=20);
+            renderizarTexto(font, 16, "Rodo 126", BB, GS,rendererGanado, margenX+20, posYtexto+=20);
             // Mostrar todo
             SDL_RenderPresent(rendererGanado);
             renderizarGanado = 0;
