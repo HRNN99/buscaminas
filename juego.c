@@ -50,7 +50,7 @@ void mapaVacio(Casilla** mapa , int filas, int columnas){
         {
             mapa[y][x].estado = 0;
             mapa[y][x].presionada = false;
-            mapa[y][x].bandera = false;
+            mapa[y][x].bandera = 0;
         }
     }
 }
@@ -210,24 +210,37 @@ void casillaEstado(SDL_Renderer* renderer , SDL_Window* window, Juego* juego , C
         }
 
     }
-    else
-    {
-        for(int i = -1; i<2; i++)
-        {
-            for(int j = -1; j<2; j++)
-            {
-                if(mapa[gY + i][gX + j].bandera == true)
-                {
-                    continue; // Si la casilla ya tiene bandera, no se hace nada
-                }
-                casillaEstado(renderer , window , juego, minasCoord , minas , filas , columnas , gX + i , gY + j , picords);
-            }
-        }
-    }
-    
 }
 
 //Funcion para colocar bandera
-void casillaBandera(SDL_Renderer* renderer, int gX , int gY , Coord* picord){
+void casillaBandera(SDL_Renderer* renderer, int gX , int gY , Coord* picord, Juego* juego){
+    Casilla** mapa = juego->mapa;
     dibujar(renderer , PIXELES_X_LADO , flag , gX , gY , picord->x , picord->y);
+}
+
+
+void clickDoble(SDL_Event e,int button, Juego* juego, int gX, int gY)
+{
+    Casilla** mapa = juego->mapa;
+    while (SDL_PollEvent(&e) && e.button.button != button)
+    {
+        SDL_PollEvent(&e);
+    }
+    int cont = 0;
+    
+    for(int i = -1; i<2; i++)
+    {
+        for(int j = -1; j<2; j++)
+        {
+            if(mapa[gY + j][gX + i].bandera == 1)
+            {
+                cont++;
+            }   
+        }
+    }
+
+    if(mapa[gY][gX].estado == cont)
+    {
+        printf("Hiciste clic simultaneo en la casilla (%i,%i)\n", e.button.x, e.button.y);
+    }
 }
