@@ -57,6 +57,7 @@ void mapaVacio(Casilla **mapa, int filas, int columnas)
         {
             mapa[y][x].estado = 0;
             mapa[y][x].presionada = false;
+            mapa[y][x].estadoBandera = 0;
         }
     }
 }
@@ -204,6 +205,7 @@ void casillaEstado(SDL_Renderer *renderer, SDL_Window *window, Juego *juego, Coo
         return;
 
     casillaSeleccionada->presionada = true;
+    casillaSeleccionada->estadoBandera = 0; // Resetea el estado de la bandera
 
     // Juego Perdido
     if (casillaSeleccionada->estado == -1)
@@ -254,15 +256,15 @@ void casillaBandera(SDL_Renderer *renderer, Juego *juego, int gX, int gY, Coord 
     Casilla **mapa = juego->mapa;
     //Realizo una iteracion ciclica con el resto
     // 1%3 = 1, 2%3 = 2, 3%3 = 0;
-    mapa[gX][gY].estadoBandera = (mapa[gX][gY].estadoBandera + 1) % 3;
+    mapa[gY][gX].estadoBandera = (mapa[gY][gX].estadoBandera + 1) % 3;
 
     //Suma y resta de bombas dependiendo el caso
-    if (mapa[gX][gY].estadoBandera == 1)
+    if (mapa[gY][gX].estadoBandera == 1)
         (*minasEnInterfaz)--;
-    else if (mapa[gX][gY].estadoBandera == 2)
+    else if (mapa[gY][gX].estadoBandera == 2)
         (*minasEnInterfaz)++;
 
-    dibujar(renderer, PIXELES_X_LADO, eleccionBandera(mapa[gX][gY].estadoBandera), gX, gY, picord->x, picord->y);
+    dibujar(renderer, PIXELES_X_LADO, eleccionBandera(mapa[gY][gX].estadoBandera), gX, gY, picord->x, picord->y);
 }
 
 //funciones Log
@@ -274,4 +276,40 @@ void setLog(Log* log, int coordX, int coordY, char tipoEvento[80])
     strcpy(log->tipoEvento, tipoEvento);
     log->coordXY[0] = coordX;
     log->coordXY[1] = coordY;
+}
+
+
+void clickDoble(SDL_Event e, int button, Juego* juego, int gX, int gY)
+{
+    Casilla** mapa = juego->mapa;
+    Uint32 tiempoDeEspera = SDL_GetTicks() + 1000; // tiempo de espera para segundo click
+
+    while (SDL_GetTicks() < tiempoDeEspera) 
+    {
+        if (SDL_PollEvent(&e) && e.type == SDL_MOUSEBUTTONDOWN && e.button.button == button) 
+        {
+            
+                int cont = 0;
+                for(int i = -1; i < 2; i++)
+                {
+                    for(int j = -1; j < 2; j++)
+                    {
+                        if(mapa[gY + j][gX + i].estadoBandera == 1)
+                        {
+                            if(i == 0 && j == 0) continue; // Evita repetirse a sí mismo
+                            cont++;
+                        }   
+                    }
+                }
+
+                if(mapa[gY][gX].estado == cont)
+                {
+                    printf("Hiciste clic simultaneo en la casilla (%i,%i)\n", e.button.x, e.button.y);
+                }
+                return;
+            
+        }
+        SDL_Delay(1);
+    }
+    return;
 }

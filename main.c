@@ -192,33 +192,50 @@ int main(int argc, char *argv[])
                         mapaReiniciar(renderer , &picords , &juego , filas , columnas , &minasCoord , minasEnMapa);
                     }
                     else if(!juego.finPartida){
-                        printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", e.button.x, e.button.y);
-                        setLog(&log, xGrilla, yGrilla, "click izquierdo");
-                        escribirArchivoLog(archivoLog, &log);
-                        casillaEstado(renderer, ventana, &juego, &minasCoord, minasEnMapa, xGrilla , yGrilla , &picords);
-
-                        if (juego.cantCasillasPresionadas == casillasLibresDeMinas)
+                        if (juego.mapa[yGrilla][xGrilla].presionada == true && juego.mapa[yGrilla][xGrilla].estado != 0)
                         {
-                            setLog(&log, -1, -1, "Juego ganado");
+                            
+                            clickDoble(e,SDL_BUTTON_RIGHT, &juego, xGrilla, yGrilla);
+                            
+                        }else
+                        {
+                            printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", e.button.x, e.button.y);
+                            setLog(&log, xGrilla, yGrilla, "click izquierdo");
                             escribirArchivoLog(archivoLog, &log);
-                            puts("Ganaste el juego!");
-                            renderizarGanado = 1;
-                            *nombreJugador = '\0'; // Limpieza por si se presionaron teclas al jugar
-                            // Funcion para crear ventana con posicion especifica, dimension y banderas.
-                            ventanaGanado = SDL_CreateWindow("Ganaste!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, TAMX - 100, TAMY - 100, 2);
-                            // Funcion para crear el renderizado en ventana acelerado por hardware
-                            rendererGanado = SDL_CreateRenderer(ventanaGanado, -1, SDL_RENDERER_ACCELERATED);
-                            // Funcion para establecer el modo de mezcla de colores para el renderizado, el modo blend nos permite utilizar transparencia
-                            SDL_SetRenderDrawBlendMode(rendererGanado, SDL_BLENDMODE_BLEND);
+                            casillaEstado(renderer, ventana, &juego, &minasCoord, minasEnMapa, xGrilla , yGrilla , &picords);
+
+                            if (juego.cantCasillasPresionadas == casillasLibresDeMinas)
+                            {
+                                setLog(&log, -1, -1, "Juego ganado");
+                                escribirArchivoLog(archivoLog, &log);
+                                puts("Ganaste el juego!");
+                                renderizarGanado = 1;
+                                *nombreJugador = '\0'; // Limpieza por si se presionaron teclas al jugar
+                                // Funcion para crear ventana con posicion especifica, dimension y banderas.
+                                ventanaGanado = SDL_CreateWindow("Ganaste!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, TAMX - 100, TAMY - 100, 2);
+                                // Funcion para crear el renderizado en ventana acelerado por hardware
+                                rendererGanado = SDL_CreateRenderer(ventanaGanado, -1, SDL_RENDERER_ACCELERATED);
+                                // Funcion para establecer el modo de mezcla de colores para el renderizado, el modo blend nos permite utilizar transparencia
+                                SDL_SetRenderDrawBlendMode(rendererGanado, SDL_BLENDMODE_BLEND);
+                            }
                         }
+                        
                     }
                 }
-                else if (boton == SDL_BUTTON_RIGHT && !juego.finPartida && !juego.mapa[yGrilla][xGrilla].presionada)
+                else if (boton == SDL_BUTTON_RIGHT && !juego.finPartida)
                 { // Evento click derecho del mouse
-                    printf("Hiciste clic derecho en la casilla (%i, %i) colocando bandera\n", xGrilla, yGrilla);
-                    setLog(&log, xGrilla, yGrilla, "click derecho");
-                    escribirArchivoLog(archivoLog, &log);
-                    casillaBandera(renderer, &juego, xGrilla , yGrilla , &picords, &juego.cantMinasEnInterfaz);
+                    if (juego.mapa[yGrilla][xGrilla].presionada == true && juego.mapa[yGrilla][xGrilla].estado != 0)
+                        {
+                            
+                            clickDoble(e,SDL_BUTTON_LEFT, &juego, xGrilla, yGrilla);
+                            
+                        }else
+                        {
+                            printf("Hiciste clic derecho en la casilla (%i, %i) colocando bandera\n", xGrilla, yGrilla);
+                            setLog(&log, xGrilla, yGrilla, "click derecho");
+                            escribirArchivoLog(archivoLog, &log);
+                            casillaBandera(renderer, &juego, xGrilla , yGrilla , &picords, &juego.cantMinasEnInterfaz);
+                        }
                 }
                 printf("Presionadas: %d\n", juego.cantCasillasPresionadas);
                 break;
