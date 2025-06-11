@@ -198,7 +198,7 @@ void casillaEstado(SDL_Renderer *renderer, SDL_Window *window, Juego *juego, Coo
         return;
 
     Casilla *casillaSeleccionada = &juego->mapa[gY][gX]; //TODO: porque esta invertido?
-    Casilla *casillaBandera = &juego->mapa[gX][gY]; 
+    Casilla *casillaBandera = &juego->mapa[gY][gX]; 
 
     // No hacer nada si ya está presionada o tiene bandera
     if (casillaSeleccionada->presionada || casillaBandera->estadoBandera != 0)
@@ -282,7 +282,7 @@ void setLog(Log* log, int coordX, int coordY, char tipoEvento[80])
 void clickDoble(SDL_Event e, int button, Juego* juego, int gX, int gY)
 {
     Casilla** mapa = juego->mapa;
-    Uint32 tiempoDeEspera = SDL_GetTicks() + 1000; // tiempo de espera para segundo click
+    Uint32 tiempoDeEspera = SDL_GetTicks() + 500; // tiempo de espera para segundo click
 
     while (SDL_GetTicks() < tiempoDeEspera) 
     {
