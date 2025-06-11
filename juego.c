@@ -103,6 +103,19 @@ void mapaLlenar(Casilla **mapa, int filas, int columnas, Coord *minasCoord, int 
     }
 }
 
+void mapaImprimir(Casilla** mapa, int filas, int columnas){
+
+    // TEST ONLY //Impresion de matriz
+    for (size_t i = 0; i < filas; i++){
+
+        for (size_t j = 0; j < columnas; j++){
+
+            printf("%3d ", mapa[i][j].estado);
+        }
+        printf("\n\n");
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////
 
 // Establecer el renderizado con un color base (negro)
@@ -115,6 +128,10 @@ void fondoColor(SDL_Renderer *renderer)
 
 void interfaz(SDL_Renderer *renderer, Coord *pcords, int dimensionM, Coord *rbutton)
 {
+    pcords->x = 0;
+    pcords->y = 0;
+    rbutton->x = 0;
+    rbutton->y = 0;
 
     int G = 2; // Grosor
     int pad = G * 4;
@@ -197,7 +214,7 @@ void casillaEstado(SDL_Renderer *renderer, SDL_Window *window, Juego *juego, Coo
         return;
 
     Casilla *casillaSeleccionada = &juego->mapa[gY][gX]; //TODO: porque esta invertido?
-    Casilla *casillaBandera = &juego->mapa[gX][gY]; 
+    Casilla *casillaBandera = &juego->mapa[gY][gX];
 
     // No hacer nada si ya está presionada o tiene bandera
     if (casillaSeleccionada->presionada || casillaBandera->estadoBandera != 0)
@@ -254,15 +271,15 @@ void casillaBandera(SDL_Renderer *renderer, Juego *juego, int gX, int gY, Coord 
     Casilla **mapa = juego->mapa;
     //Realizo una iteracion ciclica con el resto
     // 1%3 = 1, 2%3 = 2, 3%3 = 0;
-    mapa[gX][gY].estadoBandera = (mapa[gX][gY].estadoBandera + 1) % 3;
+    mapa[gY][gX].estadoBandera = (mapa[gY][gX].estadoBandera + 1) % 3;
 
     //Suma y resta de bombas dependiendo el caso
-    if (mapa[gX][gY].estadoBandera == 1)
+    if (mapa[gY][gX].estadoBandera == 1)
         (*minasEnInterfaz)--;
-    else if (mapa[gX][gY].estadoBandera == 2)
+    else if (mapa[gY][gX].estadoBandera == 2)
         (*minasEnInterfaz)++;
 
-    dibujar(renderer, PIXELES_X_LADO, eleccionBandera(mapa[gX][gY].estadoBandera), gX, gY, picord->x, picord->y);
+    dibujar(renderer, PIXELES_X_LADO, eleccionBandera(mapa[gY][gX].estadoBandera), gX, gY, picord->x, picord->y);
 }
 
 //funciones Log

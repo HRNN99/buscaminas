@@ -10,6 +10,15 @@
 #define ERROR_CONFIGURACION 21
 #define EJECUCION_OK 0
 #define ERROR_FUENTE 10
+
+//ESTADOS
+typedef enum{
+    ESTADO_MENU,
+    ESTADO_JUGANDO,
+    ESTADO_SALIENDO
+
+}EstadoJuego;
+
 //TDA
 typedef struct{
     int estado;
@@ -39,6 +48,11 @@ typedef struct
     int coordXY[2];
 } Log;
 
+typedef struct {
+    const char *texto;
+    SDL_Rect rect;
+} MenuItem;
+
 //Prototipos
 void fondoColor(SDL_Renderer* renderer);
 void interfaz(SDL_Renderer* renderer, Coord* pcords , int dimensionM , Coord* rbutton);
@@ -50,6 +64,8 @@ Casilla** matrizCrear(size_t filas, size_t columnas, size_t tamElem);
 void matrizDestruir(Casilla** mapa , size_t filas);
 void mapaVacio(Casilla** mapa, int filas, int columnas);
 void mapaLlenar(Casilla** mapa , int filas , int columnas , Coord* minasCoord , int minas);
+void mapaImprimir(Casilla** mapa, int filas, int columnas);
+
 void casillaEstado(SDL_Renderer* renderer , SDL_Window* window, Juego* juego , Coord* minasCoord , int minas, int gX , int gY , Coord* picords);
 void mapaReiniciar(SDL_Renderer *renderer, Coord *pcord, Juego *juego, int filas, int columnas, Coord *minasCoord, int minas);
 

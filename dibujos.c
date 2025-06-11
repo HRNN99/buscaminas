@@ -83,7 +83,9 @@ void FinalizarVentanaSDL(SDL_Window *ventana, SDL_Renderer *renderer)
 int renderizarTexto(TTF_Font *font, int size, const char *texto, int colorTexto, int colorFondo, SDL_Renderer *render, int x, int y)
 {
     TTF_SetFontSize(font, size);
-    SDL_Color sdlColor = colores[colorTexto];
+
+    SDL_Color sdlColor = colores[colorTexto]; //Color de texto
+
     if(!(strlen(texto) > 0)){ //Evita el renderizado con cero caracteres
         return 1;
     }

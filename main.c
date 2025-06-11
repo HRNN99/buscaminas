@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
 
     // Inicio TTF y busco la fuente. Si no la encuentra imprime un error
     TTF_Init();
-    TTF_Font *font = TTF_OpenFont(rutaFuente, 24);
+    TTF_Font *font = TTF_OpenFont(rutaFuente, 64);
     if (!font)
     {
         printf("Error cargando fuente: %s\n", TTF_GetError());
@@ -57,6 +57,17 @@ int main(int argc, char *argv[])
     SDL_Renderer *renderer = SDL_CreateRenderer(ventana, -1, SDL_RENDERER_ACCELERATED);
     // Funcion para establecer el modo de mezcla de colores para el renderizado, el modo blend nos permite utilizar transparencia
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+    //////////////////////////////////////////////////////////////////////
+
+    MenuItem menu[] = {
+        {"Nueva Partida", {100,200,200,50}},
+        {"Cargar Partida", {100,270,200,50}},
+        {"Salir",          {100,340,200,50}}
+    };
+
+    int menu_count = sizeof(menu) / sizeof(menu[0]);
+    int seleccion = 0;
 
     //////////////////////////////////////////////////////////////////////
 
@@ -82,15 +93,8 @@ int main(int argc, char *argv[])
 
     putchar('\n');
 
-    // TEST ONLY //Impresion de matriz
-    for (size_t i = 0; i < filas; i++){
-
-        for (size_t j = 0; j < columnas; j++){
-
-            printf("%3d ", juego.mapa[i][j].estado);
-        }
-        printf("\n\n");
-    }
+    //Imprimir mapa
+    mapaImprimir(juego.mapa , filas , columnas);
 
     //////////////////////////////////////////////////////////////////////
 
@@ -99,9 +103,13 @@ int main(int argc, char *argv[])
 
     int boton, xGrilla, yGrilla, renderizarGanado = 0, fontSize = 16, casillasLibresDeMinas = (filas * columnas) - minasEnMapa;
     time_t current_time;
+
+    //Variable para estados
+    EstadoJuego estado_actual = ESTADO_MENU;
+
     // While para mantener el programa corriendo
     while (corriendo){
-        SDL_RenderPresent(renderer);
+
         SDL_Window *ventanaGanado;
         SDL_Renderer *rendererGanado;
         if(1){
@@ -113,15 +121,15 @@ int main(int argc, char *argv[])
             int anchoI = anchoM + 16;
             int altoI = pad + altoC + pad + anchoM + pad;
 
-            renderizarTexto(font, fontSize, "Puntaje:", GF, GS, renderer, pad*3, pad+(altoC/2));
-            char puntaje[21] = "";
-            itoa(juego.puntaje, puntaje, 10); //Armado de String a imprimir
-            renderizarTexto(font, fontSize, puntaje, GF, GS, renderer, pad*3, pad+(altoC/2)+fontSize+2);
-            renderizarTexto(font, fontSize, "Minas:", GF, GS,renderer, (pad*3)+anchoM+22, pad+(altoC/2));
-
+            //renderizarTexto(font, fontSize, "Minas:", GF, GS,renderer, (pad*3)+anchoM+22, pad+(altoC/2));
             char bombasEnMapaTexto[21] = "";
             itoa(juego.cantMinasEnInterfaz, bombasEnMapaTexto, 10); //Armado de String a imprimir
-            renderizarTexto(font, fontSize, bombasEnMapaTexto, GF, GS, renderer, (pad*3)+anchoM+22, pad+(altoC/2)+fontSize+2);
+            renderizarTexto(font, 46, bombasEnMapaTexto, RR, NN, renderer, picords.x+10 , rbutton.y+12);
+
+            //renderizarTexto(font, fontSize, "Puntaje:", GF, GS, renderer, pad*3, pad+(altoC/2));
+            char puntaje[21] = "";
+            itoa(juego.puntaje, puntaje, 10); //Armado de String a imprimir
+            renderizarTexto(font, fontSize, puntaje, GF, GS, renderer, (pad*3)+anchoM+22, pad+(altoC/2)+fontSize+2);
 
             // Aumento de puntaje por segundo
             if (!juego.finPartida){
@@ -151,7 +159,7 @@ int main(int argc, char *argv[])
             juego.finPartida = true;
         }
 
-        if (SDL_PollEvent(&e))
+        while (SDL_PollEvent(&e))
         { // Registrando eventos
 
             switch (e.type)
@@ -188,8 +196,14 @@ int main(int argc, char *argv[])
                     if((rbutton.x * TAM_PIXEL <= e.button.x && e.button.x <= (rbutton.x + 28) * TAM_PIXEL)
                         &&(rbutton.y * TAM_PIXEL <= e.button.y && e.button.y <= (rbutton.y + 28) * TAM_PIXEL)){
 
-                        printf("Reiniciaste mapa \n");
+                        interfaz(renderer,&picords,filas,&rbutton);
                         mapaReiniciar(renderer , &picords , &juego , filas , columnas , &minasCoord , minasEnMapa);
+                        system("cls");
+
+                        printf("Reiniciaste el mapa \n\n");
+
+                        //Imprimir mapa
+                        mapaImprimir(juego.mapa , filas , columnas);
                     }
                     else if(!juego.finPartida){
                         printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", e.button.x, e.button.y);
@@ -231,6 +245,29 @@ int main(int argc, char *argv[])
                 }
                 break;
             case SDL_KEYDOWN:
+
+                switch (e.key.keysym.sym){
+
+                    case SDLK_UP:   seleccion = (seleccion - 1 + menu_count) % menu_count; break;
+                    case SDLK_DOWN: seleccion = (seleccion + 1) % menu_count; break;
+                    case SDLK_RETURN:
+                        switch(seleccion){
+                            case 0:
+                                interfaz(renderer,&picords,filas,&rbutton);
+                                mapaReiniciar(renderer , &picords , &juego , filas , columnas , &minasCoord , minasEnMapa);
+                                //system("cls");
+                                SDL_RenderPresent(renderer);
+                                break;
+                            case 1:
+                                break;
+                            case 2:
+                                //Salir
+                                corriendo = false;
+                                printf("Saliendo...\n");
+                                break;
+                        }
+                }
+
                 // Borrado de letra al presionar borrar
                 if (e.key.keysym.sym == SDLK_BACKSPACE && strlen(nombreJugador) > 0)
                 {
@@ -259,6 +296,55 @@ int main(int argc, char *argv[])
                 break;
             }
         }
+
+        //////////////////////////////////////////////////////////////////////
+
+        SDL_SetRenderDrawColor(renderer , 0 , 0 , 0 , 255);
+        SDL_RenderClear(renderer);
+
+        int win_width, win_height;
+        SDL_GetWindowSize(ventana , &win_width , &win_height);
+
+        int base_y = 50;
+        int espacio = 50;
+
+        for(int i = 0 ; i < menu_count ; i++){
+
+            int text_width, text_height;
+            TTF_SizeText(font , menu[i].texto , &text_width , &text_height);
+
+            menu[i].rect.x = (win_width - text_width) / 2;
+            menu[i].rect.y = base_y + i*espacio;
+
+            //Establecemos un color para las letras del menu
+            SDL_Color colorTexto = {255,255,255,255};
+            //Se establece un color de fondo, segun si el item esta seleccionado o no
+            SDL_Color colorFondo = (i == seleccion) ? (SDL_Color){255,100,255,255} : (SDL_Color){100,100,100,255};
+
+            //Se crea una superficie de texto con el texto contenido en el menu[i]
+            SDL_Surface *surface = TTF_RenderText_Solid(font , menu[i].texto , colorTexto);
+            //Convierte la superficie en una textura para poder ser renderizada
+            SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer , surface);
+
+            //Se establece el color de dibujado usando color de fondo
+            SDL_SetRenderDrawColor(renderer , colorFondo.r , colorFondo.g , colorFondo.b , colorFondo.a);
+            //Se dibuja el rectangulo lleno en el render
+            SDL_RenderFillRect(renderer , &menu[i].rect);
+
+            //Calcula automaticamente el ancho y alto de texto renderizado, y actualiza valores de menu.rect
+            SDL_QueryTexture(texture , NULL , NULL ,&menu[i].rect.w , &menu[i].rect.h);
+            //Se dibuja el texto en el render
+            SDL_RenderCopy(renderer , texture , NULL , &menu[i].rect);
+
+            //Se liberan variables temporales
+            SDL_FreeSurface(surface);
+            SDL_DestroyTexture(texture);
+
+        }
+
+        //////////////////////////////////////////////////////////////////////
+
+        SDL_RenderPresent(renderer);
 
         SDL_Delay(16); // (60 fps) Esta pausa es para evitar que el procesador se ponga al 100% renderizando constantemente.
     }
@@ -308,7 +394,7 @@ int leerConfiguracion(int* filas, int* columnas, int* minasEnMapa, char* rutaFue
         fclose(config);
         return ERROR_ARCHIVO;
     }
-    printf("%d, %d, %s", *filas, *minasEnMapa, rutaFuente);
+    //printf("%d, %d, %s", *filas, *minasEnMapa, rutaFuente);
     fclose(config);
 
     return 0;
@@ -325,7 +411,7 @@ int escribirArchivoLog(FILE* archivoLog, Log* log)
     {
         fprintf(archivoLog, "[%d-%d-%d %02d:%02d:%02d] %-15s | coordenadas: (%d , %d)\n",
             log->fechaHora.tm_year + 1900, log->fechaHora.tm_mon + 1, log->fechaHora.tm_mday,
-            log->fechaHora.tm_hour, log->fechaHora.tm_min, log->fechaHora.tm_sec, log->tipoEvento, 
+            log->fechaHora.tm_hour, log->fechaHora.tm_min, log->fechaHora.tm_sec, log->tipoEvento,
             log->coordXY[0], log->coordXY[1]);
     }
     return 0;
