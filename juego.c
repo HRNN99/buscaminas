@@ -197,7 +197,7 @@ void casillaEstado(SDL_Renderer *renderer, SDL_Window *window, Juego *juego, Coo
     if (gX < 0 || gX >= juego->dimMapa || gY < 0 || gY >= juego->dimMapa)
         return;
 
-    Casilla *casillaSeleccionada = &juego->mapa[gY][gX]; // TODO: porque esta invertido?
+    Casilla *casillaSeleccionada = &juego->mapa[gY][gX];
     Casilla *casillaBandera = &juego->mapa[gY][gX];
 
     if (chordClick)
@@ -223,8 +223,9 @@ void casillaEstado(SDL_Renderer *renderer, SDL_Window *window, Juego *juego, Coo
     if (casillaSeleccionada->presionada || casillaBandera->estadoBandera != 0)
         return;
 
-    casillaSeleccionada->presionada = true;
     casillaSeleccionada->estadoBandera = 0; // Resetea el estado de la bandera
+    casillaSeleccionada->presionada = true;
+    
 
     // Juego Perdido
     if (casillaSeleccionada->estado == -1)
@@ -298,7 +299,7 @@ void setLog(Log *log, int coordX, int coordY, char tipoEvento[80])
     log->coordXY[1] = coordY;
 }
 
-void clickDoble(SDL_Renderer *renderer, SDL_Event e, int button, Juego *juego, int gX, int gY)
+void clickDoble(SDL_Renderer *renderer, SDL_Event e, int button, Juego *juego, int gX, int gY,Coord* minasCoord , int minas, Coord* picords)
 {
     Casilla **mapa = juego->mapa;
 
@@ -318,7 +319,8 @@ void clickDoble(SDL_Renderer *renderer, SDL_Event e, int button, Juego *juego, i
 
     if (mapa[gY][gX].estado == cont)
     {
-        casillaEstado(renderer, e.button.button, juego, NULL, NULL, gX, gY, NULL, true);
+        casillaEstado(renderer, e.button.button, juego, minasCoord, minas, gX , gY , picords, true);
+        
     }
     return;
     return;

@@ -206,7 +206,7 @@ int main(int argc, char *argv[])
                             {
                                 if (SDL_PollEvent(&e) && e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_RIGHT)
                                 {
-                                    clickDoble(renderer, e, boton, &juego, xGrilla, yGrilla);
+                                    clickDoble(renderer, e, boton, &juego, xGrilla, yGrilla, &minasCoord, minasEnMapa, &picords);
                                 }
                                 SDL_Delay(1);
                             }
@@ -247,7 +247,7 @@ int main(int argc, char *argv[])
                             {
                                 if (SDL_PollEvent(&e) && e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
                                 {
-                                    clickDoble(renderer, e, boton, &juego, xGrilla, yGrilla);
+                                    clickDoble(renderer, e, boton, &juego, xGrilla, yGrilla, &minasCoord, minasEnMapa, &picords);
                                 }
                                 SDL_Delay(1);
                             }
