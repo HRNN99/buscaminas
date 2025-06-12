@@ -33,14 +33,16 @@ int main(int argc, char *argv[])
     leerConfiguracion(&filas, &columnas, &minasEnMapa, rutaFuente);
 
     // Iniciar SDL con funcion Video
-    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+    if (SDL_Init(SDL_INIT_VIDEO) != 0)
+    {
         puts("Error inicializando SDL");
         fclose(archivoLog);
         return ERROR_SDL;
     }
 
     // Inicio TTF y busco la fuente. Si no la encuentra imprime un error
-    if (TTF_Init() != 0) {
+    if (TTF_Init() != 0)
+    {
         puts("Error inicializando SDL_ttf");
         SDL_Quit();
         fclose(archivoLog);
@@ -69,14 +71,14 @@ int main(int argc, char *argv[])
 
     // Funcion para crear ventana con posicion especifica, dimension y banderas.
     SDL_Window *ventana = SDL_CreateWindow(
-        nombreVentana, 
-        SDL_WINDOWPOS_CENTERED, 
-        SDL_WINDOWPOS_CENTERED, 
+        nombreVentana,
+        SDL_WINDOWPOS_CENTERED,
+        SDL_WINDOWPOS_CENTERED,
         TAMX, TAMY, 2);
 
     // Funcion para crear el renderizado en ventana acelerado por hardware
     SDL_Renderer *renderer = SDL_CreateRenderer(ventana, -1, SDL_RENDERER_ACCELERATED);
-    
+
     // Funcion para establecer el modo de mezcla de colores para el renderizado, el modo blend nos permite utilizar transparencia
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
@@ -202,88 +204,53 @@ int main(int argc, char *argv[])
                 }
                 break;
             case SDL_MOUSEBUTTONDOWN:
+            {
+                EventoClick handlerClick;
+                EventoDobleClick handlerDobleClick = clickDoble;
 
-                boton = e.button.button; // Alias del boton presionado
-
-                // Se dividen los pixeles para obtener un valor de grilla
+                boton = e.button.button;
                 xGrilla = (e.button.x - (picords.x * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL);
                 yGrilla = (e.button.y - (picords.y * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL);
 
-                if (boton == SDL_BUTTON_LEFT)
-                { // Evento clik izquierdo del mouse
-                    // Click en boton de reinicio
-                    if ((rbutton.x * TAM_PIXEL <= e.button.x && e.button.x <= (rbutton.x + 28) * TAM_PIXEL) && (rbutton.y * TAM_PIXEL <= e.button.y && e.button.y <= (rbutton.y + 28) * TAM_PIXEL))
-                    {
+                if((rbutton.x * TAM_PIXEL <= e.button.x && e.button.x <= (rbutton.x + 28) * TAM_PIXEL)
+                    &&(rbutton.y * TAM_PIXEL <= e.button.y && e.button.y <= (rbutton.y + 28) * TAM_PIXEL) 
+                    && (boton == SDL_BUTTON_LEFT)){
 
                         printf("Reiniciaste mapa \n");
                         mapaReiniciar(renderer, &picords, &juego, filas, columnas, &minasCoord, minasEnMapa);
-                    }
-                    else if (!juego.finPartida)
-                    {
-                        if (juego.mapa[yGrilla][xGrilla].presionada == true && juego.mapa[yGrilla][xGrilla].estado > 0)
-                        {
-                            Uint32 tiempoDeEspera = SDL_GetTicks() + 250; // tiempo de espera para segundo click
-
-                            while (SDL_GetTicks() < tiempoDeEspera)
-                            {
-                                if (SDL_PollEvent(&e) && e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_RIGHT)
-                                {
-                                    clickDoble(renderer, e, boton, &juego, xGrilla, yGrilla, &minasCoord, minasEnMapa, &picords);
-                                }
-                                SDL_Delay(1);
-                            }
-
-
-                        }
-                        else
-                        {
-                            printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", e.button.x, e.button.y);
-                            setLog(&log, xGrilla, yGrilla, "click izquierdo");
-                            escribirArchivoLog(archivoLog, &log);
-                            casillaEstado(renderer, ventana, &juego, &minasCoord, minasEnMapa, xGrilla, yGrilla, &picords, false);
-                        }
-                        if (juego.cantCasillasPresionadas == casillasLibresDeMinas)
-                        {
-                            setLog(&log, -1, -1, "Juego ganado");
-                            escribirArchivoLog(archivoLog, &log);
-                            puts("Ganaste el juego!");
-                            renderizarGanado = 1;
-                            *nombreJugador = '\0'; // Limpieza por si se presionaron teclas al jugar
-                            // Funcion para crear ventana con posicion especifica, dimension y banderas.
-                            ventanaGanado = SDL_CreateWindow("Ganaste!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, TAMX - 100, TAMY - 100, 2);
-                            // Funcion para crear el renderizado en ventana acelerado por hardware
-                            rendererGanado = SDL_CreateRenderer(ventanaGanado, -1, SDL_RENDERER_ACCELERATED);
-                            // Funcion para establecer el modo de mezcla de colores para el renderizado, el modo blend nos permite utilizar transparencia
-                            SDL_SetRenderDrawBlendMode(rendererGanado, SDL_BLENDMODE_BLEND);
-                        }
-                    }
                 }
-                else if (boton == SDL_BUTTON_RIGHT && !juego.finPartida)
-                { // Evento click derecho del mouse
-                    if (juego.mapa[yGrilla][xGrilla].presionada == true && juego.mapa[yGrilla][xGrilla].estado > 0)
-                    {
+                else
 
-                        Uint32 tiempoDeEspera = SDL_GetTicks() + 250; // tiempo de espera para segundo click
+                if (!juego.finPartida)
+                {
+                     if (juego.mapa[yGrilla][xGrilla].presionada &&
+                         juego.mapa[yGrilla][xGrilla].estado > 0)
+                     {
 
-                            while (SDL_GetTicks() < tiempoDeEspera)
-                            {
-                                if (SDL_PollEvent(&e) && e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
-                                {
-                                    clickDoble(renderer, e, boton, &juego, xGrilla, yGrilla, &minasCoord, minasEnMapa, &picords);
-                                }
-                                SDL_Delay(1);
-                            }
-                    }
-                    else
-                    {
-                        printf("Hiciste clic derecho en la casilla (%i, %i) colocando bandera\n", xGrilla, yGrilla);
-                        setLog(&log, xGrilla, yGrilla, "click derecho");
-                        escribirArchivoLog(archivoLog, &log);
-                        casillaBandera(renderer, &juego, xGrilla, yGrilla, &picords, &juego.cantMinasEnInterfaz);
-                    }
-                }
-                printf("Presionadas: %d\n", juego.cantCasillasPresionadas);
+                         handlerClick = (boton == SDL_BUTTON_LEFT) ? handlerClickIzquierdo : handlerClickDerecho;
+
+                         Uint32 tiempoDeEspera = SDL_GetTicks() + 250;
+                         while (SDL_GetTicks() < tiempoDeEspera)
+                         {
+                             if (SDL_PollEvent(&e) && e.type == SDL_MOUSEBUTTONDOWN &&
+                                 e.button.button != boton)
+                             {
+                                 handlerDobleClick(renderer, e, boton, &juego, xGrilla,
+                                                   yGrilla, &minasCoord, minasEnMapa, &picords);
+                                 break;
+                             }
+                             SDL_Delay(1);
+                         }
+                     }
+                     else
+                     {
+                         handlerClick = (boton == SDL_BUTTON_LEFT) ? handlerClickIzquierdo : handlerClickDerecho;
+                         handlerClick(renderer, &juego, xGrilla, yGrilla, &picords,
+                                      &minasCoord, minasEnMapa);
+                     }
+                 }
                 break;
+            }
             case SDL_TEXTINPUT:
                 // Actualizacion de nombreJugador al presionar una tecla
                 if (strlen(nombreJugador) + strlen(e.text.text) < 100)

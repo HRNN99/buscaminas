@@ -330,3 +330,17 @@ void clickDoble(SDL_Renderer *renderer, SDL_Event e, int button, Juego *juego, i
     return;
     return;
 }
+
+
+//clickHandlers
+void handlerClickIzquierdo(SDL_Renderer* renderer, Juego* juego, int x, int y, 
+                          Coord* picords, Coord* minasCoord, int minas) {
+
+    
+    casillaEstado(renderer, NULL, juego, minasCoord, minas, x, y, picords, false);
+}
+
+void handlerClickDerecho(SDL_Renderer* renderer, Juego* juego, int x, int y, 
+                        Coord* picords, Coord* minasCoord, int minas) {
+    casillaBandera(renderer, juego, x, y, picords, &juego->cantMinasEnInterfaz);
+}

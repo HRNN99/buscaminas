@@ -40,6 +40,11 @@ typedef struct
     int coordXY[2];
 } Log;
 
+//punteros a funciones
+
+typedef void (*EventoClick)(SDL_Renderer*, Juego*, int, int, Coord*, Coord*, int);
+typedef void (*EventoDobleClick)(SDL_Renderer*, SDL_Event, int, Juego*, int, int, Coord*, int, Coord*);
+
 //Prototipos
 void fondoColor(SDL_Renderer* renderer);
 void interfaz(SDL_Renderer* renderer, Coord* pcords , int dimensionM , Coord* rbutton);
@@ -55,6 +60,12 @@ void casillaEstado(SDL_Renderer* renderer , SDL_Window* window, Juego* juego , C
 void clickDoble(SDL_Renderer *renderer, SDL_Event e, int button, Juego *juego, int gX, int gY,Coord* minasCoord , int minas, Coord* picords);
 void mapaReiniciar(SDL_Renderer *renderer, Coord *pcord, Juego *juego, int filas, int columnas, Coord *minasCoord, int minas);
 
+
+void handlerClickDerecho(SDL_Renderer* renderer, Juego* juego, int x, int y, 
+                        Coord* picords, Coord* minasCoord, int minas);
+
+void handlerClickIzquierdo(SDL_Renderer* renderer, Juego* juego, int x, int y, 
+                          Coord* picords, Coord* minasCoord, int minas);
 //Log
 void setLog(Log* log, int coordX, int coordY, char tipoEvento[80]);
 #endif // JUEGO_H
