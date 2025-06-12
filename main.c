@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
 
     // Inicio TTF y busco la fuente. Si no la encuentra imprime un error
     TTF_Init();
-    TTF_Font *font = TTF_OpenFont(rutaFuente, 64);
+    TTF_Font *font = TTF_OpenFont(rutaFuente, 32);
     if (!font)
     {
         printf("Error cargando fuente: %s\n", TTF_GetError());
@@ -60,14 +60,13 @@ int main(int argc, char *argv[])
 
     //////////////////////////////////////////////////////////////////////
 
-    MenuItem menu[] = {
-        {"Nueva Partida", {100,200,200,50}},
-        {"Cargar Partida", {100,270,200,50}},
-        {"Salir",          {100,340,200,50}}
+    const char* menu_items[] = {
+        "Nueva Partida",
+        "Cargar Partida",
+        "Salir"
     };
 
-    int menu_count = sizeof(menu) / sizeof(menu[0]);
-    int seleccion = 0;
+    int menu_count = sizeof(menu_items) / sizeof(menu_items[0]);
 
     //////////////////////////////////////////////////////////////////////
 
@@ -89,12 +88,12 @@ int main(int argc, char *argv[])
     juego.mapa = mapa;
 
     //Iniciacion de valores de mapa
-    mapaReiniciar(renderer , &picords , &juego , filas , columnas , &minasCoord , minasEnMapa);
+    //mapaReiniciar(renderer , &picords , &juego , filas , columnas , &minasCoord , minasEnMapa);
 
     putchar('\n');
 
     //Imprimir mapa
-    mapaImprimir(juego.mapa , filas , columnas);
+    //mapaImprimir(juego.mapa , filas , columnas);
 
     //////////////////////////////////////////////////////////////////////
 
@@ -106,10 +105,59 @@ int main(int argc, char *argv[])
 
     //Variable para estados
     EstadoJuego estado_actual = ESTADO_MENU;
+    bool juego_iniciado = false;
+    int seleccion = 0;
 
     // While para mantener el programa corriendo
     while (corriendo){
 
+        while(SDL_PollEvent(&e)){
+            if(e.type == SDL_QUIT){
+                corriendo = false;
+                printf("\n---Cerrando Ventana---\n");
+            }
+
+            switch(estado_actual){
+                case ESTADO_MENU:
+                    manejar_eventos_menu(&e , &estado_actual , &seleccion , menu_count);
+                    break;
+
+                case ESTADO_JUGANDO:
+                    //manejar_eventos_juego(&e , &estado_actual , &boton);
+                    break;
+
+                case ESTADO_SALIENDO:
+                    corriendo = false;
+                    printf("\nSaliendo...\n");
+                    break;
+            }
+        }
+
+        //SDL_RenderClear(renderer);
+
+        switch(estado_actual){
+            case ESTADO_MENU:
+
+                dibujar_menu(renderer , ventana , font , menu_items , menu_count , &seleccion);
+                break;
+
+            case ESTADO_JUGANDO:
+
+                if(!juego_iniciado){
+                    interfaz(renderer,&picords,filas,&rbutton);
+                    mapaReiniciar(renderer , &picords , &juego , filas , columnas , &minasCoord , minasEnMapa);
+                    system("cls");
+                    mapaImprimir(juego.mapa , filas , columnas);
+
+                    juego_iniciado = true;
+                }
+                break;
+        }
+
+        SDL_RenderPresent(renderer);
+        SDL_Delay(16);
+
+        /*
         SDL_Window *ventanaGanado;
         SDL_Renderer *rendererGanado;
         if(1){
@@ -296,61 +344,73 @@ int main(int argc, char *argv[])
                 break;
             }
         }
-
-        //////////////////////////////////////////////////////////////////////
-
-        SDL_SetRenderDrawColor(renderer , 0 , 0 , 0 , 255);
-        SDL_RenderClear(renderer);
-
-        int win_width, win_height;
-        SDL_GetWindowSize(ventana , &win_width , &win_height);
-
-        int base_y = 50;
-        int espacio = 50;
-
-        for(int i = 0 ; i < menu_count ; i++){
-
-            int text_width, text_height;
-            TTF_SizeText(font , menu[i].texto , &text_width , &text_height);
-
-            menu[i].rect.x = (win_width - text_width) / 2;
-            menu[i].rect.y = base_y + i*espacio;
-
-            //Establecemos un color para las letras del menu
-            SDL_Color colorTexto = {255,255,255,255};
-            //Se establece un color de fondo, segun si el item esta seleccionado o no
-            SDL_Color colorFondo = (i == seleccion) ? (SDL_Color){255,100,255,255} : (SDL_Color){100,100,100,255};
-
-            //Se crea una superficie de texto con el texto contenido en el menu[i]
-            SDL_Surface *surface = TTF_RenderText_Solid(font , menu[i].texto , colorTexto);
-            //Convierte la superficie en una textura para poder ser renderizada
-            SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer , surface);
-
-            //Se establece el color de dibujado usando color de fondo
-            SDL_SetRenderDrawColor(renderer , colorFondo.r , colorFondo.g , colorFondo.b , colorFondo.a);
-            //Se dibuja el rectangulo lleno en el render
-            SDL_RenderFillRect(renderer , &menu[i].rect);
-
-            //Calcula automaticamente el ancho y alto de texto renderizado, y actualiza valores de menu.rect
-            SDL_QueryTexture(texture , NULL , NULL ,&menu[i].rect.w , &menu[i].rect.h);
-            //Se dibuja el texto en el render
-            SDL_RenderCopy(renderer , texture , NULL , &menu[i].rect);
-
-            //Se liberan variables temporales
-            SDL_FreeSurface(surface);
-            SDL_DestroyTexture(texture);
-
-        }
-
-        //////////////////////////////////////////////////////////////////////
-
-        SDL_RenderPresent(renderer);
-
-        SDL_Delay(16); // (60 fps) Esta pausa es para evitar que el procesador se ponga al 100% renderizando constantemente.
+        */
     }
     fclose(archivoLog);
     return EJECUCION_OK;
 }
+
+void manejar_eventos_menu(SDL_Event *e , EstadoJuego *estado_actual, int* seleccion , const int menu_count){
+
+    switch(e->type){
+
+        case SDL_KEYDOWN:
+
+            switch(e->key.keysym.sym){
+
+                case SDLK_UP:
+                    *seleccion = (*seleccion - 1 + menu_count) % menu_count;
+                    break;
+
+                case SDLK_DOWN:
+                    *seleccion = (*seleccion + 1) % menu_count;
+                    break;
+
+                case SDLK_RETURN:
+                    switch(*seleccion){
+
+                        case 0:
+                            *estado_actual = ESTADO_JUGANDO;
+                            break;
+
+                        case 1:
+                            *estado_actual = ESTADO_CARGAR;
+                            break;
+
+                        case 2:
+                            *estado_actual = ESTADO_SALIENDO;
+                            break;
+                    }
+                    break;
+            }
+            break;
+    }
+}
+
+/*
+void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , int* boton){
+
+    switch(e->type){
+
+        case SDL_MOUSEBUTTONDOWN:
+
+            *boton = e->button.button;
+
+            switch(*boton){
+
+                case SDL_BUTTON_LEFT:
+
+                    break;
+
+                case SDL_BUTTON_RIGHT:
+
+                    break;
+            }
+            break;
+    }
+
+}
+*/
 
 int leerConfiguracion(int* filas, int* columnas, int* minasEnMapa, char* rutaFuente){
     FILE* config = fopen("buscaminas.conf", "r+t");

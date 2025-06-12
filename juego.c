@@ -3,6 +3,54 @@
 #include "estados.h"
 #include "time.h"
 
+void dibujar_menu(SDL_Renderer* renderer , SDL_Window* ventana , TTF_Font* font , const char* menu_items[] , const int menu_count , int* seleccion){
+
+    SDL_SetRenderDrawColor(renderer , 0 , 0 , 0 , 255);
+    SDL_RenderClear(renderer);
+
+    int win_width, win_height;
+    SDL_GetWindowSize(ventana , &win_width , &win_height);
+
+    int base_y = 50;
+    int espacio = 50;
+
+    for(int i = 0 ; i < menu_count ; i++){
+
+        int text_width, text_height;
+        TTF_SizeText(font , menu_items[i] , &text_width , &text_height);
+
+        SDL_Rect fondo;
+        fondo.x = (win_width - text_width) / 2;
+        fondo.y = base_y + i*espacio;
+        fondo.w = text_width;
+        fondo.h = text_height;
+
+        //Establecemos un color para las letras del menu
+        SDL_Color colorTexto = {255,255,255,255};
+        //Se establece un color de fondo, segun si el item esta seleccionado o no
+        SDL_Color colorFondo = (i == *seleccion) ? (SDL_Color){255,100,255,255} : (SDL_Color){100,100,100,255};
+
+        //Se crea una superficie de texto con el texto contenido en el menu[i]
+        SDL_Surface *surface = TTF_RenderText_Solid(font , menu_items[i] , colorTexto);
+        //Convierte la superficie en una textura para poder ser renderizada
+        SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer , surface);
+
+        //Se establece el color de dibujado usando color de fondo
+        SDL_SetRenderDrawColor(renderer , colorFondo.r , colorFondo.g , colorFondo.b , colorFondo.a);
+        //Se dibuja el rectangulo lleno en el render
+        SDL_RenderFillRect(renderer , &fondo);
+
+        //Calcula automaticamente el ancho y alto de texto renderizado, y actualiza valores de menu.rect
+        SDL_QueryTexture(texture , NULL , NULL ,&fondo.w , &fondo.h);
+        //Se dibuja el texto en el render
+        SDL_RenderCopy(renderer , texture , NULL , &fondo);
+
+        //Se liberan variables temporales
+        SDL_FreeSurface(surface);
+        SDL_DestroyTexture(texture);
+    }
+}
+
 // Funcion destinada a crear una matriz con memoria dinamica
 Casilla **matrizCrear(size_t filas, size_t columnas, size_t tamElem)
 {
@@ -213,7 +261,7 @@ void casillaEstado(SDL_Renderer *renderer, SDL_Window *window, Juego *juego, Coo
     if (gX < 0 || gX >= juego->dimMapa || gY < 0 || gY >= juego->dimMapa)
         return;
 
-    Casilla *casillaSeleccionada = &juego->mapa[gY][gX]; //TODO: porque esta invertido?
+    Casilla *casillaSeleccionada = &juego->mapa[gY][gX];
     Casilla *casillaBandera = &juego->mapa[gY][gX];
 
     // No hacer nada si ya está presionada o tiene bandera
