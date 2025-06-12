@@ -289,7 +289,7 @@ int main(int argc, char *argv[])
                     // Guardo en orden en el archivo temp
                     for (size_t i = 0; i < iterador; i++)
                     {
-                        if (!guardado && juego.puntaje <= puntaje[i].puntos)
+                        if (!guardado && juego.puntaje < puntaje[i].puntos)
                         {
                             fprintf(aPuntuacionTemp, "%05d %-40s\n",  juego.puntaje,  nombreJugador);
                             guardado = 1;
