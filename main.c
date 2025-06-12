@@ -8,8 +8,19 @@
 #include "dibujos.h" //Header de estados
 #include "juego.h"
 
-int leerConfiguracion(int*, int*,int*, char*);
+int leerConfiguracion(int*, int*,int*, char*, FILE*);
 int escribirArchivoLog(FILE* archivoLog, Log* log);
+// Función para abrir un archivo y manejar errores
+FILE* abrirArchivo(const char* nombre, const char* modo, FILE* archivoLog) {
+    FILE* archivo = fopen(nombre, modo);
+    if (!archivo) {
+        setLog(&log, -1, -1, "Error al abrir el archivo.");
+        escribirArchivoLog(archivoLog, &log);
+        puts("Error al abrir el archivo.");
+        return NULL;
+    }
+    return archivo;
+}
 
 int main(int argc, char *argv[])
 {
@@ -31,7 +42,7 @@ int main(int argc, char *argv[])
     escribirArchivoLog(archivoLog, &log);
 
     // Lectura del archivo de configuarcion
-    leerConfiguracion(&filas, &columnas, &minasEnMapa, rutaFuente);
+    leerConfiguracion(&filas, &columnas, &minasEnMapa, rutaFuente, archivoLog);
 
     // Iniciar SDL con funcion Video
     SDL_Init(SDL_INIT_VIDEO);
@@ -256,23 +267,16 @@ int main(int argc, char *argv[])
                if (e.key.keysym.sym == SDLK_RETURN && strlen(nombreJugador) > 0)
                {
                     SDL_StopTextInput(); //Cierro la lectura de teclado
-                    FILE* aPuntuacion = fopen("puntuacion.txt", "rt");
-                    if(!aPuntuacion)
-                    {
-                        setLog(&log, -1, -1, "Error al abrir el archivo de puntuacion.");
-                        escribirArchivoLog(archivoLog, &log);
-                        puts("Error al abrir el archivo puntuacion.txt");
+                    // Abrir archivos
+                    FILE* aPuntuacion = abrirArchivo("puntuacion.txt", "rt", archivoLog);
+                    if (!aPuntuacion) {
                         fclose(archivoLog);
                         return ERROR_ARCHIVO;
                     }
-                    FILE* aPuntuacionTemp = fopen("puntuacion.temp", "wt");
-                    if(!aPuntuacionTemp)
-                    {
-                        setLog(&log, -1, -1, "Error al abrir el archivo de puntuacionTemp.");
-                        escribirArchivoLog(archivoLog, &log);
-                        puts("Error al abrir el archivo puntuacion.temp");
-                        fclose(archivoLog);
+                    FILE* aPuntuacionTemp = abrirArchivo("puntuacion.temp", "wt", archivoLog);
+                    if (!aPuntuacionTemp) {
                         fclose(aPuntuacion);
+                        fclose(archivoLog);
                         return ERROR_ARCHIVO;
                     }
                     char linea[47];
@@ -325,8 +329,8 @@ int main(int argc, char *argv[])
     return EJECUCION_OK;
 }
 
-int leerConfiguracion(int* filas, int* columnas, int* minasEnMapa, char* rutaFuente){
-    FILE* config = fopen("buscaminas.conf", "r+t");
+int leerConfiguracion(int* filas, int* columnas, int* minasEnMapa, char* rutaFuente, FILE* archivoLog){
+    FILE* config = abrirArchivo("buscaminas.conf", "r+t", archivoLog);
 
     if (!config)
     {
