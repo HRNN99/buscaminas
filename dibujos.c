@@ -21,7 +21,6 @@ SDL_Color colores[] =
 void dibujar(SDL_Renderer *renderer , int pixeles , const int dibujo[][pixeles] , int gX , int gY , int pXi , int pYi){
     int pXf = (pXi * TAM_PIXEL) + gX * (pixeles * TAM_PIXEL); // Posicion X en pixeles
     int pYf = (pYi * TAM_PIXEL) + gY * (PIXELES_X_LADO * TAM_PIXEL); // Posicion Y en pixeles
-
     for (int y = 0; y < pixeles; y++){
 
         for (int x = 0; x < pixeles; x++){

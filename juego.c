@@ -72,8 +72,8 @@ void mapaLlenar(Casilla **mapa, int filas, int columnas, Coord *minasCoord, int 
     while (m < minas)
     {
 
-        x = rand() % columnas;
-        y = rand() % filas;
+        y = rand() % columnas;
+        x = rand() % filas;
 
         if (mapa[y][x].estado != -1)
         {
@@ -178,7 +178,7 @@ bool casillaColocacion(Casilla **mapa, SDL_Renderer *renderer, int fil, int col,
         x = 0;
         while (x < col)
         {
-            mapa[x][y].estadoBandera = 0; // Uso el ciclo para inicializar todo en 0
+            mapa[y][x].estadoBandera = 0; // Uso el ciclo para inicializar todo en 0
             gX = x % col;
             gY = y % fil;
             dibujar(renderer, PIXELES_X_LADO, square1, gX, gY, picord->x, picord->y);
@@ -191,14 +191,33 @@ bool casillaColocacion(Casilla **mapa, SDL_Renderer *renderer, int fil, int col,
 }
 
 // Funcion que coloca estados en las casillas
-void casillaEstado(SDL_Renderer *renderer, SDL_Window *window, Juego *juego, Coord *minasCoord, int minas, int gX, int gY, Coord *picords)
+void casillaEstado(SDL_Renderer *renderer, SDL_Window *window, Juego *juego, Coord *minasCoord, int minas, int gX, int gY, Coord *picords, bool chordClick)
 {
 
     if (gX < 0 || gX >= juego->dimMapa || gY < 0 || gY >= juego->dimMapa)
         return;
 
-    Casilla *casillaSeleccionada = &juego->mapa[gY][gX]; //TODO: porque esta invertido?
-    Casilla *casillaBandera = &juego->mapa[gY][gX]; 
+    Casilla *casillaSeleccionada = &juego->mapa[gY][gX]; // TODO: porque esta invertido?
+    Casilla *casillaBandera = &juego->mapa[gY][gX];
+
+    if (chordClick)
+    {
+
+        if (casillaSeleccionada->presionada && casillaSeleccionada->estado > 0)
+        {
+            for (int i = -1; i < 2; i++)
+            {
+                for (int j = -1; j < 2; j++)
+                {
+                    if(i == 0 && j == 0) continue; // Evita repetirse a sí mismo
+                    casillaEstado(renderer, window, juego, minasCoord, minas, gX + i, gY + j, picords, false);
+                    
+                }
+            }
+        }
+
+        return;
+    }
 
     // No hacer nada si ya está presionada o tiene bandera
     if (casillaSeleccionada->presionada || casillaBandera->estadoBandera != 0)
@@ -241,24 +260,25 @@ void casillaEstado(SDL_Renderer *renderer, SDL_Window *window, Juego *juego, Coo
     {
         for (int j = -1; j < 2; j++)
         {
-            if (i == 0 && j == 0) continue; // Evita repetirse a sí mismo
-            casillaEstado(renderer, window, juego, minasCoord, minas, gX + i, gY + j, picords);
+            if (i == 0 && j == 0)
+                continue; // Evita repetirse a sí mismo
+            casillaEstado(renderer, window, juego, minasCoord, minas, gX + i, gY + j, picords, false);
         }
     }
 }
 
 // Funcion para colocar bandera
-void casillaBandera(SDL_Renderer *renderer, Juego *juego, int gX, int gY, Coord *picord, int* minasEnInterfaz)
+void casillaBandera(SDL_Renderer *renderer, Juego *juego, int gX, int gY, Coord *picord, int *minasEnInterfaz)
 {
     if (gX < 0 || gX >= juego->dimMapa || gY < 0 || gY >= juego->dimMapa)
         return;
 
     Casilla **mapa = juego->mapa;
-    //Realizo una iteracion ciclica con el resto
-    // 1%3 = 1, 2%3 = 2, 3%3 = 0;
+    // Realizo una iteracion ciclica con el resto
+    //  1%3 = 1, 2%3 = 2, 3%3 = 0;
     mapa[gY][gX].estadoBandera = (mapa[gY][gX].estadoBandera + 1) % 3;
 
-    //Suma y resta de bombas dependiendo el caso
+    // Suma y resta de bombas dependiendo el caso
     if (mapa[gY][gX].estadoBandera == 1)
         (*minasEnInterfaz)--;
     else if (mapa[gY][gX].estadoBandera == 2)
@@ -267,49 +287,39 @@ void casillaBandera(SDL_Renderer *renderer, Juego *juego, int gX, int gY, Coord 
     dibujar(renderer, PIXELES_X_LADO, eleccionBandera(mapa[gY][gX].estadoBandera), gX, gY, picord->x, picord->y);
 }
 
-//funciones Log
-void setLog(Log* log, int coordX, int coordY, char tipoEvento[80])
+// funciones Log
+void setLog(Log *log, int coordX, int coordY, char tipoEvento[80])
 {
     time_t ahora = time(NULL);
-    struct tm* aux = localtime(&ahora);
+    struct tm *aux = localtime(&ahora);
     log->fechaHora = *aux; // Asignar la fecha y hora actual al log
     strcpy(log->tipoEvento, tipoEvento);
     log->coordXY[0] = coordX;
     log->coordXY[1] = coordY;
 }
 
-
-void clickDoble(SDL_Event e, int button, Juego* juego, int gX, int gY)
+void clickDoble(SDL_Renderer *renderer, SDL_Event e, int button, Juego *juego, int gX, int gY)
 {
-    Casilla** mapa = juego->mapa;
-    Uint32 tiempoDeEspera = SDL_GetTicks() + 500; // tiempo de espera para segundo click
+    Casilla **mapa = juego->mapa;
 
-    while (SDL_GetTicks() < tiempoDeEspera) 
+    int cont = 0;
+    for (int i = -1; i < 2; i++)
     {
-        if (SDL_PollEvent(&e) && e.type == SDL_MOUSEBUTTONDOWN && e.button.button == button) 
+        for (int j = -1; j < 2; j++)
         {
-            
-                int cont = 0;
-                for(int i = -1; i < 2; i++)
-                {
-                    for(int j = -1; j < 2; j++)
-                    {
-                        if(mapa[gY + j][gX + i].estadoBandera == 1)
-                        {
-                            if(i == 0 && j == 0) continue; // Evita repetirse a sí mismo
-                            cont++;
-                        }   
-                    }
-                }
-
-                if(mapa[gY][gX].estado == cont)
-                {
-                    printf("Hiciste clic simultaneo en la casilla (%i,%i)\n", e.button.x, e.button.y);
-                }
-                return;
-            
+            if (mapa[gY + j][gX + i].estadoBandera == 1)
+            {
+                if (i == 0 && j == 0)
+                    continue; // Evita repetirse a sí mismo
+                cont++;
+            }
         }
-        SDL_Delay(1);
     }
+
+    if (mapa[gY][gX].estado == cont)
+    {
+        casillaEstado(renderer, e.button.button, juego, NULL, NULL, gX, gY, NULL, true);
+    }
+    return;
     return;
 }
