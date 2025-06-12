@@ -10,6 +10,7 @@
 #define ERROR_CONFIGURACION 21
 #define EJECUCION_OK 0
 #define ERROR_FUENTE 10
+#define ERROR_SDL 11
 //TDA
 typedef struct{
     int estado;

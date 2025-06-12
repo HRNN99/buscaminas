@@ -3,6 +3,7 @@
 #include "estados.h"
 #include "time.h"
 
+
 // Funcion destinada a crear una matriz con memoria dinamica
 Casilla **matrizCrear(size_t filas, size_t columnas, size_t tamElem)
 {
@@ -310,8 +311,12 @@ void clickDoble(SDL_Renderer *renderer, SDL_Event e, int button, Juego *juego, i
         {
             if (mapa[gY + j][gX + i].estadoBandera == 1)
             {
-                if (i == 0 && j == 0)
+                if ((i == 0 && j == 0) || (gX + i < 0 || gX + i >= juego->dimMapa || gY + j < 0 || gY + j >= juego->dimMapa))
                     continue; // Evita repetirse a sí mismo
+                    
+    if (gX < 0 || gX >= juego->dimMapa || gY < 0 || gY >= juego->dimMapa)
+        return;
+
                 cont++;
             }
         }
