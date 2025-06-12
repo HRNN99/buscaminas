@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
         return ERROR_FUENTE;
     }
 
-    char nombreJugador[100];
+    char nombreJugador[40];
     char nombreVentana[100];
     // String formateado para el titulo de ventana
     sprintf(nombreVentana, "Buscaminas %ix%i", filas, columnas);
@@ -255,8 +255,8 @@ int main(int argc, char *argv[])
                if (e.key.keysym.sym == SDLK_RETURN && strlen(nombreJugador) > 0)
                {
                     SDL_StopTextInput(); //Cierro la lectura de teclado
-                    FILE* aPuntuacion = fopen("puntuacion.txt", "a+");
-                    // fseek(aPuntuacion, 48, SEEK_END);
+                    FILE* aPuntuacion = fopen("puntuacion.txt", "a+t");
+                    fseek(aPuntuacion, 0, SEEK_SET);
                     if(!aPuntuacion)
                     {
                         setLog(&log, -1, -1, "Error al abrir el archivo de puntuacion.");
@@ -265,28 +265,16 @@ int main(int argc, char *argv[])
                         fclose(archivoLog);
                         return ERROR_ARCHIVO;
                     }
-                    char linea[48];
+                    char linea[47];
+                    char puntuacion[6];
                     while(fgets(linea, sizeof(linea)+1, aPuntuacion)){
-                        
-                        char* act = strchr(linea, '\n'); // Busco la fin de linea, si no esta es porque la linea es mas larga de lo definido
-                        if(!act){
-                            puts("Error linea");
-                            return ERROR_LINEA_LARGA;
-                        }
 
-                        //Nombre
-                        *act = '\0';
-                        act = strchr(linea, '|');
-                        sscanf(act + 2, "%s", puntaje.nombre);
+                        char* iniPalabra = linea+6;
+                        strncpy(puntuacion, linea, 5);
 
-                        //Puntaje
-                        *act = '\0';
-                        act = strchr(linea, '|');
-                        sscanf(act + 2, "%05d", puntaje.puntos);
-
-                        printf("%d, %s\n", puntaje.puntos, puntaje.nombre);
+                        printf("%5d, %-40s", atoi(puntuacion), iniPalabra);
                     }
-                    fprintf(aPuntuacion, "%05d | %s\n", juego.puntaje, nombreJugador);
+                    fprintf(aPuntuacion, "%05d %-40s\n", juego.puntaje, nombreJugador);
                     fclose(aPuntuacion);
                     renderizarGanado = 0;
                     FinalizarVentanaSDL(ventanaGanado, rendererGanado); // Funcion para la finalizacion de SDL y sus componentes
