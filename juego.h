@@ -10,7 +10,10 @@
 #define ERROR_CONFIGURACION 21
 #define EJECUCION_OK 0
 #define ERROR_FUENTE 10
+#define ERROR_ELIMINACION_ARCHIVO 15
+#define ERROR_RENOMBRE_ARCHIVO 16
 #define ERROR_LINEA_LARGA 11
+#define MAX_PUNTAJES 20
 
 //TDA
 typedef struct{
@@ -43,7 +46,7 @@ typedef struct
 
 typedef struct
 {
-    char nombre[20];
+    char nombre[40];
     int puntos;
 } Puntaje;
 

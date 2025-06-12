@@ -14,9 +14,10 @@ int escribirArchivoLog(FILE* archivoLog, Log* log);
 int main(int argc, char *argv[])
 {
 
-    int filas = 0, columnas = 0, minasEnMapa = 0;
+    int filas = 0, columnas = 0, minasEnMapa = 0, guardado = 0;
     char rutaFuente[100];
-    Puntaje puntaje;
+    Puntaje puntaje[MAX_PUNTAJES];
+
     //Creacion archivo log
 
     FILE* archivoLog = fopen("partida.log", "w");
@@ -255,8 +256,7 @@ int main(int argc, char *argv[])
                if (e.key.keysym.sym == SDLK_RETURN && strlen(nombreJugador) > 0)
                {
                     SDL_StopTextInput(); //Cierro la lectura de teclado
-                    FILE* aPuntuacion = fopen("puntuacion.txt", "a+t");
-                    fseek(aPuntuacion, 0, SEEK_SET);
+                    FILE* aPuntuacion = fopen("puntuacion.txt", "rt");
                     if(!aPuntuacion)
                     {
                         setLog(&log, -1, -1, "Error al abrir el archivo de puntuacion.");
@@ -265,20 +265,55 @@ int main(int argc, char *argv[])
                         fclose(archivoLog);
                         return ERROR_ARCHIVO;
                     }
+                    FILE* aPuntuacionTemp = fopen("puntuacion.temp", "wt");
+                    if(!aPuntuacionTemp)
+                    {
+                        setLog(&log, -1, -1, "Error al abrir el archivo de puntuacionTemp.");
+                        escribirArchivoLog(archivoLog, &log);
+                        puts("Error al abrir el archivo puntuacion.temp");
+                        fclose(archivoLog);
+                        fclose(aPuntuacion);
+                        return ERROR_ARCHIVO;
+                    }
                     char linea[47];
                     char puntuacion[6];
-                    while(fgets(linea, sizeof(linea)+1, aPuntuacion)){
-
+                    int iterador = 0;
+                    // Guardo todos los valores en un array
+                    while(iterador < 20 && fgets(linea, sizeof(linea)+1, aPuntuacion) ){
                         char* iniPalabra = linea+6;
                         strncpy(puntuacion, linea, 5);
-
-                        printf("%5d, %-40s", atoi(puntuacion), iniPalabra);
+                        puntaje[iterador].puntos = atoi(puntuacion);
+                        strncpy(puntaje[iterador].nombre, iniPalabra, 39);
+                        iterador++;
                     }
-                    fprintf(aPuntuacion, "%05d %-40s\n", juego.puntaje, nombreJugador);
+                    // Guardo en orden en el archivo temp
+                    for (size_t i = 0; i < iterador; i++)
+                    {
+                        if (!guardado && juego.puntaje <= puntaje[i].puntos)
+                        {
+                            fprintf(aPuntuacionTemp, "%05d %-40s\n",  juego.puntaje,  nombreJugador);
+                            guardado = 1;
+                        }
+                        fprintf(aPuntuacionTemp, "%05d %-40s\n",  puntaje[i].puntos,  puntaje[i].nombre);
+                    }
+                    guardado = 0;
                     fclose(aPuntuacion);
+                    fclose(aPuntuacionTemp);
+
+                    // Elimino puntuacion
+                    if (remove("puntuacion.txt") != 0) {
+                        perror("Error al eliminar el archivo fuente");
+                        return ERROR_ELIMINACION_ARCHIVO;
+                    }
+                    // Renombro archivo temporal
+                    if (rename("puntuacion.temp", "puntuacion.txt") != 0)
+                    {
+                        perror("Error renombrando puntuacion.temp");
+                        printf("Error: %d\n", errno);
+                        return ERROR_RENOMBRE_ARCHIVO;
+                    }
                     renderizarGanado = 0;
                     FinalizarVentanaSDL(ventanaGanado, rendererGanado); // Funcion para la finalizacion de SDL y sus componentes
-
                }
                 break;
             }
