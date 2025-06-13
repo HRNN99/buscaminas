@@ -85,8 +85,6 @@ int main(int argc, char *argv[]){
     Juego juego;
     juego.mapa = mapa;
     juego.iniciado = false;
-    // TODO: quitar porque esta en inicio de mapa. Lo puse al desarrollar lo de ventana de ganado y seguramente me olvide de sacarlo ja
-    juego.nombreJugador[0] = '\0';
 
     //Iniciacion de valores de mapa
     //mapaReiniciar(renderer , &picords , &juego , filas , columnas , &minasCoord , minasEnMapa);
@@ -103,7 +101,7 @@ int main(int argc, char *argv[]){
     time_t current_time;
 
     //Variable para estados
-    EstadoJuego estado_actual = ESTADO_JUGANDO;
+    EstadoJuego estado_actual = ESTADO_MENU;
     int seleccion = 0;
 
     // While para mantener el programa corriendo
@@ -170,54 +168,6 @@ int main(int argc, char *argv[]){
         SDL_Delay(16);
 
         /*
-        SDL_Window *ventanaGanado;
-        SDL_Renderer *rendererGanado;
-        if(1){
-            int G=2;
-            int pad = G*4;
-
-            int anchoM = filas * PIXELES_X_LADO + 4;
-            int altoC = 28;
-            int anchoI = anchoM + 16;
-            int altoI = pad + altoC + pad + anchoM + pad;
-
-            //renderizarTexto(font, fontSize, "Minas:", GF, GS,renderer, (pad*3)+anchoM+22, pad+(altoC/2));
-            char bombasEnMapaTexto[21] = "";
-            itoa(juego.cantMinasEnInterfaz, bombasEnMapaTexto, 10); //Armado de String a imprimir
-            renderizarTexto(font, 46, bombasEnMapaTexto, RR, NN, renderer, picords.x+10 , rbutton.y+12);
-
-            //renderizarTexto(font, fontSize, "Puntaje:", GF, GS, renderer, pad*3, pad+(altoC/2));
-            char puntaje[21] = "";
-            itoa(juego.puntaje, puntaje, 10); //Armado de String a imprimir
-            renderizarTexto(font, fontSize, puntaje, GF, GS, renderer, (pad*3)+anchoM+22, pad+(altoC/2)+fontSize+2);
-
-            // Aumento de puntaje por segundo
-            if (!juego.finPartida){
-                current_time = time(NULL);
-                juego.puntaje = difftime(current_time, juego.start_time);
-            }
-        }
-
-        if (renderizarGanado)
-        {
-            //Inicio la lectura de teclado
-            SDL_StartTextInput();
-            // Limpia pantalla
-            SDL_SetRenderDrawColor(rendererGanado, 0, 0, 0, 255); // negro
-            SDL_RenderClear(rendererGanado);
-            // Renderizar "Puntaje" y "Nombre:"
-            char textoPuntaje[21] = "Puntaje: ";
-            char puntajeChar[12];
-            strcat(textoPuntaje, itoa(juego.puntaje, puntajeChar, 10)); //Armado de String a imprimir
-            renderizarTexto(font, 24, textoPuntaje, BB, GS,rendererGanado, 50, 50);
-            renderizarTexto(font, 24, "Ingrese su nombre:", BB, GS, rendererGanado, 50, 100);
-            renderizarTexto(font, 24, nombreJugador, BB, GS,rendererGanado, 50, 120);
-
-            // Mostrar todo
-            SDL_RenderPresent(rendererGanado);
-            renderizarGanado = 0;
-            juego.finPartida = true;
-        }
 
         while (SDL_PollEvent(&e))
         { // Registrando eventos
@@ -264,14 +214,6 @@ int main(int argc, char *argv[]){
                             setLog(&log, -1, -1, "Juego ganado");
                             escribirArchivoLog(archivoLog, &log);
                             puts("Ganaste el juego!");
-                            renderizarGanado = 1;
-                            *nombreJugador = '\0'; // Limpieza por si se presionaron teclas al jugar
-                            // Funcion para crear ventana con posicion especifica, dimension y banderas.
-                            ventanaGanado = SDL_CreateWindow("Ganaste!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, TAMX - 100, TAMY - 100, 2);
-                            // Funcion para crear el renderizado en ventana acelerado por hardware
-                            rendererGanado = SDL_CreateRenderer(ventanaGanado, -1, SDL_RENDERER_ACCELERATED);
-                            // Funcion para establecer el modo de mezcla de colores para el renderizado, el modo blend nos permite utilizar transparencia
-                            SDL_SetRenderDrawBlendMode(rendererGanado, SDL_BLENDMODE_BLEND);
                         }
                     }
                 }
@@ -286,22 +228,8 @@ int main(int argc, char *argv[]){
 
                 printf("Presionadas: %d\n", juego.cantCasillasPresionadas);
                 break;
-            case SDL_TEXTINPUT:
-                // Actualizacion de nombreJugador al presionar una tecla
-                if (strlen(nombreJugador) + strlen(e.text.text) < 100)
-                {
-                    strcat(nombreJugador, e.text.text);
-                    renderizarGanado = 1;
-                }
-                break;
-            case SDL_KEYDOWN:
 
-                // Borrado de letra al presionar borrar
-                if (e.key.keysym.sym == SDLK_BACKSPACE && strlen(nombreJugador) > 0)
-                {
-                    nombreJugador[strlen(nombreJugador) - 1] = '\0';
-                    renderizarGanado = 1;
-                }
+            case SDL_KEYDOWN:
                 // Guardado de puntaje al presionar Enter
                if (e.key.keysym.sym == SDLK_RETURN && strlen(nombreJugador) > 0)
                {
@@ -315,11 +243,6 @@ int main(int argc, char *argv[]){
                         fclose(archivoLog);
                         return ERROR_ARCHIVO;
                     }
-                    fprintf(aPuntuacion, "%05d | %s\n", juego.puntaje, nombreJugador);
-                    fclose(aPuntuacion);
-                    renderizarGanado = 0;
-                    FinalizarVentanaSDL(ventanaGanado, rendererGanado); // Funcion para la finalizacion de SDL y sus componentes
-
                }
                 break;
             }
@@ -411,14 +334,14 @@ void manejar_eventos_ganado(SDL_Event *e , EstadoJuego *estado_actual, Juego* ju
                         iterador++;
                     }
                     // Guardo en orden en el archivo temp
-                    for (size_t i = 0; i < iterador; i++)
-                    {
-                        if (!guardado && juego->puntaje < puntaje[i].puntos)
+                        for (size_t i = 0; i < iterador; i++)
                         {
-                            fprintf(aPuntuacionTemp, "%05d %-40s\n",  juego->puntaje,  juego->nombreJugador);
-                            guardado = 1;
-                        }
-                        fprintf(aPuntuacionTemp, "%05d %-40s\n",  puntaje[i].puntos,  puntaje[i].nombre);
+                            if (!guardado && juego->puntaje < puntaje[i].puntos)
+                            {
+                                fprintf(aPuntuacionTemp, "%05d %-40s\n",  juego->puntaje,  juego->nombreJugador);
+                                guardado = 1;
+                            }
+                            fprintf(aPuntuacionTemp, "%05d %-40s\n",  puntaje[i].puntos,  puntaje[i].nombre);
                     }
                     guardado = 0;
                     fclose(aPuntuacion);
