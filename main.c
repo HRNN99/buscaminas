@@ -103,7 +103,7 @@ int main(int argc, char *argv[]){
     time_t current_time;
 
     //Variable para estados
-    EstadoJuego estado_actual = ESTADO_GANADO;
+    EstadoJuego estado_actual = ESTADO_JUGANDO;
     int seleccion = 0;
 
     // While para mantener el programa corriendo
@@ -148,7 +148,7 @@ int main(int argc, char *argv[]){
 
             case ESTADO_JUGANDO:
 
-                interfaz(renderer,&picords,filas,&rbutton);
+                interfaz(renderer, font, &juego, &picords,filas,&rbutton);
 
                 if(!juego.iniciado){
 
@@ -418,9 +418,10 @@ void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* ju
                 case SDL_BUTTON_LEFT:
 
                     if((rbutton->x * TAM_PIXEL <= e->button.x && e->button.x <= (rbutton->x + 28) * TAM_PIXEL) &&
-                       (rbutton->y * TAM_PIXEL <= e->button.y && e->button.y <= (rbutton->y + 28) * TAM_PIXEL))
-
-                        juego->iniciado = false;
+                       (rbutton->y * TAM_PIXEL <= e->button.y && e->button.y <= (rbutton->y + 28) * TAM_PIXEL)){
+                           juego->iniciado = false;
+                           break;
+                       }
 
                     printf("Hiciste click en la casilla (%i , %i)\n",xG,yG);
                     casillaEstado(juego , minasCoord , minas , xG , yG);

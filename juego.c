@@ -176,7 +176,7 @@ void fondoColor(SDL_Renderer *renderer)
     SDL_RenderPresent(renderer);                    // Aplicacion
 }
 
-void interfaz(SDL_Renderer *renderer, Coord *pcords, int dimensionM, Coord *rbutton)
+void interfaz(SDL_Renderer *renderer, TTF_Font* font, Juego* juego, Coord *pcords, int dimensionM, Coord *rbutton)
 {
     pcords->x = 0;
     pcords->y = 0;
@@ -209,6 +209,24 @@ void interfaz(SDL_Renderer *renderer, Coord *pcords, int dimensionM, Coord *rbut
 
     pcords->x += G;
     pcords->y += G;
+
+    // Puntaje y bombas
+    int fontSize = 16;
+    renderizarTexto(font, fontSize, "Puntaje:", GF, GS, renderer, pad*3, pad+(altoC/2));
+    char puntaje[21] = "";
+    itoa(juego->puntaje, puntaje, 10); //Armado de String a imprimir
+    renderizarTexto(font, fontSize, puntaje, GF, GS, renderer, pad*3, pad+(altoC/2)+fontSize+2);
+    renderizarTexto(font, fontSize, "Minas:", GF, GS,renderer, (pad*3)+anchoM+22, pad+(altoC/2));
+
+    char bombasEnMapaTexto[21] = "";
+    itoa(juego->cantMinasEnInterfaz, bombasEnMapaTexto, 10); //Armado de String a imprimir
+    renderizarTexto(font, fontSize, bombasEnMapaTexto, GF, GS, renderer, (pad*3)+anchoM+22, pad+(altoC/2)+fontSize+2);
+
+    // Aumento de puntaje por segundo
+    if (!juego->finPartida){
+        time_t current_time = time(NULL);
+        juego->puntaje = difftime(current_time, juego->start_time);
+    }
 }
 
 void interfazGanado(SDL_Renderer *renderer, SDL_Window* ventana, TTF_Font* font, Juego* juego, Coord *pcords, int dimensionM, Coord *rbutton)
@@ -226,7 +244,7 @@ void interfazGanado(SDL_Renderer *renderer, SDL_Window* ventana, TTF_Font* font,
     rectanguloLlenoAbsoluto(renderer, RR, (win_width/2)+(TAMX_GANADO/2)-15-20-12 , pcords->y+15+4, TAM_BOTON, TAM_BOTON);
     marcoInvertido(renderer, (win_width/2)+(TAMX_GANADO/2)-15-20-12 , pcords->y+15+4, TAM_BOTON, TAM_BOTON, 4);
     // Renderizar "Puntaje" y "Nombre:"
-    char textoPuntaje[21] = "Puntaje: ";
+    char textoPuntaje[21] = "Tiempo: ";
     char puntajeChar[12];
     strcat(textoPuntaje, itoa(juego->puntaje, puntajeChar, 10)); //Armado de String a imprimir
     int posYtexto = pcords->y + 20;
@@ -257,7 +275,7 @@ void mapaReiniciar(SDL_Renderer *renderer, Coord *pcord, Juego *juego, int filas
     juego->cantCasillasPresionadas = 0;
     juego->start_time = time(NULL); // Iniciar el contador cuando inicia el juego
     juego->nombreJugador[0] = '\0';
-    
+
     mapaVacio(mapa, filas, columnas);
     mapaLlenar(mapa, filas, columnas, minasCoord, minas);
 }
