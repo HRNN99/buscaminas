@@ -89,6 +89,8 @@ void mapaLlenar(Casilla** mapa , int filas , int columnas , Coord* minasCoord , 
 void mapaImprimir(Casilla** mapa, int filas, int columnas);
 void mapaReiniciar(SDL_Renderer *renderer, Coord *pcord, Juego *juego, int filas, int columnas, Coord *minasCoord, int minas);
 
+FILE* abrirArchivo(const char* nombre, const char* modo);
+
 //Log
 void setLog(Log* log, int coordX, int coordY, char tipoEvento[80]);
 #endif // JUEGO_H
