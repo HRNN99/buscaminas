@@ -104,6 +104,7 @@ void mapaVacio(Casilla **mapa, int filas, int columnas)
         for (int x = 0; x < columnas; x++)
         {
             mapa[y][x].estado = 0;
+            mapa[y][x].estadoBandera = 0; // Uso el ciclo para inicializar todo en 0
             mapa[y][x].presionada = false;
         }
     }
@@ -209,9 +210,9 @@ void interfaz(SDL_Renderer *renderer, Coord *pcords, int dimensionM, Coord *rbut
     pcords->y += G;
 }
 
-void mapaReiniciar(SDL_Renderer *renderer, Coord *pcord, Juego *juego, int filas, int columnas, Coord *minasCoord, int minas)
-{
+void mapaReiniciar(SDL_Renderer *renderer, Coord *pcord, Juego *juego, int filas, int columnas, Coord *minasCoord, int minas){
 
+    juego->iniciado = true;
     Casilla **mapa = juego->mapa;
 
     juego->puntaje = 0;
@@ -222,41 +223,54 @@ void mapaReiniciar(SDL_Renderer *renderer, Coord *pcord, Juego *juego, int filas
     juego->start_time = time(NULL); // Iniciar el contador cuando inicia el juego
 
     mapaVacio(mapa, filas, columnas);
-
     mapaLlenar(mapa, filas, columnas, minasCoord, minas);
-
-    casillaColocacion(mapa, renderer, filas, columnas, pcord);
 }
 
 // Funcion que coloca todas las casillas sin valor
-bool casillaColocacion(Casilla **mapa, SDL_Renderer *renderer, int fil, int col, Coord *picord)
-{
+void casillaColocacion(Casilla **mapa, SDL_Renderer *renderer, int fil, int col, Coord *picord){
 
     int gX = 0; // Variable para coordenada X
     int gY = 0; // Variable para ccoordenada Y
 
     int x, y = 0;
-    while (y < fil)
-    {
+    while (y < fil){
 
         x = 0;
-        while (x < col)
-        {
-            mapa[x][y].estadoBandera = 0; // Uso el ciclo para inicializar todo en 0
+        while (x < col){
+
+            //mapa[y][x].estadoBandera = 0; // Uso el ciclo para inicializar todo en 0
             gX = x % col;
             gY = y % fil;
-            dibujar(renderer, PIXELES_X_LADO, square1, gX, gY, picord->x, picord->y);
+
+
+            //Si la casilla no esta presionada dibujo el estado por defecto
+            if(!mapa[y][x].presionada){
+
+                if(mapa[y][x].estadoBandera != 0){
+                    dibujar(renderer, PIXELES_X_LADO, eleccionBandera(mapa[gY][gX].estadoBandera), gX, gY, picord->x, picord->y);
+                }
+                else{
+                    dibujar(renderer, PIXELES_X_LADO, square1 , gX , gY , picord->x, picord->y);
+                }
+
+            }
+            //Si la casilla esta presionada dibujo su valor de estado
+            else{
+                dibujar(renderer, PIXELES_X_LADO, eleccion(mapa[y][x].estado) , gX , gY , picord->x, picord->y);
+            }
+
+            //if(mapa[y][x].estadoBandera >= 0){
+            //
+            //}
+
             x++;
         }
         y++;
     }
-
-    return true;
 }
 
 // Funcion que coloca estados en las casillas
-void casillaEstado(SDL_Renderer *renderer, SDL_Window *window, Juego *juego, Coord *minasCoord, int minas, int gX, int gY, Coord *picords)
-{
+void casillaEstado(Juego *juego , Coord *minasCoord , int minas , int gX , int gY){
 
     if (gX < 0 || gX >= juego->dimMapa || gY < 0 || gY >= juego->dimMapa)
         return;
@@ -269,8 +283,10 @@ void casillaEstado(SDL_Renderer *renderer, SDL_Window *window, Juego *juego, Coo
         return;
 
     casillaSeleccionada->presionada = true;
+    juego->cantCasillasPresionadas++;
 
     // Juego Perdido
+    /* Mover
     if (casillaSeleccionada->estado == -1)
     {
         juego->finPartida = true;
@@ -288,46 +304,46 @@ void casillaEstado(SDL_Renderer *renderer, SDL_Window *window, Juego *juego, Coo
         }
         return;
     }
-
-    juego->cantCasillasPresionadas++;
+    */
 
     // Dibuja numero y termina
-    if (casillaSeleccionada->estado > 0)
-    {
-        dibujar(renderer, PIXELES_X_LADO, eleccion(casillaSeleccionada->estado), gX, gY, picords->x, picords->y);
+
+    if (casillaSeleccionada->estado > 0 || casillaSeleccionada->estado == -1){
+
+        //dibujar(renderer, PIXELES_X_LADO, eleccion(casillaSeleccionada->estado), gX, gY, picords->x, picords->y);
         return;
     }
-
-    dibujar(renderer, PIXELES_X_LADO, square2, gX, gY, picords->x, picords->y);
+    //dibujar(renderer, PIXELES_X_LADO, square2, gX, gY, picords->x, picords->y);
 
     for (int i = -1; i < 2; i++)
     {
         for (int j = -1; j < 2; j++)
         {
             if (i == 0 && j == 0) continue; // Evita repetirse a sí mismo
-            casillaEstado(renderer, window, juego, minasCoord, minas, gX + i, gY + j, picords);
+            casillaEstado(juego , minasCoord , minas , gX + i , gY + j);
         }
     }
 }
 
 // Funcion para colocar bandera
-void casillaBandera(SDL_Renderer *renderer, Juego *juego, int gX, int gY, Coord *picord, int* minasEnInterfaz)
-{
-    if (gX < 0 || gX >= juego->dimMapa || gY < 0 || gY >= juego->dimMapa)
+void casillaBandera(Juego *juego, int xG, int yG){
+
+    if (xG < 0 || xG >= juego->dimMapa || yG < 0 || yG >= juego->dimMapa)
         return;
 
     Casilla **mapa = juego->mapa;
     //Realizo una iteracion ciclica con el resto
     // 1%3 = 1, 2%3 = 2, 3%3 = 0;
-    mapa[gY][gX].estadoBandera = (mapa[gY][gX].estadoBandera + 1) % 3;
+    mapa[yG][xG].estadoBandera = (mapa[yG][xG].estadoBandera + 1) % 3;
 
     //Suma y resta de bombas dependiendo el caso
-    if (mapa[gY][gX].estadoBandera == 1)
-        (*minasEnInterfaz)--;
-    else if (mapa[gY][gX].estadoBandera == 2)
-        (*minasEnInterfaz)++;
+    if (mapa[yG][xG].estadoBandera == 1)
+        (juego->cantMinasEnInterfaz)--;
+    else if (mapa[yG][xG].estadoBandera == 2)
+        (juego->cantMinasEnInterfaz)++;
 
-    dibujar(renderer, PIXELES_X_LADO, eleccionBandera(mapa[gY][gX].estadoBandera), gX, gY, picord->x, picord->y);
+    //dibujar(renderer, PIXELES_X_LADO, eleccionBandera(mapa[gY][gX].estadoBandera), gX, gY, picord->x, picord->y);
+    printf("Estado (%i , %i): %i\n",xG,yG,mapa[yG][xG].estadoBandera);
 }
 
 //funciones Log

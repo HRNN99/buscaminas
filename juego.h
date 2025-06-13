@@ -28,6 +28,7 @@ typedef struct{
 }Casilla;
 
 typedef struct{
+    bool iniciado;
     int cantCasillasPresionadas;
     int puntaje;
     int cantMinasEnInterfaz;
@@ -42,8 +43,7 @@ typedef struct {
     int y;
 } Coord;
 
-typedef struct
-{
+typedef struct{
     char tipoEvento[20];
     struct tm fechaHora;
     int coordXY[2];
@@ -58,22 +58,22 @@ typedef struct {
 void manejar_eventos_menu(SDL_Event *e , EstadoJuego *estado_actual , int* seleccion , const int menu_count);
 void dibujar_menu(SDL_Renderer* renderer , SDL_Window* ventana , TTF_Font* font , const char* menu_items[] , const int menu_count , int* seleccion);
 
-void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual);
+void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* juego , Coord* minasCoord , int minas , Coord* picords , Coord* rbutton);
 
 
 void fondoColor(SDL_Renderer* renderer);
 void interfaz(SDL_Renderer* renderer, Coord* pcords , int dimensionM , Coord* rbutton);
 
-bool casillaColocacion(Casilla** mapa, SDL_Renderer* renderer , int fil , int col , Coord* picord);
-void casillaBandera(SDL_Renderer *renderer, Juego *juego, int gX, int gY, Coord *picord, int* minasEnInterfaz);
+void casillaColocacion(Casilla** mapa, SDL_Renderer* renderer , int fil , int col , Coord* picord);
+
+void casillaEstado(Juego* juego , Coord* minasCoord , int minas , int gX , int gY);
+void casillaBandera(Juego *juego, int gX, int gY);
 
 Casilla** matrizCrear(size_t filas, size_t columnas, size_t tamElem);
 void matrizDestruir(Casilla** mapa , size_t filas);
 void mapaVacio(Casilla** mapa, int filas, int columnas);
 void mapaLlenar(Casilla** mapa , int filas , int columnas , Coord* minasCoord , int minas);
 void mapaImprimir(Casilla** mapa, int filas, int columnas);
-
-void casillaEstado(SDL_Renderer* renderer , SDL_Window* window, Juego* juego , Coord* minasCoord , int minas, int gX , int gY , Coord* picords);
 void mapaReiniciar(SDL_Renderer *renderer, Coord *pcord, Juego *juego, int filas, int columnas, Coord *minasCoord, int minas);
 
 //Log

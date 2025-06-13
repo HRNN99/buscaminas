@@ -11,8 +11,7 @@
 int leerConfiguracion(int*, int*,int*, char*);
 int escribirArchivoLog(FILE* archivoLog, Log* log);
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]){
 
     int filas = 0, columnas = 0, minasEnMapa = 0;
     char rutaFuente[100];
@@ -70,11 +69,11 @@ int main(int argc, char *argv[])
 
     //////////////////////////////////////////////////////////////////////
 
-    fondoColor(renderer); //Funcion para establecer fondo del render color defecto
+    //fondoColor(renderer); //Funcion para establecer fondo del render color defecto
 
     Coord picords = {0,0};
     Coord rbutton = {0,0};
-    interfaz(renderer , &picords , filas , &rbutton); //Funcion para colocar la interfaz
+    //interfaz(renderer , &picords , filas , &rbutton); //Funcion para colocar la interfaz
 
     //////////////////////////////////////////////////////////////////////
 
@@ -86,11 +85,10 @@ int main(int argc, char *argv[])
 
     Juego juego;
     juego.mapa = mapa;
+    juego.iniciado = false;
 
     //Iniciacion de valores de mapa
     //mapaReiniciar(renderer , &picords , &juego , filas , columnas , &minasCoord , minasEnMapa);
-
-    putchar('\n');
 
     //Imprimir mapa
     //mapaImprimir(juego.mapa , filas , columnas);
@@ -123,7 +121,7 @@ int main(int argc, char *argv[])
                     break;
 
                 case ESTADO_JUGANDO:
-                    //manejar_eventos_juego(&e , &estado_actual , &boton);
+                    manejar_eventos_juego(&e , &estado_actual , &juego , &minasCoord , minasEnMapa , &picords , &rbutton);
                     break;
 
                 case ESTADO_SALIENDO:
@@ -143,14 +141,17 @@ int main(int argc, char *argv[])
 
             case ESTADO_JUGANDO:
 
-                if(!juego_iniciado){
-                    interfaz(renderer,&picords,filas,&rbutton);
+                interfaz(renderer,&picords,filas,&rbutton);
+
+                if(!juego.iniciado){
+
                     mapaReiniciar(renderer , &picords , &juego , filas , columnas , &minasCoord , minasEnMapa);
                     system("cls");
                     mapaImprimir(juego.mapa , filas , columnas);
 
-                    juego_iniciado = true;
                 }
+
+                casillaColocacion(juego.mapa, renderer, filas, columnas, &picords);
                 break;
         }
 
@@ -275,6 +276,7 @@ int main(int argc, char *argv[])
                         }
                     }
                 }
+
                 else if (boton == SDL_BUTTON_RIGHT && !juego.finPartida && !juego.mapa[yGrilla][xGrilla].presionada)
                 { // Evento click derecho del mouse
                     printf("Hiciste clic derecho en la casilla (%i, %i) colocando bandera\n", xGrilla, yGrilla);
@@ -282,6 +284,7 @@ int main(int argc, char *argv[])
                     escribirArchivoLog(archivoLog, &log);
                     casillaBandera(renderer, &juego, xGrilla , yGrilla , &picords, &juego.cantMinasEnInterfaz);
                 }
+
                 printf("Presionadas: %d\n", juego.cantCasillasPresionadas);
                 break;
             case SDL_TEXTINPUT:
@@ -293,28 +296,6 @@ int main(int argc, char *argv[])
                 }
                 break;
             case SDL_KEYDOWN:
-
-                switch (e.key.keysym.sym){
-
-                    case SDLK_UP:   seleccion = (seleccion - 1 + menu_count) % menu_count; break;
-                    case SDLK_DOWN: seleccion = (seleccion + 1) % menu_count; break;
-                    case SDLK_RETURN:
-                        switch(seleccion){
-                            case 0:
-                                interfaz(renderer,&picords,filas,&rbutton);
-                                mapaReiniciar(renderer , &picords , &juego , filas , columnas , &minasCoord , minasEnMapa);
-                                //system("cls");
-                                SDL_RenderPresent(renderer);
-                                break;
-                            case 1:
-                                break;
-                            case 2:
-                                //Salir
-                                corriendo = false;
-                                printf("Saliendo...\n");
-                                break;
-                        }
-                }
 
                 // Borrado de letra al presionar borrar
                 if (e.key.keysym.sym == SDLK_BACKSPACE && strlen(nombreJugador) > 0)
@@ -387,30 +368,40 @@ void manejar_eventos_menu(SDL_Event *e , EstadoJuego *estado_actual, int* selecc
     }
 }
 
-/*
-void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , int* boton){
 
+void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* juego , Coord* minasCoord , int minas , Coord* picords , Coord* rbutton){
+
+    int xG = ((e->button.x - (picords->x * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
+    int yG = ((e->button.y - (picords->y * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
+    //(picords.x*TAM_PIXEL);
+    //e.button.y -= (picords.y*TAM_PIXEL)
     switch(e->type){
 
         case SDL_MOUSEBUTTONDOWN:
 
-            *boton = e->button.button;
-
-            switch(*boton){
+            switch(e->button.button){
 
                 case SDL_BUTTON_LEFT:
 
+                    if((rbutton->x * TAM_PIXEL <= e->button.x && e->button.x <= (rbutton->x + 28) * TAM_PIXEL) &&
+                       (rbutton->y * TAM_PIXEL <= e->button.y && e->button.y <= (rbutton->y + 28) * TAM_PIXEL))
+
+                        juego->iniciado = false;
+
+                    printf("Hiciste click en la casilla (%i , %i)\n",xG,yG);
+                    casillaEstado(juego , minasCoord , minas , xG , yG);
                     break;
 
                 case SDL_BUTTON_RIGHT:
-
+                    printf("Pusiste una bandera en la casilla (%i , %i)\n",xG,yG);
+                    casillaBandera(juego , xG , yG);
                     break;
             }
             break;
     }
 
 }
-*/
+
 
 int leerConfiguracion(int* filas, int* columnas, int* minasEnMapa, char* rutaFuente){
     FILE* config = fopen("buscaminas.conf", "r+t");
