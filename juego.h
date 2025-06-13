@@ -10,10 +10,14 @@
 #define ERROR_CONFIGURACION 21
 #define EJECUCION_OK 0
 #define ERROR_FUENTE 10
-
+#define ERROR_ELIMINACION_ARCHIVO 15
+#define ERROR_RENOMBRE_ARCHIVO 16
+#define ERROR_LINEA_LARGA 11
+#define MAX_PUNTAJES 20
 //ESTADOS
 typedef enum{
     ESTADO_MENU,
+    ESTADO_GANADO,
     ESTADO_JUGANDO,
     ESTADO_CARGAR,
     ESTADO_SALIENDO
@@ -27,12 +31,19 @@ typedef struct{
     int estadoBandera;
 }Casilla;
 
+typedef struct
+{
+    char nombre[40];
+    int puntos;
+} Puntaje;
+
 typedef struct{
     bool iniciado;
     int cantCasillasPresionadas;
     int puntaje;
     int cantMinasEnInterfaz;
     int dimMapa;
+    char nombreJugador[40];
     bool finPartida;
     time_t start_time;
     Casilla** mapa;
@@ -59,10 +70,12 @@ void manejar_eventos_menu(SDL_Event *e , EstadoJuego *estado_actual , int* selec
 void dibujar_menu(SDL_Renderer* renderer , SDL_Window* ventana , TTF_Font* font , const char* menu_items[] , const int menu_count , int* seleccion);
 
 void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* juego , Coord* minasCoord , int minas , Coord* picords , Coord* rbutton);
+void manejar_eventos_ganado(SDL_Event *e , EstadoJuego *estado_actual, Juego* juego);
 
 
 void fondoColor(SDL_Renderer* renderer);
-void interfaz(SDL_Renderer* renderer, Coord* pcords , int dimensionM , Coord* rbutton);
+void interfaz(SDL_Renderer *renderer, TTF_Font* font, Juego* juego, Coord *pcords, int dimensionM, Coord *rbutton);
+void interfazGanado(SDL_Renderer* renderer, SDL_Window* ventana, TTF_Font* font, Juego* juego, Coord* pcords , int dimensionM , Coord* rbutton);
 
 void casillaColocacion(Casilla** mapa, SDL_Renderer* renderer , int fil , int col , Coord* picord);
 
@@ -75,6 +88,8 @@ void mapaVacio(Casilla** mapa, int filas, int columnas);
 void mapaLlenar(Casilla** mapa , int filas , int columnas , Coord* minasCoord , int minas);
 void mapaImprimir(Casilla** mapa, int filas, int columnas);
 void mapaReiniciar(SDL_Renderer *renderer, Coord *pcord, Juego *juego, int filas, int columnas, Coord *minasCoord, int minas);
+
+FILE* abrirArchivo(const char* nombre, const char* modo);
 
 //Log
 void setLog(Log* log, int coordX, int coordY, char tipoEvento[80]);
