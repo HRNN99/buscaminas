@@ -14,6 +14,7 @@
 //ESTADOS
 typedef enum{
     ESTADO_MENU,
+    ESTADO_DIFICULTAD,
     ESTADO_JUGANDO,
     ESTADO_CARGAR,
     ESTADO_SALIENDO
@@ -29,6 +30,8 @@ typedef struct{
 
 typedef struct{
     bool iniciado;
+
+
     int cantCasillasPresionadas;
     int puntaje;
     int cantMinasEnInterfaz;
@@ -55,7 +58,8 @@ typedef struct {
 } MenuItem;
 
 //Prototipos
-void manejar_eventos_menu(SDL_Event *e , EstadoJuego *estado_actual , int* seleccion , const int menu_count);
+void manejar_eventos_menu(SDL_Event *e , EstadoJuego *estado_actual , int* seleccion , const int items_count);
+void manejar_eventos_dificultad(SDL_Event *e , EstadoJuego *estado_actual, int* seleccion , const int items_count , Juego* juego);
 void dibujar_menu(SDL_Renderer* renderer , SDL_Window* ventana , TTF_Font* font , const char* menu_items[] , const int menu_count , int* seleccion);
 
 void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* juego , Coord* minasCoord , int minas , Coord* picords , Coord* rbutton);

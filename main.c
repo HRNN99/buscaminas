@@ -64,16 +64,21 @@ int main(int argc, char *argv[]){
         "Cargar Partida",
         "Salir"
     };
-
     int menu_count = sizeof(menu_items) / sizeof(menu_items[0]);
+    int seleccion_menu = 0;
+
+    const char* dificultad_items[] = {
+        "Facil",
+        "Intermedio",
+        "Dificil"
+    };
+    int dificultad_count = sizeof(dificultad_items) / sizeof(dificultad_items[0]);
+    int seleccion_dificultad = 0;
 
     //////////////////////////////////////////////////////////////////////
 
-    //fondoColor(renderer); //Funcion para establecer fondo del render color defecto
-
     Coord picords = {0,0};
     Coord rbutton = {0,0};
-    //interfaz(renderer , &picords , filas , &rbutton); //Funcion para colocar la interfaz
 
     //////////////////////////////////////////////////////////////////////
 
@@ -87,12 +92,6 @@ int main(int argc, char *argv[]){
     juego.mapa = mapa;
     juego.iniciado = false;
 
-    //Iniciacion de valores de mapa
-    //mapaReiniciar(renderer , &picords , &juego , filas , columnas , &minasCoord , minasEnMapa);
-
-    //Imprimir mapa
-    //mapaImprimir(juego.mapa , filas , columnas);
-
     //////////////////////////////////////////////////////////////////////
 
     SDL_Event e; // Variable para registrar eventos
@@ -103,7 +102,6 @@ int main(int argc, char *argv[]){
 
     //Variable para estados
     EstadoJuego estado_actual = ESTADO_MENU;
-    int seleccion = 0;
 
     // While para mantener el programa corriendo
     while (corriendo){
@@ -116,7 +114,11 @@ int main(int argc, char *argv[]){
 
             switch(estado_actual){
                 case ESTADO_MENU:
-                    manejar_eventos_menu(&e , &estado_actual , &seleccion , menu_count);
+                    manejar_eventos_menu(&e , &estado_actual , &seleccion_menu , menu_count);
+                    break;
+
+                case ESTADO_DIFICULTAD:
+                    manejar_eventos_dificultad(&e , &estado_actual , &seleccion_dificultad , dificultad_count , &juego);
                     break;
 
                 case ESTADO_JUGANDO:
@@ -135,7 +137,12 @@ int main(int argc, char *argv[]){
         switch(estado_actual){
             case ESTADO_MENU:
 
-                dibujar_menu(renderer , ventana , font , menu_items , menu_count , &seleccion);
+                dibujar_menu(renderer , ventana , font , menu_items , menu_count , &seleccion_menu);
+                break;
+
+            case ESTADO_DIFICULTAD:
+
+                dibujar_menu(renderer , ventana , font , dificultad_items , dificultad_count , &seleccion_dificultad);
                 break;
 
             case ESTADO_JUGANDO:
@@ -318,7 +325,7 @@ int main(int argc, char *argv[]){
     return EJECUCION_OK;
 }
 
-void manejar_eventos_menu(SDL_Event *e , EstadoJuego *estado_actual, int* seleccion , const int menu_count){
+void manejar_eventos_menu(SDL_Event *e , EstadoJuego *estado_actual, int* seleccion , const int items_count){
 
     switch(e->type){
 
@@ -327,11 +334,48 @@ void manejar_eventos_menu(SDL_Event *e , EstadoJuego *estado_actual, int* selecc
             switch(e->key.keysym.sym){
 
                 case SDLK_UP:
-                    *seleccion = (*seleccion - 1 + menu_count) % menu_count;
+                    *seleccion = (*seleccion - 1 + items_count) % items_count;
                     break;
 
                 case SDLK_DOWN:
-                    *seleccion = (*seleccion + 1) % menu_count;
+                    *seleccion = (*seleccion + 1) % items_count;
+                    break;
+
+                case SDLK_RETURN:
+                    switch(*seleccion){
+
+                        case 0:
+                            *estado_actual = ESTADO_DIFICULTAD;
+                            break;
+
+                        case 1:
+                            *estado_actual = ESTADO_CARGAR;
+                            break;
+
+                        case 2:
+                            *estado_actual = ESTADO_SALIENDO;
+                            break;
+                    }
+                    break;
+            }
+            break;
+    }
+}
+
+void manejar_eventos_dificultad(SDL_Event *e , EstadoJuego *estado_actual, int* seleccion , const int items_count , Juego* juego){
+
+    switch(e->type){
+
+        case SDL_KEYDOWN:
+
+            switch(e->key.keysym.sym){
+
+                case SDLK_UP:
+                    *seleccion = (*seleccion - 1 + items_count) % items_count;
+                    break;
+
+                case SDLK_DOWN:
+                    *seleccion = (*seleccion + 1) % items_count;
                     break;
 
                 case SDLK_RETURN:
@@ -354,7 +398,6 @@ void manejar_eventos_menu(SDL_Event *e , EstadoJuego *estado_actual, int* selecc
             break;
     }
 }
-
 
 void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* juego , Coord* minasCoord , int minas , Coord* picords , Coord* rbutton){
 
