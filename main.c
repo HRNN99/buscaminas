@@ -355,37 +355,51 @@ void manejar_eventos_menu(SDL_Event *e , EstadoJuego *estado_actual, int* selecc
     }
 }
 
-
-void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* juego , Coord* minasCoord , int minas , Coord* picords , Coord* rbutton){
+void manejar_eventos_juego(SDL_Event *e, EstadoJuego *estado_actual, Juego *juego, Coord *minasCoord, int minas, Coord *picords, Coord *rbutton)
+{
 
     int xG = ((e->button.x - (picords->x * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
     int yG = ((e->button.y - (picords->y * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
 
-    switch(e->type){
+    if (e->type == SDL_MOUSEBUTTONDOWN)
+    {\
+        int boton = e->button.button; //guardado del boton anterior antes de nuevo evento
+        EventoClick handlerClick;
 
-        case SDL_MOUSEBUTTONDOWN:
 
-            switch(e->button.button){
+        if ((rbutton->x * TAM_PIXEL <= e->button.x && e->button.x <= (rbutton->x + 28) * TAM_PIXEL) &&
+            (rbutton->y * TAM_PIXEL <= e->button.y && e->button.y <= (rbutton->y + 28) * TAM_PIXEL) && (boton == SDL_BUTTON_LEFT))
+        {
 
-                case SDL_BUTTON_LEFT:
+            juego->iniciado = false;
+        }
+        else
+        {
+            if (juego->mapa[yG][xG].presionada &&
+                juego->mapa[yG][xG].estado > 0)
+            {
 
-                    if((rbutton->x * TAM_PIXEL <= e->button.x && e->button.x <= (rbutton->x + 28) * TAM_PIXEL) &&
-                       (rbutton->y * TAM_PIXEL <= e->button.y && e->button.y <= (rbutton->y + 28) * TAM_PIXEL))
+                handlerClick = clickDoble;
 
-                        juego->iniciado = false;
-
-                    printf("Hiciste click en la casilla (%i , %i)\n",xG,yG);
-                    casillaEstado(juego , minasCoord , minas , xG , yG);
-                    break;
-
-                case SDL_BUTTON_RIGHT:
-                    printf("Pusiste una bandera en la casilla (%i , %i)\n",xG,yG);
-                    casillaBandera(juego , xG , yG);
-                    break;
+                Uint32 tiempoDeEspera = SDL_GetTicks() + 250;
+                while (SDL_GetTicks() < tiempoDeEspera)
+                {
+                    if (SDL_PollEvent(&e) && e->type == SDL_MOUSEBUTTONDOWN &&
+                        e->button.button != boton)
+                    {
+                        handlerClick(juego, xG, yG, minasCoord, minas);
+                        break;
+                    }
+                    SDL_Delay(1);
+                }
             }
-            break;
+            else
+            {
+                handlerClick = (boton == SDL_BUTTON_LEFT) ? handlerClickIzquierdo : handlerClickDerecho;
+                handlerClick(juego, xG, yG, minasCoord, minas);
+            }
+        }
     }
-
 }
 
 

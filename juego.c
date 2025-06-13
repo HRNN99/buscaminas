@@ -271,7 +271,7 @@ void casillaColocacion(Casilla **mapa, SDL_Renderer *renderer, int fil, int col,
 }
 
 // Funcion que coloca estados en las casillas
-void casillaEstado(Juego *juego , Coord *minasCoord , int minas , int gX , int gY){
+void casillaEstado(Juego *juego , Coord *minasCoord , int minas , int gX , int gY, bool chordClick){
 
     if (gX < 0 || gX >= juego->dimMapa || gY < 0 || gY >= juego->dimMapa)
         return;
@@ -279,6 +279,18 @@ void casillaEstado(Juego *juego , Coord *minasCoord , int minas , int gX , int g
     Casilla *casillaSeleccionada = &juego->mapa[gY][gX];
     Casilla *casillaBandera = &juego->mapa[gY][gX];
 
+    if(chordClick && !casillaSeleccionada->presionada && casillaSeleccionada->estado > 0)
+    {
+        for(int i = -1; i < 2; i++)
+        {
+            for (int j = -1; j < 2; j++)
+            {
+                if (i == 0 && j == 0) continue; // Evita repetirse a sí mismo
+            
+                casillaEstado(juego, minasCoord, minas, gX + i, gY + j, false);
+            }
+        }
+    }
     // No hacer nada si ya está presionada o tiene bandera
     if (casillaSeleccionada->presionada || casillaBandera->estadoBandera != 0)
         return;
@@ -321,7 +333,7 @@ void casillaEstado(Juego *juego , Coord *minasCoord , int minas , int gX , int g
         for (int j = -1; j < 2; j++)
         {
             if (i == 0 && j == 0) continue; // Evita repetirse a sí mismo
-            casillaEstado(juego , minasCoord , minas , gX + i , gY + j);
+            casillaEstado(juego , minasCoord , minas , gX + i , gY + j, false);
         }
     }
 }
@@ -356,4 +368,47 @@ void setLog(Log* log, int coordX, int coordY, char tipoEvento[80])
     strcpy(log->tipoEvento, tipoEvento);
     log->coordXY[0] = coordX;
     log->coordXY[1] = coordY;
+}
+
+void clickDoble(Juego *juego, int gX, int gY, Coord *minasCoord, int minas)
+{
+    Casilla **mapa = juego->mapa;
+
+    int cont = 0;
+    for (int i = -1; i < 2; i++)
+    {
+        for (int j = -1; j < 2; j++)
+        {
+            if (mapa[gY + j][gX + i].estadoBandera == 1)
+            {
+                if ((i == 0 && j == 0) || (gX + i < 0 || gX + i >= juego->dimMapa || gY + j < 0 || gY + j >= juego->dimMapa))
+                    continue; // Evita repetirse a sí mismo
+
+                if (gX < 0 || gX >= juego->dimMapa || gY < 0 || gY >= juego->dimMapa)
+                    return;
+
+                cont++;
+            }
+        }
+    }
+
+    if (mapa[gY][gX].estado == cont)
+    {
+        
+        casillaEstado(juego, minasCoord, minas, gX, gY, true);
+    }
+    return;
+}
+
+
+// clickHandlers
+void handlerClickIzquierdo(Juego *juego, int x, int y, Coord *minasCoord, int minas)
+{
+
+    casillaEstado(juego, minasCoord, minas, x, y, false);
+}
+
+void handlerClickDerecho(Juego *juego, int x, int y, Coord *minasCoord, int minas)
+{
+    casillaBandera(juego, x, y);
 }
