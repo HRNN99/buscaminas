@@ -105,7 +105,7 @@ void mapaVacio(Casilla **mapa, int filas, int columnas)
         for (int x = 0; x < columnas; x++)
         {
             mapa[y][x].estado = 0;
-            mapa[y][x].estadoBandera = 0; // Uso el ciclo para inicializar todo en 0
+            mapa[y][x].estadoBandera = 0;
             mapa[y][x].presionada = false;
         }
     }
@@ -216,8 +216,6 @@ void interfazGanado(SDL_Renderer *renderer, SDL_Window* ventana, TTF_Font* font,
     int win_width, win_height;
     SDL_GetWindowSize(ventana , &win_width , &win_height);
 
-    //Inicio la lectura de teclado
-    //SDL_StartTextInput();
     // Ventana
     int TAMX_GANADO = 220, TAMY_GANADO = 276, TAM_BOTON = 30;
     pcords->x = (win_width/2)-(TAMX_GANADO/2);
@@ -237,7 +235,7 @@ void interfazGanado(SDL_Renderer *renderer, SDL_Window* ventana, TTF_Font* font,
     renderizarTexto(font, 24, textoPuntaje, BB, GS,renderer, margenX, posYtexto+=45);
     renderizarTexto(font, 16, "Ingrese su nombre:", BB, GS, renderer, margenX, posYtexto+=35);
     rectanguloLlenoAbsoluto(renderer, BB, margenX, posYtexto+=40, 5,2); // Linea antes del nombre
-    renderizarTexto(font, 20, "asd", BB, GS,renderer, margenX + 15, posYtexto-12); // Fix Y por como toma esa coordenada
+    renderizarTexto(font, 20, juego->nombreJugador, BB, GS,renderer, margenX + 15, posYtexto-12); // Fix Y por como toma esa coordenada
     // Renderizar mejores posiciones
     renderizarTexto(font, 16, "Pepito 15", BB, GS,renderer, margenX+20, posYtexto+=30);
     renderizarTexto(font, 16, "Juan 45", BB, GS,renderer, margenX+20, posYtexto+=20);
@@ -258,7 +256,8 @@ void mapaReiniciar(SDL_Renderer *renderer, Coord *pcord, Juego *juego, int filas
     juego->finPartida = false;
     juego->cantCasillasPresionadas = 0;
     juego->start_time = time(NULL); // Iniciar el contador cuando inicia el juego
-
+    juego->nombreJugador[0] = '\0';
+    
     mapaVacio(mapa, filas, columnas);
     mapaLlenar(mapa, filas, columnas, minasCoord, minas);
 }

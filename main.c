@@ -43,7 +43,6 @@ int main(int argc, char *argv[]){
         return ERROR_FUENTE;
     }
 
-    char nombreJugador[100];
     char nombreVentana[100];
     // String formateado para el titulo de ventana
     sprintf(nombreVentana, "Buscaminas %ix%i", filas, columnas);
@@ -86,6 +85,8 @@ int main(int argc, char *argv[]){
     Juego juego;
     juego.mapa = mapa;
     juego.iniciado = false;
+    // TODO: quitar porque esta en inicio de mapa. Lo puse al desarrollar lo de ventana de ganado y seguramente me olvide de sacarlo ja
+    juego.nombreJugador[0] = '\0';
 
     //Iniciacion de valores de mapa
     //mapaReiniciar(renderer , &picords , &juego , filas , columnas , &minasCoord , minasEnMapa);
@@ -127,9 +128,8 @@ int main(int argc, char *argv[]){
 
                  if(e.type == SDL_MOUSEBUTTONDOWN)
                     printf("Hiciste click en el pixel (%i , %i)\n", e.button.x, e.button.y);
-
-                //     manejar_eventos_menu(&e , &estado_actual , &seleccion , menu_count);
-                     break;
+                    manejar_eventos_ganado(&e , &estado_actual, &juego);
+                    break;
 
                 case ESTADO_SALIENDO:
                     corriendo = false;
@@ -367,6 +367,41 @@ void manejar_eventos_menu(SDL_Event *e , EstadoJuego *estado_actual, int* selecc
     }
 }
 
+void manejar_eventos_ganado(SDL_Event *e , EstadoJuego *estado_actual, Juego* juego){
+
+    switch(e->type){
+            case SDL_TEXTINPUT:
+                // Actualizacion de nombreJugador al presionar una tecla
+                if (strlen(juego->nombreJugador) + strlen(e->text.text) < 100)
+                {
+                    strcat(juego->nombreJugador, e->text.text);
+                }
+                break;
+            case SDL_KEYDOWN:
+                // Borrado de letra al presionar borrar
+                if (e->key.keysym.sym == SDLK_BACKSPACE && strlen(juego->nombreJugador) > 0)
+                    juego->nombreJugador[strlen(juego->nombreJugador) - 1] = '\0';
+                // Guardado de puntaje al presionar Enter
+               if (e->key.keysym.sym == SDLK_RETURN && strlen(juego->nombreJugador) > 0)
+               {
+                    SDL_StopTextInput(); //Cierro la lectura de teclado
+                    FILE* aPuntuacion = fopen("puntuacion.txt", "a");
+                    if(!aPuntuacion)
+                    {
+                        //setLog(&log, -1, -1, "Error al abrir el archivo de puntuacion.");
+                        //escribirArchivoLog(archivoLog, &log);
+                        //fclose(archivoLog);
+                        puts("Error al abrir el archivo puntuacion.txt");
+                        return ERROR_ARCHIVO;
+                    }
+                    fprintf(aPuntuacion, "%05d | %s\n", juego->puntaje, juego->nombreJugador);
+                    fclose(aPuntuacion);
+                    *estado_actual = ESTADO_JUGANDO;
+               }
+                break;
+    }
+}
+
 
 void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* juego , Coord* minasCoord , int minas , Coord* picords , Coord* rbutton){
 
@@ -392,6 +427,8 @@ void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* ju
 
                     if (juego->cantCasillasPresionadas == casillasLibresDeMinas){
                         puts("¡Ganaste el juego!");
+                        SDL_StartTextInput();
+                        juego->nombreJugador[0] = '\0';
                         *estado_actual = ESTADO_GANADO;
                     }
                     break;

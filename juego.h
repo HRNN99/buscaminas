@@ -43,6 +43,7 @@ typedef struct{
     int puntaje;
     int cantMinasEnInterfaz;
     int dimMapa;
+    char nombreJugador[40];
     bool finPartida;
     time_t start_time;
     Casilla** mapa;
@@ -69,6 +70,7 @@ void manejar_eventos_menu(SDL_Event *e , EstadoJuego *estado_actual , int* selec
 void dibujar_menu(SDL_Renderer* renderer , SDL_Window* ventana , TTF_Font* font , const char* menu_items[] , const int menu_count , int* seleccion);
 
 void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* juego , Coord* minasCoord , int minas , Coord* picords , Coord* rbutton);
+void manejar_eventos_ganado(SDL_Event *e , EstadoJuego *estado_actual, Juego* juego);
 
 
 void fondoColor(SDL_Renderer* renderer);
