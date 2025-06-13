@@ -48,6 +48,7 @@ void dibujar_menu(SDL_Renderer* renderer , SDL_Window* ventana , TTF_Font* font 
         //Se liberan variables temporales
         SDL_FreeSurface(surface);
         SDL_DestroyTexture(texture);
+
     }
 }
 

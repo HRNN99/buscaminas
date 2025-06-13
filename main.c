@@ -103,7 +103,6 @@ int main(int argc, char *argv[]){
 
     //Variable para estados
     EstadoJuego estado_actual = ESTADO_MENU;
-    bool juego_iniciado = false;
     int seleccion = 0;
 
     // While para mantener el programa corriendo
@@ -241,19 +240,7 @@ int main(int argc, char *argv[]){
 
                 if (boton == SDL_BUTTON_LEFT)
                 { // Evento clik izquierdo del mouse
-                    // Click en boton de reinicio
-                    if((rbutton.x * TAM_PIXEL <= e.button.x && e.button.x <= (rbutton.x + 28) * TAM_PIXEL)
-                        &&(rbutton.y * TAM_PIXEL <= e.button.y && e.button.y <= (rbutton.y + 28) * TAM_PIXEL)){
 
-                        interfaz(renderer,&picords,filas,&rbutton);
-                        mapaReiniciar(renderer , &picords , &juego , filas , columnas , &minasCoord , minasEnMapa);
-                        system("cls");
-
-                        printf("Reiniciaste el mapa \n\n");
-
-                        //Imprimir mapa
-                        mapaImprimir(juego.mapa , filas , columnas);
-                    }
                     else if(!juego.finPartida){
                         printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", e.button.x, e.button.y);
                         setLog(&log, xGrilla, yGrilla, "click izquierdo");
@@ -373,8 +360,7 @@ void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* ju
 
     int xG = ((e->button.x - (picords->x * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
     int yG = ((e->button.y - (picords->y * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
-    //(picords.x*TAM_PIXEL);
-    //e.button.y -= (picords.y*TAM_PIXEL)
+
     switch(e->type){
 
         case SDL_MOUSEBUTTONDOWN:
