@@ -211,6 +211,42 @@ void interfaz(SDL_Renderer *renderer, Coord *pcords, int dimensionM, Coord *rbut
     pcords->y += G;
 }
 
+void interfazGanado(SDL_Renderer *renderer, SDL_Window* ventana, TTF_Font* font, Juego* juego, Coord *pcords, int dimensionM, Coord *rbutton)
+{
+    int win_width, win_height;
+    SDL_GetWindowSize(ventana , &win_width , &win_height);
+
+    //Inicio la lectura de teclado
+    //SDL_StartTextInput();
+    // Ventana
+    int TAMX_GANADO = 220, TAMY_GANADO = 276, TAM_BOTON = 30;
+    pcords->x = (win_width/2)-(TAMX_GANADO/2);
+    pcords->y = (win_height/2)-(TAMY_GANADO/2);
+    rectanguloLlenoAbsoluto(renderer, GS, pcords->x, pcords->y, TAMX_GANADO, TAMY_GANADO);
+    marcoInvertido(renderer, pcords->x, pcords->y, (TAMX_GANADO), (TAMY_GANADO), 4);
+    // Boton cerrar ventana
+    rectanguloLlenoAbsoluto(renderer, RR, (win_width/2)+(TAMX_GANADO/2)-15-20-12 , pcords->y+15+4, TAM_BOTON, TAM_BOTON);
+    marcoInvertido(renderer, (win_width/2)+(TAMX_GANADO/2)-15-20-12 , pcords->y+15+4, TAM_BOTON, TAM_BOTON, 4);
+    // Renderizar "Puntaje" y "Nombre:"
+    char textoPuntaje[21] = "Puntaje: ";
+    char puntajeChar[12];
+    strcat(textoPuntaje, itoa(juego->puntaje, puntajeChar, 10)); //Armado de String a imprimir
+    int posYtexto = pcords->y + 20;
+    int margenX = pcords->x + 20;
+    renderizarTexto(font, 30, "Ganaste!", BB, GS,renderer, margenX, posYtexto);
+    renderizarTexto(font, 24, textoPuntaje, BB, GS,renderer, margenX, posYtexto+=45);
+    renderizarTexto(font, 16, "Ingrese su nombre:", BB, GS, renderer, margenX, posYtexto+=35);
+    rectanguloLlenoAbsoluto(renderer, BB, margenX, posYtexto+=40, 5,2); // Linea antes del nombre
+    renderizarTexto(font, 20, "asd", BB, GS,renderer, margenX + 15, posYtexto-12); // Fix Y por como toma esa coordenada
+    // Renderizar mejores posiciones
+    renderizarTexto(font, 16, "Pepito 15", BB, GS,renderer, margenX+20, posYtexto+=30);
+    renderizarTexto(font, 16, "Juan 45", BB, GS,renderer, margenX+20, posYtexto+=20);
+    renderizarTexto(font, 16, "Rodo 126", BB, GS,renderer, margenX+20, posYtexto+=20);
+    // Mostrar todo
+    SDL_RenderPresent(renderer);
+    juego->finPartida = true;
+}
+
 void mapaReiniciar(SDL_Renderer *renderer, Coord *pcord, Juego *juego, int filas, int columnas, Coord *minasCoord, int minas){
 
     juego->iniciado = true;
@@ -356,4 +392,16 @@ void setLog(Log* log, int coordX, int coordY, char tipoEvento[80])
     strcpy(log->tipoEvento, tipoEvento);
     log->coordXY[0] = coordX;
     log->coordXY[1] = coordY;
+}
+
+// Función para abrir un archivo y manejar errores
+FILE* abrirArchivo(const char* nombre, const char* modo) {
+    FILE* archivo = fopen(nombre, modo);
+    if (!archivo) {
+        //setLog(&log, -1, -1, "Error al abrir el archivo.");
+        //escribirArchivoLog(archivoLog, &log);
+        puts("Error al abrir el archivo.");
+        return NULL;
+    }
+    return archivo;
 }

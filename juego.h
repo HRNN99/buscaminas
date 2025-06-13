@@ -10,10 +10,14 @@
 #define ERROR_CONFIGURACION 21
 #define EJECUCION_OK 0
 #define ERROR_FUENTE 10
-
+#define ERROR_ELIMINACION_ARCHIVO 15
+#define ERROR_RENOMBRE_ARCHIVO 16
+#define ERROR_LINEA_LARGA 11
+#define MAX_PUNTAJES 20
 //ESTADOS
 typedef enum{
     ESTADO_MENU,
+    ESTADO_GANADO,
     ESTADO_JUGANDO,
     ESTADO_CARGAR,
     ESTADO_SALIENDO
@@ -26,6 +30,12 @@ typedef struct{
     bool presionada;
     int estadoBandera;
 }Casilla;
+
+typedef struct
+{
+    char nombre[40];
+    int puntos;
+} Puntaje;
 
 typedef struct{
     bool iniciado;
@@ -63,6 +73,7 @@ void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* ju
 
 void fondoColor(SDL_Renderer* renderer);
 void interfaz(SDL_Renderer* renderer, Coord* pcords , int dimensionM , Coord* rbutton);
+void interfazGanado(SDL_Renderer* renderer, SDL_Window* ventana, TTF_Font* font, Juego* juego, Coord* pcords , int dimensionM , Coord* rbutton);
 
 void casillaColocacion(Casilla** mapa, SDL_Renderer* renderer , int fil , int col , Coord* picord);
 

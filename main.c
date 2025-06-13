@@ -102,7 +102,7 @@ int main(int argc, char *argv[]){
     time_t current_time;
 
     //Variable para estados
-    EstadoJuego estado_actual = ESTADO_MENU;
+    EstadoJuego estado_actual = ESTADO_GANADO;
     int seleccion = 0;
 
     // While para mantener el programa corriendo
@@ -122,6 +122,14 @@ int main(int argc, char *argv[]){
                 case ESTADO_JUGANDO:
                     manejar_eventos_juego(&e , &estado_actual , &juego , &minasCoord , minasEnMapa , &picords , &rbutton);
                     break;
+
+                 case ESTADO_GANADO:
+
+                 if(e.type == SDL_MOUSEBUTTONDOWN)
+                    printf("Hiciste click en el pixel (%i , %i)\n", e.button.x, e.button.y);
+
+                //     manejar_eventos_menu(&e , &estado_actual , &seleccion , menu_count);
+                     break;
 
                 case ESTADO_SALIENDO:
                     corriendo = false;
@@ -152,6 +160,10 @@ int main(int argc, char *argv[]){
 
                 casillaColocacion(juego.mapa, renderer, filas, columnas, &picords);
                 break;
+            case ESTADO_GANADO:
+                interfazGanado(renderer, ventana, font, &juego, &picords,filas,&rbutton);
+                break;
+
         }
 
         SDL_RenderPresent(renderer);
@@ -360,6 +372,7 @@ void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* ju
 
     int xG = ((e->button.x - (picords->x * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
     int yG = ((e->button.y - (picords->y * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
+    int casillasLibresDeMinas = (juego->dimMapa * juego->dimMapa) - minas;
 
     switch(e->type){
 
@@ -376,6 +389,11 @@ void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* ju
 
                     printf("Hiciste click en la casilla (%i , %i)\n",xG,yG);
                     casillaEstado(juego , minasCoord , minas , xG , yG);
+
+                    if (juego->cantCasillasPresionadas == casillasLibresDeMinas){
+                        puts("¡Ganaste el juego!");
+                        *estado_actual = ESTADO_GANADO;
+                    }
                     break;
 
                 case SDL_BUTTON_RIGHT:
