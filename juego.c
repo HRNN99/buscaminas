@@ -107,7 +107,7 @@ void mapaVacio(Casilla **mapa, int filas, int columnas)
             mapa[y][x].estado = 0;
             mapa[y][x].estadoBandera = 0; // Uso el ciclo para inicializar todo en 0
             mapa[y][x].presionada = false;
-        }
+        }   
     }
 }
 
@@ -279,14 +279,15 @@ void casillaEstado(Juego *juego , Coord *minasCoord , int minas , int gX , int g
     Casilla *casillaSeleccionada = &juego->mapa[gY][gX];
     Casilla *casillaBandera = &juego->mapa[gY][gX];
 
-    if(chordClick && !casillaSeleccionada->presionada && casillaSeleccionada->estado > 0)
+
+    if(chordClick && casillaSeleccionada->presionada && casillaSeleccionada->estado > 0)
     {
+        
         for(int i = -1; i < 2; i++)
         {
             for (int j = -1; j < 2; j++)
             {
                 if (i == 0 && j == 0) continue; // Evita repetirse a sí mismo
-            
                 casillaEstado(juego, minasCoord, minas, gX + i, gY + j, false);
             }
         }
@@ -299,11 +300,11 @@ void casillaEstado(Juego *juego , Coord *minasCoord , int minas , int gX , int g
     juego->cantCasillasPresionadas++;
 
     // Juego Perdido
-    /* Mover
+    
     if (casillaSeleccionada->estado == -1)
     {
         juego->finPartida = true;
-        dibujar(renderer, PIXELES_X_LADO, mine2, gX, gY, picords->x, picords->y);
+        
 
         // Mostrar todas las bombas
         for (int i = 0; i < minas; i++)
@@ -312,12 +313,14 @@ void casillaEstado(Juego *juego , Coord *minasCoord , int minas , int gX , int g
             int mX = minasCoord[i].x;
             int mY = minasCoord[i].y;
 
-            if (gX != mX && gY != mY)
-                dibujar(renderer, PIXELES_X_LADO, mine, mX, mY, picords->x, picords->y);
+            if (gX == mX && gY == mY)
+                continue;  
+            juego->mapa[mY][mX].presionada = true; // Presionar todas las minas
+            juego->mapa[mY][mX].estado = 5; // Estado de mina revelada
         }
         return;
     }
-    */
+    
 
     // Dibuja numero y termina
 
@@ -381,11 +384,12 @@ void clickDoble(Juego *juego, int gX, int gY, Coord *minasCoord, int minas)
         {
             if (mapa[gY + j][gX + i].estadoBandera == 1)
             {
+                
                 if ((i == 0 && j == 0) || (gX + i < 0 || gX + i >= juego->dimMapa || gY + j < 0 || gY + j >= juego->dimMapa))
                     continue; // Evita repetirse a sí mismo
-
                 if (gX < 0 || gX >= juego->dimMapa || gY < 0 || gY >= juego->dimMapa)
                     return;
+
 
                 cont++;
             }

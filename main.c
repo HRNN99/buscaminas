@@ -98,7 +98,7 @@ int main(int argc, char *argv[]){
     SDL_Event e; // Variable para registrar eventos
     int corriendo = 1; // Variable flag true para mantener corriendo el programa
 
-    int boton, xGrilla, yGrilla, renderizarGanado = 0, fontSize = 16, casillasLibresDeMinas = (filas * columnas) - minasEnMapa;
+    int boton,  renderizarGanado = 0, fontSize = 16, casillasLibresDeMinas = (filas * columnas) - minasEnMapa;
     time_t current_time;
 
     //Variable para estados
@@ -358,11 +358,13 @@ void manejar_eventos_menu(SDL_Event *e , EstadoJuego *estado_actual, int* selecc
 void manejar_eventos_juego(SDL_Event *e, EstadoJuego *estado_actual, Juego *juego, Coord *minasCoord, int minas, Coord *picords, Coord *rbutton)
 {
 
+    Casilla **mapa = juego->mapa;
+
     int xG = ((e->button.x - (picords->x * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
     int yG = ((e->button.y - (picords->y * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
 
     if (e->type == SDL_MOUSEBUTTONDOWN)
-    {\
+    {
         int boton = e->button.button; //guardado del boton anterior antes de nuevo evento
         EventoClick handlerClick;
 
@@ -375,20 +377,20 @@ void manejar_eventos_juego(SDL_Event *e, EstadoJuego *estado_actual, Juego *jueg
         }
         else
         {
-            if (juego->mapa[yG][xG].presionada &&
-                juego->mapa[yG][xG].estado > 0)
+            if (mapa[yG][xG].presionada &&
+                mapa[yG][xG].estado > 0)
             {
 
                 handlerClick = clickDoble;
 
-                Uint32 tiempoDeEspera = SDL_GetTicks() + 250;
+                Uint32 tiempoDeEspera = SDL_GetTicks() + 100;
                 while (SDL_GetTicks() < tiempoDeEspera)
                 {
-                    if (SDL_PollEvent(&e) && e->type == SDL_MOUSEBUTTONDOWN &&
+                    if (SDL_PollEvent(e) && e->type == SDL_MOUSEBUTTONDOWN &&
                         e->button.button != boton)
                     {
                         handlerClick(juego, xG, yG, minasCoord, minas);
-                        break;
+                        continue;
                     }
                     SDL_Delay(1);
                 }

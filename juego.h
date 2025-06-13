@@ -4,7 +4,7 @@
 #include "dibujos.h"
 #include <time.h>
 
-#define eleccion(n) ((n) == 0 ? square2 : (n) == 1 ? one : (n) == 2 ? two : (n) == 3 ? three : mine)
+#define eleccion(n) ((n) == 0 ? square2 : (n) == 1 ? one : (n) == 2 ? two : (n) == 3 ? three : (n) == -1 ? mine2 : mine)
 #define eleccionBandera(n) ((n) == 0 ? square1 : (n) == 1 ? flag : symbol)
 #define ERROR_ARCHIVO 20
 #define ERROR_CONFIGURACION 21
@@ -39,8 +39,8 @@ typedef struct{
 } Juego;
 
 typedef struct {
-    int x;
     int y;
+    int x;
 } Coord;
 
 typedef struct{
@@ -62,7 +62,7 @@ typedef void (*EventoClick)(Juego *juego, int x, int y, Coord *minasCoord, int m
 void manejar_eventos_menu(SDL_Event *e , EstadoJuego *estado_actual , int* seleccion , const int menu_count);
 void dibujar_menu(SDL_Renderer* renderer , SDL_Window* ventana , TTF_Font* font , const char* menu_items[] , const int menu_count , int* seleccion);
 
-void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* juego , Coord* minasCoord , int minas , Coord* picords , Coord* rbutton);
+void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego *juego , Coord *minasCoord , int minas , Coord* picords , Coord* rbutton);
 
 
 void fondoColor(SDL_Renderer* renderer);
@@ -89,4 +89,4 @@ void handlerClickDerecho(Juego *juego, int x, int y, Coord *minasCoord, int mina
 void clickDoble(Juego *juego, int gX, int gY, Coord *minasCoord, int minas);
 //Log
 void setLog(Log* log, int coordX, int coordY, char tipoEvento[80]);
-#endif // JUEGO_H
+#endif // JUEGO_
