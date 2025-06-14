@@ -2,7 +2,9 @@
 #define JUEGO_H
 
 #include "dibujos.h"
+#include "sonido.h"
 #include <time.h>
+
 
 #define eleccion(n) ((n) == 0 ? square2 : (n) == 1 ? one   \
                                       : (n) == 2   ? two   \
@@ -15,10 +17,13 @@
 #define ERROR_CONFIGURACION 21
 #define EJECUCION_OK 0
 #define ERROR_FUENTE 10
+#define ERROR_SONIDO 11
 #define ERROR_ELIMINACION_ARCHIVO 15
 #define ERROR_RENOMBRE_ARCHIVO 16
 #define ERROR_LINEA_LARGA 11
 #define MAX_PUNTAJES 20
+
+#define NOMBRE_VENTANA "Buscaminas"
 // ESTADOS
 typedef enum
 {
@@ -29,6 +34,13 @@ typedef enum
     ESTADO_SALIENDO
 
 } EstadoJuego;
+
+// sistemas
+typedef struct
+{
+    
+
+} Sistema;
 
 // TDA
 typedef struct
@@ -55,6 +67,10 @@ typedef struct
     bool finPartida;
     time_t start_time;
     Casilla **mapa;
+    Mix_Chunk *sonidoMina;
+    Mix_Chunk *sonidoClick;
+    Mix_Chunk *sonidoBandera;
+    Mix_Chunk *sonidoCat;
 } Juego;
 
 typedef struct

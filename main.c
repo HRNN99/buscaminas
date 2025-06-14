@@ -7,6 +7,7 @@
 
 #include "dibujos.h" //Header de estados
 #include "juego.h"
+#include "sonido.h" //Header de sonido
 
 int leerConfiguracion(int *, int *, int *, char *);
 int escribirArchivoLog(FILE *archivoLog, Log *log);
@@ -32,9 +33,18 @@ int main(int argc, char *argv[])
     // Lectura del archivo de configuarcion
     leerConfiguracion(&filas, &columnas, &minasEnMapa, rutaFuente);
 
-    // Iniciar SDL con funcion Video
-    SDL_Init(SDL_INIT_VIDEO);
+    // Iniciar SDL con funcion Video y audio
+    if(SDL_Init(SDL_INIT_VIDEO) || SDL_Init(SDL_INIT_AUDIO))
+    {
+        puts("Error al iniciar SDL");
+        return ERROR_CONFIGURACION;
+    }
 
+    if(iniciarSonido())
+    {
+        return ERROR_CONFIGURACION;
+    }
+    
     // Inicio TTF y busco la fuente. Si no la encuentra imprime un error
     TTF_Init();
     TTF_Font *font = TTF_OpenFont(rutaFuente, 32);
@@ -86,13 +96,31 @@ int main(int argc, char *argv[])
     juego.mapa = mapa;
     juego.iniciado = false;
 
-    // Iniciacion de valores de mapa
-    // mapaReiniciar(renderer , &picords , &juego , filas , columnas , &minasCoord , minasEnMapa);
+   
+    // Inicializar el juego
+    juego.puntaje = 0;
+    juego.cantCasillasPresionadas = 0;
+    juego.cantMinasEnInterfaz = minasEnMapa;
+    juego.dimMapa = filas;
+    juego.finPartida = false;
+    juego.start_time = time(NULL); // Iniciar el contador cuando inicia el juego
+    juego.nombreJugador[0] = '\0';
+    juego.sonidoMina = NULL;
+    juego.sonidoClick = NULL;
+    juego.sonidoBandera = NULL;
+    juego.sonidoCat = NULL;
 
-    // Imprimir mapa
-    // mapaImprimir(juego.mapa , filas , columnas);
+   //-----------------------------------------------------
 
-    //////////////////////////////////////////////////////////////////////
+
+    if(cargarSonido("Sounds/sonidoMina.mp3", &juego.sonidoMina)
+        || cargarSonido("Sounds/sonidoCat.mp3", &juego.sonidoCat)
+        || cargarSonido("Sounds/sonidoClick.mp3", &juego.sonidoClick)
+        || cargarSonido("Sounds/sonidoBandera.mp3", &juego.sonidoBandera))
+    {
+        return ERROR_SONIDO;
+    }
+    //-----------------------------------------------------
 
     SDL_Event e;       // Variable para registrar eventos
     int corriendo = 1; // Variable flag true para mantener corriendo el programa
@@ -315,6 +343,7 @@ void manejar_eventos_juego(SDL_Event *e, EstadoJuego *estado_actual, Juego *jueg
         if ((rbutton->x * TAM_PIXEL <= e->button.x && e->button.x <= (rbutton->x + 28) * TAM_PIXEL) &&
             (rbutton->y * TAM_PIXEL <= e->button.y && e->button.y <= (rbutton->y + 28) * TAM_PIXEL) && (boton == SDL_BUTTON_LEFT))
         {
+            Mix_PlayChannel(-1, juego->sonidoCat, 0);
 
             juego->iniciado = false;
         }

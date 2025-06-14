@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "juego.h"
 #include "estados.h"
+#include "sonido.h"
 #include "time.h"
 
 void dibujar_menu(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, const char *menu_items[], const int menu_count, int *seleccion)
@@ -281,6 +282,7 @@ void mapaReiniciar(SDL_Renderer *renderer, Coord *pcord, Juego *juego, int filas
     juego->cantCasillasPresionadas = 0;
     juego->start_time = time(NULL); // Iniciar el contador cuando inicia el juego
     juego->nombreJugador[0] = '\0';
+    
 
     mapaVacio(mapa, filas, columnas);
     mapaLlenar(mapa, filas, columnas, minasCoord, minas);
@@ -488,10 +490,13 @@ void handlerClickIzquierdo(Juego *juego, int x, int y, Coord *minasCoord, int mi
 {
     printf("Hiciste click en la casilla (%i , %i)\n", x, y);
     casillaEstado(juego, minasCoord, minas, x, y, false);
+    juego->mapa[y][x].estado == -1 ? Mix_PlayChannel(-1, juego->sonidoMina, 0) 
+    : juego->mapa[y][x].estadoBandera == 0 ? Mix_PlayChannel(-1, juego->sonidoClick, 0): NULL; // Reproduce sonido de mina si se presiona una mina
 }
 
 void handlerClickDerecho(Juego *juego, int x, int y, Coord *minasCoord, int minas)
 {
     printf("Hiciste click derecho en la casilla (%i , %i), colocando bandera\n", x, y);
     casillaBandera(juego, x, y);
+    juego->mapa[y][x].presionada == 0 ? Mix_PlayChannel(-1, juego->sonidoBandera, 0): NULL;
 }
