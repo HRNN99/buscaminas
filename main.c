@@ -93,7 +93,7 @@ int main(int argc, char *argv[]){
     //Casilla **mapa = matrizCrear(filas, columnas, sizeof(Casilla));
 
     //Vector de coordenadas para las minas
-    Coord minasCoord[minasEnMapa];
+    //Coord minasCoord[minasEnMapa];
 
     Juego juego;
     juego.mapa = matrizCrear(1 , 1 , sizeof(Casilla));
@@ -130,7 +130,7 @@ int main(int argc, char *argv[]){
                     break;
 
                 case ESTADO_JUGANDO:
-                    manejar_eventos_juego(&e , &estado_actual , &juego , &minasCoord , minasEnMapa , &picords , &rbutton);
+                    manejar_eventos_juego(&e , &estado_actual , &juego , &picords , &rbutton);
                     break;
 
                 case ESTADO_SALIENDO:
@@ -160,7 +160,7 @@ int main(int argc, char *argv[]){
 
                 if(!juego.iniciado){
 
-                    mapaReiniciar(renderer , &picords , &juego , juego.dificultad.dimension , &minasCoord , juego.dificultad.cantidad_minas);
+                    mapaReiniciar(renderer , &picords , &juego , juego.dificultad.dimension , juego.minasCoord , juego.dificultad.cantidad_minas);
                     system("cls");
                     mapaImprimir(juego.mapa , juego.dificultad.dimension , juego.dificultad.dimension);
 
@@ -397,6 +397,7 @@ void manejar_eventos_dificultad(SDL_Event *e , EstadoJuego *estado_actual, int* 
                             juego->dificultad.cantidad_minas = difs[0].cantidad_minas;
 
                             juego->mapa = matrizCrear(juego->dificultad.dimension , juego->dificultad.dimension , sizeof(Casilla)); //Mover a otro lado despues
+                            juego->minasCoord = matrizCrear(juego->dificultad.cantidad_minas , 0 , sizeof(Coord));
                             *estado_actual = ESTADO_JUGANDO;
                             SDL_SetWindowSize(ventana , TAM_PIXEL * (difs[0].dimension * PIXELES_X_LADO + 20) , TAM_PIXEL * (difs[0].dimension * PIXELES_X_LADO + 4 + 3*8 + 28));
                             break;
@@ -407,6 +408,7 @@ void manejar_eventos_dificultad(SDL_Event *e , EstadoJuego *estado_actual, int* 
                             juego->dificultad.cantidad_minas = difs[1].cantidad_minas;
 
                             juego->mapa = matrizCrear(juego->dificultad.dimension , juego->dificultad.dimension , sizeof(Casilla));
+                            juego->minasCoord = matrizCrear(juego->dificultad.cantidad_minas , 0 , sizeof(Coord));
                             *estado_actual = ESTADO_JUGANDO;
                             SDL_SetWindowSize(ventana , TAM_PIXEL * (difs[1].dimension * PIXELES_X_LADO + 20) , TAM_PIXEL * (difs[1].dimension * PIXELES_X_LADO + 4 + 3*8 + 28));
                             break;
@@ -417,6 +419,7 @@ void manejar_eventos_dificultad(SDL_Event *e , EstadoJuego *estado_actual, int* 
                             juego->dificultad.cantidad_minas = difs[2].cantidad_minas;
 
                             juego->mapa = matrizCrear(juego->dificultad.dimension , juego->dificultad.dimension , sizeof(Casilla));
+                            juego->minasCoord = matrizCrear(juego->dificultad.cantidad_minas , 0 , sizeof(Coord));
                             *estado_actual = ESTADO_JUGANDO;
                             SDL_SetWindowSize(ventana , TAM_PIXEL * (difs[2].dimension * PIXELES_X_LADO + 20) , TAM_PIXEL * (difs[2].dimension * PIXELES_X_LADO + 4 + 3*8 + 28));
                             break;
@@ -427,7 +430,7 @@ void manejar_eventos_dificultad(SDL_Event *e , EstadoJuego *estado_actual, int* 
     }
 }
 
-void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* juego , Coord* minasCoord , int minas , Coord* picords , Coord* rbutton){
+void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* juego , Coord* picords , Coord* rbutton){
 
     int xG = ((e->button.x - (picords->x * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
     int yG = ((e->button.y - (picords->y * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
@@ -446,7 +449,7 @@ void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* ju
                         juego->iniciado = false;
 
                     printf("Hiciste click en la casilla (%i , %i)\n",xG,yG);
-                    casillaEstado(juego , minasCoord , minas , xG , yG);
+                    casillaEstado(juego , xG , yG);
                     break;
 
                 case SDL_BUTTON_RIGHT:

@@ -21,6 +21,11 @@ typedef enum{
 
 }EstadoJuego;
 
+typedef struct {
+    int x;
+    int y;
+} Coord;
+
 typedef struct{
     int estado;
     bool presionada;
@@ -36,6 +41,7 @@ typedef struct{
 typedef struct{
     bool iniciado;
     Dificultad dificultad;
+    Casilla** mapa;
     Coord* minasCoord;
 
     int cantCasillasPresionadas;
@@ -44,13 +50,7 @@ typedef struct{
     int dimMapa;
     bool finPartida;
     time_t start_time;
-    Casilla** mapa;
 } Juego;
-
-typedef struct {
-    int x;
-    int y;
-} Coord;
 
 typedef struct{
     char tipoEvento[20];
@@ -68,7 +68,7 @@ void manejar_eventos_menu(SDL_Event *e , EstadoJuego *estado_actual , int* selec
 void manejar_eventos_dificultad(SDL_Event *e , EstadoJuego *estado_actual, int* seleccion , const int items_count , Juego* juego , Dificultad* difs , SDL_Window* ventana);
 void dibujar_menu(SDL_Renderer* renderer , SDL_Window* ventana , TTF_Font* font , const char* menu_items[] , const int menu_count , int* seleccion);
 
-void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* juego , Coord* minasCoord , int minas , Coord* picords , Coord* rbutton);
+void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* juego , Coord* picords , Coord* rbutton);
 
 
 void fondoColor(SDL_Renderer* renderer);
@@ -76,7 +76,7 @@ void interfaz(SDL_Renderer* renderer, Coord* pcords , int dimensionM , Coord* rb
 
 void casillaColocacion(Casilla** mapa, SDL_Renderer* renderer , int fil , int col , Coord* picord);
 
-void casillaEstado(Juego* juego , Coord* minasCoord , int minas , int gX , int gY);
+void casillaEstado(Juego *juego , int gX , int gY);
 void casillaBandera(Juego *juego, int gX, int gY);
 
 Casilla** matrizCrear(size_t filas, size_t columnas, size_t tamElem);
