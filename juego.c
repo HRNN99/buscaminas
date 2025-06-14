@@ -97,13 +97,12 @@ void matrizDestruir(Casilla **mat, size_t filas)
 }
 
 // Funcion que inicializa el mapa de juego en valores por defecto
-void mapaVacio(Casilla **mapa, int filas, int columnas)
-{
+void mapaVacio(Casilla **mapa , int dimension){
 
-    for (int y = 0; y < filas; y++)
-    {
-        for (int x = 0; x < columnas; x++)
-        {
+    for (int y = 0; y < dimension; y++){
+
+        for (int x = 0; x < dimension; x++){
+
             mapa[y][x].estado = 0;
             mapa[y][x].estadoBandera = 0; // Uso el ciclo para inicializar todo en 0
             mapa[y][x].presionada = false;
@@ -211,20 +210,20 @@ void interfaz(SDL_Renderer *renderer, Coord *pcords, int dimensionM, Coord *rbut
     pcords->y += G;
 }
 
-void mapaReiniciar(SDL_Renderer *renderer, Coord *pcord, Juego *juego, int filas, int columnas, Coord *minasCoord, int minas){
+void mapaReiniciar(SDL_Renderer *renderer, Coord *pcord, Juego *juego, int dimension , Coord *minasCoord, int minas){
 
     juego->iniciado = true;
     Casilla **mapa = juego->mapa;
 
     juego->puntaje = 0;
-    juego->dimMapa = filas;
+    juego->dimMapa = dimension;
     juego->cantMinasEnInterfaz = minas;
     juego->finPartida = false;
     juego->cantCasillasPresionadas = 0;
     juego->start_time = time(NULL); // Iniciar el contador cuando inicia el juego
 
-    mapaVacio(mapa, filas, columnas);
-    mapaLlenar(mapa, filas, columnas, minasCoord, minas);
+    mapaVacio(mapa, dimension);
+    mapaLlenar(mapa, dimension, dimension, minasCoord, minas);
 }
 
 // Funcion que coloca todas las casillas sin valor

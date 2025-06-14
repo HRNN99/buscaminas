@@ -160,8 +160,7 @@ const int symbol[14][14] =
     {GF,GS,GS,GS,GS,GS,GS,GS,GS,GS,GS,GS,GS,GF},
     {GF,GS,GS,GS,GS,GS,NN,NN,GS,GS,GS,GS,GS,GF},
     {GF,GS,GS,GS,GS,GS,NN,NN,GS,GS,GS,GS,GS,GF},
-    {GF,GS,GS,GS,GS,GS,GS,GS,GS,GS,GS,GS,GS,GF},
-    {GF,GF,GF,GF,GF,GF,GF,GF,GF,GF,GF,GF,GF,GF}
+    {GF,GS,GS,GS,GS,GS,GS,GS,GS,GS,GS,GS,GS,GF}
 };
 
 const int restart_button[28][28] =

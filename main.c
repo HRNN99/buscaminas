@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <ctype.h>
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
@@ -8,12 +9,13 @@
 #include "dibujos.h" //Header de estados
 #include "juego.h"
 
-int leerConfiguracion(int*, int*,int*, char*);
+bool linea_ignorable(const char* linea);
+int cargar_dificultades(const char* archivo , Dificultad* difs , int num_dif);
 int escribirArchivoLog(FILE* archivoLog, Log* log);
 
 int main(int argc, char *argv[]){
 
-    int filas = 0, columnas = 0, minasEnMapa = 0;
+    int filas = 16, columnas = 16, minasEnMapa = 0;
     char rutaFuente[100];
 
     //Creacion archivo log
@@ -29,14 +31,15 @@ int main(int argc, char *argv[]){
     escribirArchivoLog(archivoLog, &log);
 
     // Lectura del archivo de configuarcion
-    leerConfiguracion(&filas, &columnas, &minasEnMapa, rutaFuente);
+    //leerConfiguracion(&filas, &columnas, &minasEnMapa, rutaFuente);
 
     // Iniciar SDL con funcion Video
     SDL_Init(SDL_INIT_VIDEO);
 
     // Inicio TTF y busco la fuente. Si no la encuentra imprime un error
+
     TTF_Init();
-    TTF_Font *font = TTF_OpenFont(rutaFuente, 32);
+    TTF_Font *font = TTF_OpenFont("Fonts/digital-7.ttf", 32);
     if (!font)
     {
         printf("Error cargando fuente: %s\n", TTF_GetError());
@@ -75,6 +78,10 @@ int main(int argc, char *argv[]){
     int dificultad_count = sizeof(dificultad_items) / sizeof(dificultad_items[0]);
     int seleccion_dificultad = 0;
 
+    Dificultad dificultades[dificultad_count];
+
+    cargar_dificultades("buscaminas.conf" , dificultades , dificultad_count);
+
     //////////////////////////////////////////////////////////////////////
 
     Coord picords = {0,0};
@@ -83,13 +90,13 @@ int main(int argc, char *argv[]){
     //////////////////////////////////////////////////////////////////////
 
     //Creacion de matriz mapa
-    Casilla **mapa = matrizCrear(filas, columnas, sizeof(Casilla));
+    //Casilla **mapa = matrizCrear(filas, columnas, sizeof(Casilla));
 
     //Vector de coordenadas para las minas
     Coord minasCoord[minasEnMapa];
 
     Juego juego;
-    juego.mapa = mapa;
+    juego.mapa = matrizCrear(1 , 1 , sizeof(Casilla));
     juego.iniciado = false;
 
     //////////////////////////////////////////////////////////////////////
@@ -97,7 +104,7 @@ int main(int argc, char *argv[]){
     SDL_Event e; // Variable para registrar eventos
     int corriendo = 1; // Variable flag true para mantener corriendo el programa
 
-    int boton, xGrilla, yGrilla, renderizarGanado = 0, fontSize = 16, casillasLibresDeMinas = (filas * columnas) - minasEnMapa;
+    int boton , xGrilla , yGrilla , renderizarGanado = 0 , fontSize = 16 , casillasLibresDeMinas = (filas * columnas) - minasEnMapa;
     time_t current_time;
 
     //Variable para estados
@@ -109,6 +116,7 @@ int main(int argc, char *argv[]){
         while(SDL_PollEvent(&e)){
             if(e.type == SDL_QUIT){
                 corriendo = false;
+                matrizDestruir(juego.mapa , juego.dificultad.dimension);
                 printf("\n---Cerrando Ventana---\n");
             }
 
@@ -118,7 +126,7 @@ int main(int argc, char *argv[]){
                     break;
 
                 case ESTADO_DIFICULTAD:
-                    manejar_eventos_dificultad(&e , &estado_actual , &seleccion_dificultad , dificultad_count , &juego);
+                    manejar_eventos_dificultad(&e , &estado_actual , &seleccion_dificultad , dificultad_count , &juego , dificultades , ventana);
                     break;
 
                 case ESTADO_JUGANDO:
@@ -127,6 +135,7 @@ int main(int argc, char *argv[]){
 
                 case ESTADO_SALIENDO:
                     corriendo = false;
+                    matrizDestruir(juego.mapa , juego.dificultad.dimension);
                     printf("\nSaliendo...\n");
                     break;
             }
@@ -147,17 +156,17 @@ int main(int argc, char *argv[]){
 
             case ESTADO_JUGANDO:
 
-                interfaz(renderer,&picords,filas,&rbutton);
+                interfaz(renderer , &picords , juego.dificultad.dimension ,&rbutton);
 
                 if(!juego.iniciado){
 
-                    mapaReiniciar(renderer , &picords , &juego , filas , columnas , &minasCoord , minasEnMapa);
+                    mapaReiniciar(renderer , &picords , &juego , juego.dificultad.dimension , &minasCoord , juego.dificultad.cantidad_minas);
                     system("cls");
-                    mapaImprimir(juego.mapa , filas , columnas);
+                    mapaImprimir(juego.mapa , juego.dificultad.dimension , juego.dificultad.dimension);
 
                 }
 
-                casillaColocacion(juego.mapa, renderer, filas, columnas, &picords);
+                casillaColocacion(juego.mapa, renderer, juego.dificultad.dimension , juego.dificultad.dimension , &picords);
                 break;
         }
 
@@ -224,7 +233,7 @@ int main(int argc, char *argv[]){
                 escribirArchivoLog(archivoLog, &log);
                 printf("Saliendo de SDL\n");
                 corriendo = 0;
-                matrizDestruir(juego.mapa, filas);             // Se libera la memoria de la matriz mapa
+                             // Se libera la memoria de la matriz mapa
                 FinalizarSDL(ventana, renderer, font, EXIT_SUCCESS, archivoLog); // Funcion para la finalizacion de SDL y sus componentes
                 break;
             case SDL_WINDOWEVENT:
@@ -321,6 +330,7 @@ int main(int argc, char *argv[]){
         }
         */
     }
+    matrizDestruir(juego.mapa , juego.dificultad.dimension);
     fclose(archivoLog);
     return EJECUCION_OK;
 }
@@ -362,7 +372,7 @@ void manejar_eventos_menu(SDL_Event *e , EstadoJuego *estado_actual, int* selecc
     }
 }
 
-void manejar_eventos_dificultad(SDL_Event *e , EstadoJuego *estado_actual, int* seleccion , const int items_count , Juego* juego){
+void manejar_eventos_dificultad(SDL_Event *e , EstadoJuego *estado_actual, int* seleccion , const int items_count , Juego* juego , Dificultad* difs , SDL_Window* ventana){
 
     switch(e->type){
 
@@ -382,15 +392,33 @@ void manejar_eventos_dificultad(SDL_Event *e , EstadoJuego *estado_actual, int* 
                     switch(*seleccion){
 
                         case 0:
+                            //juego->dificultad.nombre = difs[0].nombre;
+                            juego->dificultad.dimension = difs[0].dimension;
+                            juego->dificultad.cantidad_minas = difs[0].cantidad_minas;
+
+                            juego->mapa = matrizCrear(juego->dificultad.dimension , juego->dificultad.dimension , sizeof(Casilla)); //Mover a otro lado despues
                             *estado_actual = ESTADO_JUGANDO;
+                            SDL_SetWindowSize(ventana , TAM_PIXEL * (difs[0].dimension * PIXELES_X_LADO + 20) , TAM_PIXEL * (difs[0].dimension * PIXELES_X_LADO + 4 + 3*8 + 28));
                             break;
 
                         case 1:
-                            *estado_actual = ESTADO_CARGAR;
+                            //juego->dificultad.nombre = difs[1].nombre;
+                            juego->dificultad.dimension = difs[1].dimension;
+                            juego->dificultad.cantidad_minas = difs[1].cantidad_minas;
+
+                            juego->mapa = matrizCrear(juego->dificultad.dimension , juego->dificultad.dimension , sizeof(Casilla));
+                            *estado_actual = ESTADO_JUGANDO;
+                            SDL_SetWindowSize(ventana , TAM_PIXEL * (difs[1].dimension * PIXELES_X_LADO + 20) , TAM_PIXEL * (difs[1].dimension * PIXELES_X_LADO + 4 + 3*8 + 28));
                             break;
 
                         case 2:
-                            *estado_actual = ESTADO_SALIENDO;
+                            //juego->dificultad.nombre = difs[2].nombre;
+                            juego->dificultad.dimension = difs[2].dimension;
+                            juego->dificultad.cantidad_minas = difs[2].cantidad_minas;
+
+                            juego->mapa = matrizCrear(juego->dificultad.dimension , juego->dificultad.dimension , sizeof(Casilla));
+                            *estado_actual = ESTADO_JUGANDO;
+                            SDL_SetWindowSize(ventana , TAM_PIXEL * (difs[2].dimension * PIXELES_X_LADO + 20) , TAM_PIXEL * (difs[2].dimension * PIXELES_X_LADO + 4 + 3*8 + 28));
                             break;
                     }
                     break;
@@ -431,9 +459,15 @@ void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* ju
 
 }
 
+bool linea_ignorable(const char* linea){
+    while(isspace(*linea)) linea++;
+    return (*linea == '\0' || *linea == '#');
+}
 
+/*
 int leerConfiguracion(int* filas, int* columnas, int* minasEnMapa, char* rutaFuente){
-    FILE* config = fopen("buscaminas.conf", "r+t");
+
+    FILE* config = fopen("buscaminas.conf", "r");
 
     if (!config)
     {
@@ -477,6 +511,77 @@ int leerConfiguracion(int* filas, int* columnas, int* minasEnMapa, char* rutaFue
     //printf("%d, %d, %s", *filas, *minasEnMapa, rutaFuente);
     fclose(config);
 
+    return 0;
+}
+*/
+
+int cargar_dificultades(const char* archivo , Dificultad* difs , int num_dif){
+
+    FILE* config = fopen(archivo, "r");
+
+    if (!config){
+        puts("Error al abrir archivo de configuracion. Cerrando juego...");
+        return ERROR_ARCHIVO;
+    }
+
+    char linea[150];
+    int i = 0;
+
+    char minasTexto[5];
+
+    while(fgets(linea , sizeof(linea) , config) && i <= num_dif){
+
+        if(linea_ignorable(linea)) continue;
+
+        if(strncmp(linea , "DIFICULTAD" , 10) == 0){
+            sscanf(linea , "DIFICULTAD = %20[^\n]" , difs[i].nombre);
+
+            printf("%s\n",difs[i].nombre);
+
+            do{ fgets(linea , sizeof(linea) , config); }while(linea_ignorable(linea));
+
+            sscanf(linea , "DIMENSION_MAPA = %i" , &difs[i].dimension);
+
+            if(difs[i].dimension < 8 || difs[i].dimension > 32){
+                puts("Error de configuracion DIMENSION_MAPA valores validos entre 8 y 32.");
+                fclose(config);
+                return ERROR_CONFIGURACION;
+            }
+
+            printf("%i\n",difs[i].dimension);
+
+            do{ fgets(linea , sizeof(linea) , config); }while(linea_ignorable(linea));
+            if(sscanf(linea , "CANTIDAD_MINAS = %5[^\n]" , minasTexto) == -1){
+                puts("Error al leer CANTIDAD_MINAS.");
+                fclose(config);
+                return ERROR_ARCHIVO;
+            }
+
+            char* porcentaje = strchr(minasTexto , '%');
+            difs[i].cantidad_minas = atoi(minasTexto);
+
+            if(porcentaje)
+                difs[i].cantidad_minas = round(((difs[i].dimension)*(difs[i].dimension))*((float)difs[i].cantidad_minas/100));
+
+            if(difs[i].cantidad_minas < 0){
+                puts("Error de configuracion CANTIDAD_MINAS valores negativos no validos");
+                fclose(config);
+                return ERROR_CONFIGURACION;
+            }
+
+            printf("%i\n",difs[i].cantidad_minas);
+
+            i++;
+        }
+
+    }
+
+    if(i != num_dif){
+        puts("Error al cargar todas las dificultades. Cerrando juego...");
+        return ERROR_ARCHIVO;
+    }
+
+    fclose(config);
     return 0;
 }
 
