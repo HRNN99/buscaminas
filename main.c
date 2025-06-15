@@ -217,6 +217,7 @@ int main(int argc, char *argv[])
             break;
 
         case ESTADO_JUGANDO:
+            seleccion = 0;
             interfaz(sistemas.renderer, sistemas.font, &juego, &picords, filas, &rbutton);
 
             if (!juego.iniciado)
@@ -285,6 +286,7 @@ void manejar_eventos_menu(SDL_Event *e, EstadoJuego *estado_actual, Sonido *soni
                     break;
 
                 case 1:
+                    *seleccion = 0;
                     *estado_actual = ESTADO_CARGAR;
                     break;
 
@@ -295,16 +297,16 @@ void manejar_eventos_menu(SDL_Event *e, EstadoJuego *estado_actual, Sonido *soni
                 break;
             case ESTADO_CARGAR:
 
-                juego = &partidas[*seleccion];
+                cargarDesdeSlot(juego, *seleccion);
                 *estado_actual = ESTADO_JUGANDO;
                 iniciarMusica(&sonidos->musicaFondo);
 
                 break;
             case ESTADO_GUARDAR:
 
-                partidas[*seleccion] = *juego;
-                guardarPartidas(partidas, ARCHIVO_PARTIDAS);
+                guardarEnSlot(juego, *seleccion);
                 *estado_actual = ESTADO_PAUSA;
+                *seleccion = 0;
             break;
             }
             break;
@@ -452,12 +454,12 @@ void manejar_eventos_pausa(SDL_Event *e, EstadoJuego *estado_actual, Juego *jueg
                 break;
 
             case 1:
-
+                *seleccion = 0;
                 *estado_actual = ESTADO_GUARDAR;
                 break;
 
             case 2:
-
+                *seleccion = 0;
                 *estado_actual = ESTADO_MENU;
                 iniciarMusica(&sonidos->musicaMenu);
                 juego->finPartida = true;

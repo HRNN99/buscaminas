@@ -728,3 +728,69 @@ void inicializarPartidas(Juego partidas[3]) {
         }
     }
 }
+
+
+void guardarEnSlot(Juego *juego, int slot) {
+    if (slot < 0 || slot >= MAX_SLOTS) return;
+
+    Juego juegoAux[3];
+    cargarPartidas(juegoAux, ARCHIVO_PARTIDAS); // cargar todos los slots actuales
+
+    // Copiar campos base manualmente
+    juegoAux[slot].iniciado = juego->iniciado;
+    juegoAux[slot].cantCasillasPresionadas = juego->cantCasillasPresionadas;
+    juegoAux[slot].puntaje = juego->puntaje;
+    juegoAux[slot].cantMinasEnInterfaz = juego->cantMinasEnInterfaz;
+    juegoAux[slot].dimMapa = juego->dimMapa;
+    juegoAux[slot].finPartida = juego->finPartida;
+    juegoAux[slot].start_time = juego->start_time;
+    juegoAux[slot].totalPuntajes = juego->totalPuntajes;
+    memcpy(juegoAux[slot].nombreJugador, juego->nombreJugador, sizeof(juego->nombreJugador));
+    memcpy(juegoAux[slot].puntajes, juego->puntajes, sizeof(juego->puntajes));
+
+    // deep copy de mapa
+    int dim = juego->dimMapa;
+    juegoAux[slot].mapa = malloc(dim * sizeof(Casilla *));
+    for (int i = 0; i < dim; i++) {
+        juegoAux[slot].mapa[i] = malloc(dim * sizeof(Casilla));
+        for (int j = 0; j < dim; j++) {
+            juegoAux[slot].mapa[i][j] = juego->mapa[i][j];
+        }
+    }
+
+    guardarPartidas(juegoAux, ARCHIVO_PARTIDAS);
+}
+
+void cargarDesdeSlot(Juego *juego, int slot) {
+    if (slot < 0 || slot >= MAX_SLOTS) return;
+
+    Juego juegoAux[3];
+    cargarPartidas(juegoAux, ARCHIVO_PARTIDAS);
+
+    // Liberar mapa previo si existe
+    if (juego->mapa != NULL) {
+        matrizDestruir(juego->mapa, juego->dimMapa);
+    }
+
+    // Copiar campos base manualmente
+    juego->iniciado = juegoAux[slot].iniciado;
+    juego->cantCasillasPresionadas = juegoAux[slot].cantCasillasPresionadas;
+    juego->puntaje = juegoAux[slot].puntaje;
+    juego->cantMinasEnInterfaz = juegoAux[slot].cantMinasEnInterfaz;
+    juego->dimMapa = juegoAux[slot].dimMapa;
+    juego->finPartida = juegoAux[slot].finPartida;
+    juego->start_time = juegoAux[slot].start_time;
+    juego->totalPuntajes = juegoAux[slot].totalPuntajes;
+    memcpy(juego->nombreJugador, juegoAux[slot].nombreJugador, sizeof(juego->nombreJugador));
+    memcpy(juego->puntajes, juegoAux[slot].puntajes, sizeof(juego->puntajes));
+
+    // deep copy de mapa
+    int dim = juegoAux[slot].dimMapa;
+    juego->mapa = malloc(dim * sizeof(Casilla *));
+    for (int i = 0; i < dim; i++) {
+        juego->mapa[i] = malloc(dim * sizeof(Casilla));
+        for (int j = 0; j < dim; j++) {
+            juego->mapa[i][j] = juegoAux[slot].mapa[i][j];
+        }
+    }
+}
