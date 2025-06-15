@@ -261,20 +261,20 @@ void interfazGanado(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font,
     renderizarTexto(font, 16, "Ingrese su nombre:", BB, GS, renderer, margenX, posYtexto += 35);
     rectanguloLlenoAbsoluto(renderer, BB, margenX, posYtexto += 40, 5, 2); // Linea antes del nombre
     char limitador[17] = {0}; // Limito los caracteres por temas visuales
-    snprintf(limitador, 12, "%s", juego->nombreJugador);
+    snprintf(limitador, 12, "%-s", juego->nombreJugador);
     renderizarTexto(font, 20, limitador, BB, GS, renderer, margenX + 15, posYtexto - 12); // Fix Y por como toma esa coordenada
     
     // Renderizar mejores posiciones
     if(juego->totalPuntajes >= 3){
         dibujarAbsoluto(renderer, 24, construirCoronaConColores(corona, GS, AD, DS), margenX, posYtexto+=30, 1);
-        snprintf(limitador, sizeof(limitador), "%05d %-s\n", juego->puntajes[0].puntos, juego->puntajes[0].nombre);
+        snprintf(limitador, sizeof(limitador), "%05d %-s", juego->puntajes[0].puntos, juego->puntajes[0].nombre);
         renderizarTexto(font, 16, limitador, BB, GS, renderer, margenX + 35, posYtexto + 5);
 
         dibujarAbsoluto(renderer, 24, construirCoronaConColores(corona, GS, BB, GA), margenX, posYtexto+=25, 1);
-        snprintf(limitador, sizeof(limitador), "%05d %-s\n", juego->puntajes[1].puntos, juego->puntajes[1].nombre);
+        snprintf(limitador, sizeof(limitador), "%05d %-s", juego->puntajes[1].puntos, juego->puntajes[1].nombre);
         renderizarTexto(font, 16, limitador, BB, GS, renderer, margenX + 35, posYtexto + 5);
         
-        snprintf(limitador, sizeof(limitador), "%05d %-s\n", juego->puntajes[2].puntos, juego->puntajes[2].nombre);
+        snprintf(limitador, sizeof(limitador), "%05d %-s", juego->puntajes[2].puntos, juego->puntajes[2].nombre);
         dibujarAbsoluto(renderer, 24, construirCoronaConColores(corona, GS, BR, BS), margenX, posYtexto+=25, 1);
         renderizarTexto(font, 16, limitador, BB, GS, renderer, margenX + 35, posYtexto + 5);
     }
