@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
     time_t current_time;
 
     // Variable para estados
-    EstadoJuego estado_actual = ESTADO_MENU;
+    EstadoJuego estado_actual = ESTADO_GANADO;
     int seleccion = 0;
 
     // While para mantener el programa corriendo

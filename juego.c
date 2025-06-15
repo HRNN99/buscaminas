@@ -260,9 +260,14 @@ void interfazGanado(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font,
     rectanguloLlenoAbsoluto(renderer, BB, margenX, posYtexto += 40, 5, 2);                           // Linea antes del nombre
     renderizarTexto(font, 20, juego->nombreJugador, BB, GS, renderer, margenX + 15, posYtexto - 12); // Fix Y por como toma esa coordenada
     // Renderizar mejores posiciones
-    renderizarTexto(font, 16, "Pepito 15", BB, GS, renderer, margenX + 20, posYtexto += 30);
-    renderizarTexto(font, 16, "Juan 45", BB, GS, renderer, margenX + 20, posYtexto += 20);
-    renderizarTexto(font, 16, "Rodo 126", BB, GS, renderer, margenX + 20, posYtexto += 20);
+    //dibujar(renderer, 1, restart_button, margenX, posYtexto += 30, 10, 10);
+    int anchoM = dimensionM * PIXELES_X_LADO + 4;
+    dibujarAbsoluto(renderer, 24, construirCoronaConColores(corona, GS, AD, DS), margenX, posYtexto+=30, (anchoM / 2) - 7, pcords->y);
+    renderizarTexto(font, 16, juego->puntajes[0].nombre, BB, GS, renderer, margenX + 35, posYtexto + 5);
+    dibujarAbsoluto(renderer, 24, construirCoronaConColores(corona, GS, BB, GA), margenX, posYtexto+=25, (anchoM / 2) - 7, pcords->y);
+    renderizarTexto(font, 16, juego->puntajes[1].nombre, BB, GS, renderer, margenX + 35, posYtexto + 5);
+    dibujarAbsoluto(renderer, 24, construirCoronaConColores(corona, GS, BR, BS), margenX, posYtexto+=25, (anchoM / 2) - 7, pcords->y);
+    renderizarTexto(font, 16, juego->puntajes[2].nombre, BB, GS, renderer, margenX + 35, posYtexto + 5);
     // Mostrar todo
     SDL_RenderPresent(renderer);
     juego->finPartida = true;
