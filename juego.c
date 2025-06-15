@@ -3,11 +3,6 @@
 #include "estados.h"
 #include "time.h"
 
-int G = 2; // Grosor
-int pad = 8;
-int altoC = 28;
-int anchoM = 144;
-int fontSize = 16;
 void dibujar_menu(Graficos* graficos, const char *menu_items[], const int menu_count, int *seleccion)
 {
 
@@ -192,39 +187,34 @@ void interfaz(Graficos *graficos, Juego *juego, Coord *rbutton)
     rbutton->x = 0;
     rbutton->y = 0;
 
-    int G = 2; // Grosor
-    int pad = G * 4;
-
-    int anchoM = juego->dimMapa * PIXELES_X_LADO + 4;
-    int altoC = 28;
-    int anchoI = anchoM + 16;
-    int altoI = pad + altoC + pad + anchoM + pad;
+    int anchoI = graficos->anchoM + 16;
+    int altoI = graficos->pad*3 + graficos->altoC + graficos->anchoM;
 
     rectanguloLleno(graficos->renderer, GS, graficos->piCord->x, graficos->piCord->y, anchoI, altoI);
 
-    marco(graficos->renderer, graficos->piCord->x, graficos->piCord->y, anchoI, altoI, G); // Exterior
+    marco(graficos->renderer, graficos->piCord->x, graficos->piCord->y, anchoI, altoI, graficos->G); // Exterior
 
-    graficos->piCord->x += pad;
-    graficos->piCord->y += pad;
-    marco(graficos->renderer,graficos->piCord->x, graficos->piCord->y, anchoM, altoC, G); // Puntaje
+    graficos->piCord->x += graficos->pad;
+    graficos->piCord->y += graficos->pad;
+    marco(graficos->renderer,graficos->piCord->x, graficos->piCord->y, graficos->anchoM, graficos->altoC, graficos->G); // Puntaje
 
-    dibujar(graficos->renderer, PIXELES_X_LADO * 2, restart_button, 0, 0, (anchoM / 2) - 7, graficos->piCord->y);
-    rbutton->x = ((anchoM / 2) - 7);
+    dibujar(graficos->renderer, PIXELES_X_LADO * 2, restart_button, 0, 0, (graficos->anchoM / 2) - 7, graficos->piCord->y);
+    rbutton->x = ((graficos->anchoM / 2) - 7);
     rbutton->y = graficos->piCord->y;
 
     graficos->piCord->x += 0;
-    graficos->piCord->y += altoC + pad;
-    marco(graficos->renderer, graficos->piCord->x, graficos->piCord->y, anchoM, anchoM, G); // Mapa
+    graficos->piCord->y += graficos->altoC + graficos->pad;
+    marco(graficos->renderer, graficos->piCord->x, graficos->piCord->y, graficos->anchoM, graficos->anchoM, graficos->G); // Mapa
 
-    graficos->piCord->x += G;
-    graficos->piCord->y += G;
+    graficos->piCord->x += graficos->G;
+    graficos->piCord->y += graficos->G;
 
     int fontSize = 16;
-    renderizarTexto(graficos->font, fontSize, "Tiempo:", GF, GS, graficos->renderer, pad * 3, pad + (altoC / 2));
-    renderizarTexto(graficos->font, fontSize, "Minas:", GF, GS, graficos->renderer, (pad * 3) + anchoM + 22, pad + (altoC / 2));
+    renderizarTexto(graficos->font, fontSize, "Tiempo:", GF, GS, graficos->renderer, graficos->pad * 3, graficos->pad + (graficos->altoC / 2));
+    renderizarTexto(graficos->font, fontSize, "Minas:", GF, GS, graficos->renderer, (graficos->pad * 3) + graficos->anchoM + 22, graficos->pad + (graficos->altoC / 2));
     char bombasEnMapaTexto[21] = "";
     itoa(juego->cantMinasEnInterfaz, bombasEnMapaTexto, 10); // Armado de String a imprimir
-    renderizarTexto(graficos->font, fontSize, bombasEnMapaTexto, GF, GS, graficos->renderer, (pad * 3) + anchoM + 22, pad + (altoC / 2) + fontSize + 4);
+    renderizarTexto(graficos->font, fontSize, bombasEnMapaTexto, GF, GS, graficos->renderer, (graficos->pad * 3) + graficos->anchoM + 22, graficos->pad + (graficos->altoC / 2) + fontSize + 4);
 
 }
 
@@ -236,10 +226,10 @@ void tiempoYbombas(Graficos *graficos, Juego *juego)
     char puntaje[6] = "";
     itoa(juego->puntaje, puntaje, 10); // Armado de String a imprimir
     // Creo un rectangulo por detras de las letras para evitar limpiar el render
-    SDL_Rect rectFondo = {pad * 3, pad + (altoC / 2) + fontSize + 4, 70, 16};
+    SDL_Rect rectFondo = {graficos->pad * 3, graficos->pad + (graficos->altoC / 2) + graficos->fontSize + 4, 70, 16};
     SDL_SetRenderDrawColor(graficos->renderer , colores[GS].r , colores[GS].g , colores[GS].b , colores[GS].a);
     SDL_RenderFillRect(graficos->renderer , &rectFondo);
-    renderizarTexto(graficos->font, fontSize, puntaje, GF, GS, graficos->renderer, pad * 3, pad + (altoC / 2) + fontSize + 4);
+    renderizarTexto(graficos->font, graficos->fontSize, puntaje, GF, GS, graficos->renderer, graficos->pad * 3, graficos->pad + (graficos->altoC / 2) + graficos->fontSize + 4);
 
     // Aumento de puntaje por segundo
     if (!juego->finPartida)

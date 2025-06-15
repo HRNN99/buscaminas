@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
     SDL_Event e;       // Variable para registrar eventos
     int corriendo = 1; // Variable flag true para mantener corriendo el programa
 
-    int boton, renderizarGanado = 0, fontSize = 16, casillasLibresDeMinas = (filas * columnas) - minasEnMapa;
+    int boton, renderizarGanado = 0, casillasLibresDeMinas = (filas * columnas) - minasEnMapa;
     time_t current_time;
 
     // Variable para estados
@@ -113,7 +113,11 @@ int main(int argc, char *argv[])
     graficos.ventana = ventana;
     graficos.renderer = renderer;
     graficos.font = font;
+    graficos.fontSize = 16;
     graficos.piCord = &picords;
+    graficos.G = 2; // Grosor
+    graficos.pad = graficos.G * 4;
+    graficos.altoC = 28;
 
     // While para mantener el programa corriendo
     while (corriendo)
@@ -167,6 +171,7 @@ int main(int argc, char *argv[])
 
                     mapaReiniciar(&juego, filas, columnas, &minasCoord, minasEnMapa);
                     system("cls");
+                    graficos.anchoM = juego.dimMapa * PIXELES_X_LADO + 4;
                     mapaImprimir(juego.mapa, filas, columnas);
                 }
 

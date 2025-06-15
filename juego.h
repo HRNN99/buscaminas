@@ -75,7 +75,11 @@ typedef struct
     SDL_Renderer *renderer;
     SDL_Window *ventana;
     TTF_Font *font;
-
+    int G; // Grosor
+    int pad; // Padding
+    int altoC; // Alto boton reinicio
+    int anchoM; // Ancho mapa
+    int fontSize;
 } Graficos;
 
 typedef struct
