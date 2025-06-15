@@ -219,12 +219,12 @@ void interfaz(SDL_Renderer *renderer, TTF_Font *font, Juego *juego, Coord *pcord
     renderizarTexto(font, fontSize, "Tiempo:", GF, GS, renderer, pad * 3, pad + (altoC / 2));
     char puntaje[21] = "";
     itoa(juego->puntaje, puntaje, 10); // Armado de String a imprimir
-    renderizarTexto(font, fontSize, puntaje, GF, GS, renderer, pad * 3, pad + (altoC / 2) + fontSize + 2);
+    renderizarTexto(font, fontSize, puntaje, GF, GS, renderer, pad * 3, pad + (altoC / 2) + fontSize + 4);
     renderizarTexto(font, fontSize, "Minas:", GF, GS, renderer, (pad * 3) + anchoM + 22, pad + (altoC / 2));
 
     char bombasEnMapaTexto[21] = "";
     itoa(juego->cantMinasEnInterfaz, bombasEnMapaTexto, 10); // Armado de String a imprimir
-    renderizarTexto(font, fontSize, bombasEnMapaTexto, GF, GS, renderer, (pad * 3) + anchoM + 22, pad + (altoC / 2) + fontSize + 2);
+    renderizarTexto(font, fontSize, bombasEnMapaTexto, GF, GS, renderer, (pad * 3) + anchoM + 22, pad + (altoC / 2) + fontSize + 4);
 
     // Aumento de puntaje por segundo
     if (!juego->finPartida)
