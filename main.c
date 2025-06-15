@@ -217,84 +217,92 @@ void manejar_eventos_menu(SDL_Event *e, EstadoJuego *estado_actual, int *selecci
     }
 }
 
-void manejar_eventos_ganado(SDL_Event *e, EstadoJuego *estado_actual, Juego *juego)
-{
+void manejar_eventos_ganado(SDL_Event *e , EstadoJuego *estado_actual, Juego* juego){
 
-    switch (e->type)
-    {
-    case SDL_TEXTINPUT:
-        // Actualizacion de nombreJugador al presionar una tecla
-        if (strlen(juego->nombreJugador) + strlen(e->text.text) < 100)
-        {
-            strcat(juego->nombreJugador, e->text.text);
-        }
-        break;
-    case SDL_KEYDOWN:
-        // Borrado de letra al presionar borrar
-        if (e->key.keysym.sym == SDLK_BACKSPACE && strlen(juego->nombreJugador) > 0)
-            juego->nombreJugador[strlen(juego->nombreJugador) - 1] = '\0';
-        // Guardado de puntaje al presionar Enter
-        if (e->key.keysym.sym == SDLK_RETURN && strlen(juego->nombreJugador) > 0)
-        {
-            SDL_StopTextInput(); // Cierro la lectura de teclado
-            // Abrir archivos
-            FILE *aPuntuacion = abrirArchivo("puntuacion.txt", "rt");
-            if (!aPuntuacion)
-            {
-                // fclose(archivoLog);
-                return ERROR_ARCHIVO;
-            }
-            FILE *aPuntuacionTemp = abrirArchivo("puntuacion.temp", "wt");
-            if (!aPuntuacionTemp)
-            {
-                fclose(aPuntuacion);
-                // fclose(archivoLog);
-                return ERROR_ARCHIVO;
-            }
-            char linea[47];
-            char puntuacion[6];
-            int iterador = 0;
-            int guardado = 0;
-            Puntaje puntaje[MAX_PUNTAJES];
-            // Guardo todos los valores en un array
-            while (iterador < 20 && fgets(linea, sizeof(linea) + 1, aPuntuacion))
-            {
-                char *iniPalabra = linea + 6;
-                strncpy(puntuacion, linea, 5);
-                puntaje[iterador].puntos = atoi(puntuacion);
-                strncpy(puntaje[iterador].nombre, iniPalabra, 39);
-                iterador++;
-            }
-            // Guardo en orden en el archivo temp
-            for (size_t i = 0; i < iterador; i++)
-            {
-                if (!guardado && juego->puntaje < puntaje[i].puntos)
+    switch(e->type){
+            case SDL_TEXTINPUT:
+                // Actualizacion de nombreJugador al presionar una tecla
+                if (strlen(juego->nombreJugador) + strlen(e->text.text) <= 40)
                 {
-                    fprintf(aPuntuacionTemp, "%05d %-40s\n", juego->puntaje, juego->nombreJugador);
-                    guardado = 1;
+                    strcat(juego->nombreJugador, e->text.text);
                 }
-                fprintf(aPuntuacionTemp, "%05d %-40s\n", puntaje[i].puntos, puntaje[i].nombre);
-            }
-            guardado = 0;
-            fclose(aPuntuacion);
-            fclose(aPuntuacionTemp);
-            *estado_actual = ESTADO_JUGANDO;
+                break;
+            case SDL_KEYDOWN:
+                // Borrado de letra al presionar borrar
+                if (e->key.keysym.sym == SDLK_BACKSPACE && strlen(juego->nombreJugador) > 0)
+                    juego->nombreJugador[strlen(juego->nombreJugador) - 1] = '\0';
+                // Guardado de puntaje al presionar Enter
+                if (e->key.keysym.sym == SDLK_RETURN && strlen(juego->nombreJugador) > 0)
+                {
+                    SDL_StopTextInput(); //Cierro la lectura de teclado
+                    // Abrir archivos
+                    FILE* aPuntuacion = abrirArchivo("puntuacion.txt", "rt");
+                    if (!aPuntuacion) {
+                        //fclose(archivoLog);
+                        return ERROR_ARCHIVO;
+                    }
+                    FILE* aPuntuacionTemp = abrirArchivo("puntuacion.temp", "wt");
+                    if (!aPuntuacionTemp) {
+                        fclose(aPuntuacion);
+                        //fclose(archivoLog);
+                        return ERROR_ARCHIVO;
+                    }
+                    char linea[47];
+                    int total = 0;
+                    Puntaje puntajes[MAX_PUNTAJES];
 
-            // Elimino puntuacion
-            if (remove("puntuacion.txt") != 0)
-            {
-                perror("Error al eliminar el archivo fuente");
-                return ERROR_ELIMINACION_ARCHIVO;
-            }
-            // Renombro archivo temporal
-            if (rename("puntuacion.temp", "puntuacion.txt") != 0)
-            {
-                perror("Error renombrando puntuacion.temp");
-                printf("Error: %d\n", errno);
-                return ERROR_RENOMBRE_ARCHIVO;
-            }
-        }
-        break;
+                    // Guardo los puntajes en array
+                    while (fgets(linea, sizeof(linea)+1, aPuntuacion) && total < MAX_PUNTAJES) {
+                        strncpy(puntajes[total].nombre, linea + 6, 40); // +6 por el formato del archivo, 5 de tiempo y 1 de espacio
+                        puntajes[total].nombre[39] = '\0';
+                        puntajes[total].puntos = atoi(linea);
+                        total++;
+                    }
+
+                    // Preparar el nuevo puntaje
+                    Puntaje nuevo;
+                    strncpy(nuevo.nombre, juego->nombreJugador, 40);
+                    nuevo.puntos = juego->puntaje;
+
+                    int i = total - 1; // Para que la primera iteracion no se haga
+
+                    if(i + 1 == MAX_PUNTAJES)
+                        i--;
+
+                    // Si el tiempo nuevo es menor al ultimo registro itera hacia arriba desplazando los registros hacia abajo
+                    while (i >= 0 && puntajes[i].puntos > nuevo.puntos) {
+                        puntajes[i + 1] = puntajes[i];
+                        i--;
+                    }
+
+                    // Insertar nuevo puntaje en posición
+                    puntajes[i + 1] = nuevo;
+                    if(total != MAX_PUNTAJES)
+                        total++;
+
+                    // Escribir los puntajes al archivo temporal
+                    for (int i = 0; i < total && i < MAX_PUNTAJES; i++) {
+                        fprintf(aPuntuacionTemp, "%05d %-40s\n", puntajes[i].puntos, puntajes[i].nombre);
+                    }
+
+                    fclose(aPuntuacion);
+                    fclose(aPuntuacionTemp);
+                    *estado_actual = ESTADO_JUGANDO;
+
+                    // Elimino puntuacion
+                    if (remove("puntuacion.txt") != 0) {
+                        perror("Error al eliminar el archivo fuente");
+                        return ERROR_ELIMINACION_ARCHIVO;
+                    }
+                    // Renombro archivo temporal
+                    if (rename("puntuacion.temp", "puntuacion.txt") != 0)
+                    {
+                        perror("Error renombrando puntuacion.temp");
+                        printf("Error: %d\n", errno);
+                        return ERROR_RENOMBRE_ARCHIVO;
+                    }
+                }
+                break;
     }
 }
 
@@ -325,7 +333,6 @@ void manejar_eventos_juego(SDL_Event *e, EstadoJuego *estado_actual, Juego *jueg
             {
 
                 handlerClick = clickDoble;
-
                 Uint32 tiempoDeEspera = SDL_GetTicks() + 100;
                 while (SDL_GetTicks() < tiempoDeEspera)
                 {
