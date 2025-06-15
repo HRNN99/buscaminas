@@ -162,8 +162,6 @@ int renderizarTexto(TTF_Font *font, int size, const char *texto, int colorTexto,
     SDL_Surface *textSurface = TTF_RenderText_Solid(font, texto, sdlColor);
     SDL_Texture *textTexture = SDL_CreateTextureFromSurface(render, textSurface);
 
-    SDL_SetRenderDrawColor(render , colores[colorFondo].r , colores[colorFondo].g , colores[colorFondo].b , colores[colorFondo].a);
-
     // Escribo el texto
     SDL_Rect textRect = {x, y, textSurface->w, textSurface->h};
     SDL_RenderCopy(render, textTexture, NULL, &textRect);

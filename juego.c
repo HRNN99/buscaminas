@@ -4,13 +4,11 @@
 #include "sonido.h"
 #include "time.h"
 
-void dibujar_menu(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, const char *menu_items[], const int menu_count, int *seleccion){
 
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderClear(renderer);
-
-    int win_width, win_height;
-    SDL_GetWindowSize(ventana, &win_width, &win_height);
+void dibujar_menu(Graficos* graficos, const char *menu_items[], const int menu_count, int *seleccion)
+{
+    SDL_SetRenderDrawColor(graficos->renderer, 0, 0, 0, 255);
+    SDL_RenderClear(graficos->renderer);
 
     int base_y = 50;
     int espacio = 50;
@@ -18,10 +16,10 @@ void dibujar_menu(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, c
     for (int i = 0; i < menu_count; i++){
 
         int text_width, text_height;
-        TTF_SizeText(font, menu_items[i], &text_width, &text_height);
+        TTF_SizeText(graficos->font, menu_items[i], &text_width, &text_height);
 
         SDL_Rect fondo;
-        fondo.x = (win_width - text_width) / 2;
+        fondo.x = (graficos->tamXVentana - text_width) / 2;
         fondo.y = base_y + i * espacio;
         fondo.w = text_width;
         fondo.h = text_height;
@@ -32,19 +30,19 @@ void dibujar_menu(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, c
         SDL_Color colorFondo = (i == *seleccion) ? (SDL_Color){255, 100, 255, 255} : (SDL_Color){100, 100, 100, 255};
 
         // Se crea una superficie de texto con el texto contenido en el menu[i]
-        SDL_Surface *surface = TTF_RenderText_Solid(font, menu_items[i], colorTexto);
+        SDL_Surface *surface = TTF_RenderText_Solid(graficos->font, menu_items[i], colorTexto);
         // Convierte la superficie en una textura para poder ser renderizada
-        SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+        SDL_Texture *texture = SDL_CreateTextureFromSurface(graficos->renderer, surface);
 
         // Se establece el color de dibujado usando color de fondo
-        SDL_SetRenderDrawColor(renderer, colorFondo.r, colorFondo.g, colorFondo.b, colorFondo.a);
+        SDL_SetRenderDrawColor(graficos->renderer, colorFondo.r, colorFondo.g, colorFondo.b, colorFondo.a);
         // Se dibuja el rectangulo lleno en el render
-        SDL_RenderFillRect(renderer, &fondo);
+        SDL_RenderFillRect(graficos->renderer, &fondo);
 
         // Calcula automaticamente el ancho y alto de texto renderizado, y actualiza valores de menu.rect
         SDL_QueryTexture(texture, NULL, NULL, &fondo.w, &fondo.h);
         // Se dibuja el texto en el render
-        SDL_RenderCopy(renderer, texture, NULL, &fondo);
+        SDL_RenderCopy(graficos->renderer, texture, NULL, &fondo);
 
         // Se liberan variables temporales
         SDL_FreeSurface(surface);
@@ -174,51 +172,57 @@ void fondoColor(SDL_Renderer *renderer){
     SDL_RenderPresent(renderer);                    // Aplicacion
 }
 
-void interfaz(SDL_Renderer *renderer , TTF_Font* font , Juego *juego , Coord *pcords , Coord *rbutton){
-
-    pcords->x = 0;
-    pcords->y = 0;
+void interfaz(Graficos *graficos, Juego *juego, Coord *rbutton)
+{
+    graficos->piCord->x = 0;
+    graficos->piCord->y = 0;
     rbutton->x = 0;
     rbutton->y = 0;
 
-    int G = 2; // Grosor
-    int pad = G * 4;
+    int anchoI = graficos->anchoM + 16;
+    int altoI = graficos->pad*3 + graficos->altoC + graficos->anchoM;
 
-    int anchoM = juego->dificultad.dimension * PIXELES_X_LADO + 4;
-    int altoC = 28;
-    int anchoI = anchoM + 16;
-    int altoI = pad + altoC + pad + anchoM + pad;
 
-    rectanguloLleno(renderer, GS, pcords->x, pcords->y, anchoI, altoI);
+    rectanguloLleno(graficos->renderer, GS, graficos->piCord->x, graficos->piCord->y, anchoI, altoI);
+    marco(graficos->renderer, graficos->piCord->x, graficos->piCord->y, anchoI, altoI, graficos->G); // Exterior
 
-    marco(renderer, pcords->x, pcords->y, anchoI, altoI, G); // Exterior
+    graficos->piCord->x += graficos->pad;
+    graficos->piCord->y += graficos->pad;
+    marco(graficos->renderer,graficos->piCord->x, graficos->piCord->y, graficos->anchoM, graficos->altoC, graficos->G); // Puntaje
 
-    pcords->x += pad;
-    pcords->y += pad;
-    marco(renderer, pcords->x, pcords->y, anchoM, altoC, G); // Puntaje
+    dibujar(graficos->renderer, PIXELES_X_LADO * 2, restart_button, 0, 0, (graficos->anchoM / 2) - 7, graficos->piCord->y);
+    rbutton->x = ((graficos->anchoM / 2) - 7);
+    rbutton->y = graficos->piCord->y;
 
-    dibujar(renderer, PIXELES_X_LADO * 2, restart_button, 0, 0, (anchoM / 2) - 7, pcords->y);
-    rbutton->x = ((anchoM / 2) - 7);
-    rbutton->y = pcords->y;
+    graficos->piCord->x += 0;
+    graficos->piCord->y += graficos->altoC + graficos->pad;
+    marco(graficos->renderer, graficos->piCord->x, graficos->piCord->y, graficos->anchoM, graficos->anchoM, graficos->G); // Mapa
 
-    pcords->x += 0;
-    pcords->y += altoC + pad;
-    marco(renderer, pcords->x, pcords->y, anchoM, anchoM, G); // Mapa
+    graficos->piCord->x += graficos->G;
+    graficos->piCord->y += graficos->G;
 
-    pcords->x += G;
-    pcords->y += G;
-
-    // Puntaje y bombas
     int fontSize = 16;
-    renderizarTexto(font, fontSize, "Tiempo:", GF, GS, renderer, pad * 3, pad + (altoC / 2));
-    char puntaje[21] = "";
-    itoa(juego->puntaje, puntaje, 10); // Armado de String a imprimir
-    renderizarTexto(font, fontSize, puntaje, GF, GS, renderer, pad * 3, pad + (altoC / 2) + fontSize + 4);
-    renderizarTexto(font, fontSize, "Minas:", GF, GS, renderer, (pad * 3) + anchoM + 22, pad + (altoC / 2));
-
+    renderizarTexto(graficos->font, fontSize, "Tiempo:", GF, GS, graficos->renderer, graficos->pad * 3, graficos->pad + (graficos->altoC / 2));
+    renderizarTexto(graficos->font, fontSize, "Minas:", GF, GS, graficos->renderer, (graficos->pad * 3) + graficos->anchoM + 22, graficos->pad + (graficos->altoC / 2));
     char bombasEnMapaTexto[21] = "";
-    itoa(juego->dificultad.cantidad_minas , bombasEnMapaTexto, 10); // Armado de String a imprimir
-    renderizarTexto(font, fontSize, bombasEnMapaTexto, GF, GS, renderer, (pad * 3) + anchoM + 22, pad + (altoC / 2) + fontSize + 4);
+
+    itoa(juego->dificultad.cantidad_minas, bombasEnMapaTexto, 10); // Armado de String a imprimir
+    renderizarTexto(graficos->font, fontSize, bombasEnMapaTexto, GF, GS, graficos->renderer, (graficos->pad * 3) + graficos->anchoM + 22, graficos->pad + (graficos->altoC / 2) + fontSize + 4);
+
+}
+
+// TODO: agilizar esta funcion. Se ejeccuta todo le juego
+void tiempoYbombas(Graficos *graficos, Juego *juego)
+{
+
+    // Renderizado de tiempo
+    char puntaje[6] = "";
+    itoa(juego->puntaje, puntaje, 10); // Armado de String a imprimir
+    // Creo un rectangulo por detras de las letras para evitar limpiar el render
+    SDL_Rect rectFondo = {graficos->pad * 3, graficos->pad + (graficos->altoC / 2) + graficos->fontSize + 4, 70, 16};
+    SDL_SetRenderDrawColor(graficos->renderer , colores[GS].r , colores[GS].g , colores[GS].b , colores[GS].a);
+    SDL_RenderFillRect(graficos->renderer , &rectFondo);
+    renderizarTexto(graficos->font, graficos->fontSize, puntaje, GF, GS, graficos->renderer, graficos->pad * 3, graficos->pad + (graficos->altoC / 2) + graficos->fontSize + 4);
 
     // Aumento de puntaje por segundo
     if (!juego->finPartida)
@@ -228,55 +232,55 @@ void interfaz(SDL_Renderer *renderer , TTF_Font* font , Juego *juego , Coord *pc
     }
 }
 
-void interfazGanado(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, Juego *juego, Coord *pcords, int dimensionM, Coord *rbutton)
+void interfazGanado(Graficos *graficos, Juego *juego)
 {
-    int win_width, win_height;
-    SDL_GetWindowSize(ventana, &win_width, &win_height);
-
     // Ventana
-    pcords->x = (win_width / 2) - (TAMX_GANADO / 2);
-    pcords->y = (win_height / 2) - (TAMY_GANADO / 2);
-    rectanguloLlenoAbsoluto(renderer, GS, pcords->x, pcords->y, TAMX_GANADO, TAMY_GANADO);
-    marcoInvertido(renderer, pcords->x, pcords->y, (TAMX_GANADO), (TAMY_GANADO), 4);
+    graficos->piCord->x = (graficos->tamXVentana / 2) - (TAMX_GANADO / 2);
+    graficos->piCord->y = (graficos->tamYVentana / 2) - (TAMY_GANADO / 2);
+
+    rectanguloLlenoAbsoluto(graficos->renderer, GS, graficos->piCord->x, graficos->piCord->y, TAMX_GANADO, TAMY_GANADO);
+    marcoInvertido(graficos->renderer, graficos->piCord->x, graficos->piCord->y, (TAMX_GANADO), (TAMY_GANADO), 4);
     // Boton cerrar ventana
-    dibujarAbsoluto(renderer, 20, close_button, (win_width / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12 + 5, pcords->y + 15 + 4 + 5, 1);
-    marcoInvertido(renderer, (win_width / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12, pcords->y + 15 + 4, TAM_BOTON_CERRADO, TAM_BOTON_CERRADO, 4);
+
+    dibujarAbsoluto(graficos->renderer, 20, close_button, (graficos->tamXVentana / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12 + 5, graficos->piCord->y + 15 + 4 + 5, 1);
+    marcoInvertido(graficos->renderer, (graficos->tamXVentana / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12, graficos->piCord->y + 15 + 4, TAM_BOTON_CERRADO, TAM_BOTON_CERRADO, 4);
 
     char textoPuntaje[21] = "Tiempo: ";
     char puntajeChar[12];
     strcat(textoPuntaje, itoa(juego->puntaje, puntajeChar, 10)); // Armado de String a imprimir
-    int posYtexto = pcords->y + 20;
-    int margenX = pcords->x + 20;
+    int posYtexto = graficos->piCord->y + 20;
+    int margenX = graficos->piCord->x + 20;
 
-    renderizarTexto(font, 30, "Ganaste!", BB, GS, renderer, margenX, posYtexto);
-    renderizarTexto(font, 24, textoPuntaje, BB, GS, renderer, margenX, posYtexto += 45);
+    renderizarTexto(graficos->font, 30, "Ganaste!", BB, GS, graficos->renderer, margenX, posYtexto);
+    renderizarTexto(graficos->font, 24, textoPuntaje, BB, GS, graficos->renderer, margenX, posYtexto += 45);
 
-    renderizarTexto(font, 16, "Ingrese su nombre:", BB, GS, renderer, margenX, posYtexto += 35);
-    rectanguloLlenoAbsoluto(renderer, BB, margenX, posYtexto += 40, 5, 2); // Linea antes del nombre
+    renderizarTexto(graficos->font, 16, "Ingrese su nombre:", BB, GS, graficos->renderer, margenX, posYtexto += 35);
+    rectanguloLlenoAbsoluto(graficos->renderer, BB, margenX, posYtexto += 40, 5, 2); // Linea antes del nombre
     char limitador[17] = {0}; // Limito los caracteres por temas visuales
     snprintf(limitador, 12, "%-s", juego->nombreJugador);
-    renderizarTexto(font, 20, limitador, BB, GS, renderer, margenX + 15, posYtexto - 12); // Fix Y por como toma esa coordenada
+
+    renderizarTexto(graficos->font, 20, juego->nombreJugador, BB, GS, graficos->renderer, margenX + 15, posYtexto - 12); // Fix Y por como toma esa coordenada
 
     // Renderizar mejores posiciones
     if(juego->totalPuntajes >= 3){
-        dibujarAbsoluto(renderer, 24, construirCoronaConColores(corona, GS, AD, DS), margenX, posYtexto+=30, 1);
+        dibujarAbsoluto(graficos->renderer, 24, construirCoronaConColores(corona, GS, AD, DS), margenX, posYtexto+=30, 1);
         snprintf(limitador, sizeof(limitador), "%05d %-s", juego->puntajes[0].puntos, juego->puntajes[0].nombre);
-        renderizarTexto(font, 16, limitador, BB, GS, renderer, margenX + 35, posYtexto + 5);
+        renderizarTexto(graficos->font, 16, limitador, BB, GS, graficos->renderer, margenX + 35, posYtexto + 5);
 
-        dibujarAbsoluto(renderer, 24, construirCoronaConColores(corona, GS, BB, GA), margenX, posYtexto+=25, 1);
+        dibujarAbsoluto(graficos->renderer, 24, construirCoronaConColores(corona, GS, BB, GA), margenX, posYtexto+=25, 1);
         snprintf(limitador, sizeof(limitador), "%05d %-s", juego->puntajes[1].puntos, juego->puntajes[1].nombre);
-        renderizarTexto(font, 16, limitador, BB, GS, renderer, margenX + 35, posYtexto + 5);
+        renderizarTexto(graficos->font, 16, limitador, BB, GS, graficos->renderer, margenX + 35, posYtexto + 5);
 
         snprintf(limitador, sizeof(limitador), "%05d %-s", juego->puntajes[2].puntos, juego->puntajes[2].nombre);
-        dibujarAbsoluto(renderer, 24, construirCoronaConColores(corona, GS, BR, BS), margenX, posYtexto+=25, 1);
-        renderizarTexto(font, 16, limitador, BB, GS, renderer, margenX + 35, posYtexto + 5);
+        dibujarAbsoluto(graficos->renderer, 24, construirCoronaConColores(corona, GS, BR, BS), margenX, posYtexto+=25, 1);
+        renderizarTexto(graficos->font, 16, limitador, BB, GS, graficos->renderer, margenX + 35, posYtexto + 5);
     }
     // Mostrar todo
-    SDL_RenderPresent(renderer);
+    SDL_RenderPresent(graficos->renderer);
     juego->finPartida = true;
 }
 
-void mapaReiniciar(SDL_Renderer *renderer , Coord *pcord , Juego *juego){
+void mapaReiniciar(SDL_Renderer *renderer, Juego *juego){
 
     juego->iniciado = true;
     Casilla **mapa = juego->mapa;
@@ -496,13 +500,17 @@ void handlerClickIzquierdo(Juego *juego , Sonido *sonidos , int x , int y){
 
     printf("Hiciste click en la casilla (%i , %i)\n", x, y);
     casillaEstado(juego , sonidos , x , y , false);
-    juego->mapa[y][x].estado == -1 ? Mix_PlayChannel(-1, sonidos->sonidoMina, 0)
-    : juego->mapa[y][x].estadoBandera == 0 ? Mix_PlayChannel(-1, sonidos->sonidoClick, 0): NULL; // Reproduce sonido de mina si se presiona una mina
+    if(juego->mapa[y][x].estado == -1)
+         Mix_PlayChannel(-1, sonidos->sonidoMina, 0);
+    else if(juego->mapa[y][x].estadoBandera == 0){
+        Mix_PlayChannel(-1, sonidos->sonidoClick, 0); // Reproduce sonido de mina si se presiona una mina
+    }
 }
 
 void handlerClickDerecho(Juego *juego , Sonido *sonidos , int x , int y){
 
     printf("Hiciste click derecho en la casilla (%i , %i), colocando bandera\n", x, y);
     casillaBandera(juego , x , y);
-    juego->mapa[y][x].presionada == 0 ? Mix_PlayChannel(-1, sonidos->sonidoBandera, 0): NULL;
+    if(juego->mapa[y][x].presionada == 0)
+        Mix_PlayChannel(-1, sonidos->sonidoBandera, 0);
 }

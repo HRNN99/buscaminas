@@ -29,6 +29,8 @@
 #define RO 16//Rojo obscuro
 #define CI 17//Cian
 
+SDL_Color colores[15];
+
 void dibujar(SDL_Renderer *renderer , int pixeles , const int dibujo[][pixeles] , int gX , int gY , int pXi , int pYi);
 void dibujarAbsoluto(SDL_Renderer *renderer , int pixeles , const int dibujo[][pixeles] , int gX , int gY , int escala);
 void rectanguloLleno(SDL_Renderer *renderer , int color , const int gX , const int gY , int W , int H);

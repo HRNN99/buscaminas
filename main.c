@@ -98,6 +98,7 @@ int main(int argc, char *argv[]){
     Juego juego;
     juego.mapa = NULL;
     juego.iniciado = false;
+    juego.senialRender = 1;
 
     // Inicializar el juego
     juego.puntaje = 0;
@@ -135,15 +136,25 @@ int main(int argc, char *argv[]){
     Coord picords = {0,0};
     Coord rbutton = {0,0};
 
-    int renderizarGanado = 0 , fontSize = 16; // casillasLibresDeMinas = (filas * columnas) - minasEnMapa;
-    time_t current_time;
-
     int corriendo = true; // Variable flag true para mantener corriendo el programa
     SDL_Event e; // Variable para registrar eventos
     EstadoJuego estado_actual = ESTADO_MENU; //Variable para estados
     iniciarMusicaMenu(&sonidos.musicaMenu);
 
     //////////////////////////////////////////////////////////////////////
+
+    // Creacion de struct para reducir parametros en funciones comunes
+    Graficos graficos;
+    graficos.ventana = ventana;
+    graficos.renderer = renderer;
+    graficos.font = font;
+    graficos.fontSize = 16;
+    graficos.piCord = &picords;
+    graficos.G = 2; // Grosor
+    graficos.pad = graficos.G * 4;
+    graficos.altoC = 28;
+    graficos.tamXVentana = TAMX;
+    graficos.tamYVentana = TAMY;
 
     // While para mantener el programa corriendo
     while (corriendo){
@@ -161,11 +172,13 @@ int main(int argc, char *argv[]){
 
             switch(estado_actual){
                 case ESTADO_MENU:
+                    juego.senialRender=1;
                     manejar_eventos_menu(&e , &estado_actual , &seleccion_menu , menu_count , &sonidos);
                     break;
 
                 case ESTADO_DIFICULTAD:
-                    manejar_eventos_dificultad(&e , &estado_actual , &seleccion_dificultad , dificultad_count , &juego , dificultades , ventana);
+                    juego.senialRender=1;
+                    manejar_eventos_dificultad(&graficos, &e , &estado_actual , &seleccion_dificultad , dificultad_count , &juego , dificultades , ventana);
                     break;
 
                 case ESTADO_JUGANDO:
@@ -173,8 +186,6 @@ int main(int argc, char *argv[]){
                     break;
 
                 case ESTADO_GANADO:
-                    if (e.type == SDL_MOUSEBUTTONDOWN)
-                    printf("Hiciste click en el pixel (%i , %i)\n", e.button.x, e.button.y);
                     manejar_eventos_ganado(&e, &estado_actual, &juego);
                     break;
 
@@ -183,47 +194,50 @@ int main(int argc, char *argv[]){
                     matrizDestruir(juego.mapa , juego.dificultad.dimension);
                     printf("\nSaliendo...\n");
                     break;
+                default: break;
             }
         }
 
         //////////////////////////////////////////////////////////////////////
+        if(!(estado_actual == ESTADO_GANADO) && (estado_actual==ESTADO_JUGANDO))
+            tiempoYbombas(&graficos, &juego);
 
         //SDL_RenderClear(renderer);
+        if(juego.senialRender){
+            switch(estado_actual){
 
-        switch(estado_actual){
+                case ESTADO_MENU:
+                    dibujar_menu(&graficos, menu_items, menu_count, &seleccion_menu);
+                    juego.senialRender=0;
+                    break;
 
-            case ESTADO_MENU:
+                case ESTADO_DIFICULTAD:
+                    dibujar_menu(&graficos, dificultad_items , dificultad_count , &seleccion_dificultad);
+                    juego.senialRender=0;
+                    break;
 
-                dibujar_menu(renderer , ventana , font , menu_items , menu_count , &seleccion_menu);
-                break;
+                case ESTADO_JUGANDO:
 
-            case ESTADO_DIFICULTAD:
+                    if(!juego.iniciado){
 
-                dibujar_menu(renderer , ventana , font , dificultad_items , dificultad_count , &seleccion_dificultad);
-                break;
+                        mapaReiniciar(renderer, &juego);
+                        system("cls");
+                        graficos.anchoM = juego.dificultad.dimension * PIXELES_X_LADO + 4;
+                        mapaImprimir(juego.mapa , juego.dificultad.dimension , juego.dificultad.dimension);
 
-            case ESTADO_JUGANDO:
+                    }
+                    interfaz(&graficos, &juego, &rbutton);
+                    casillaColocacion(renderer, juego.mapa , juego.dificultad.dimension , &picords);
+                    juego.senialRender=0;
+                    break;
 
-                interfaz(renderer , font , &juego , &picords , &rbutton);
-
-                if(!juego.iniciado){
-
-                    mapaReiniciar(renderer , &picords , &juego);
-                    system("cls");
-                    mapaImprimir(juego.mapa , juego.dificultad.dimension , juego.dificultad.dimension);
-
-                }
-
-                casillaColocacion(renderer , juego.mapa , juego.dificultad.dimension , &picords);
-                break;
-
-            case ESTADO_GANADO:
-
-                interfazGanado(renderer , ventana , font , &juego , &picords , juego.dificultad.dimension , &rbutton);
-                break;
-
+                case ESTADO_GANADO:
+                    interfazGanado(&graficos, &juego);
+                    juego.senialRender=0;
+                    break;
+                default: break;
+            }
         }
-
         //////////////////////////////////////////////////////////////////////
 
         SDL_RenderPresent(renderer);
@@ -241,7 +255,7 @@ int main(int argc, char *argv[]){
 
 //////////////////////////////////////////////////////////////////////
 
-void manejar_eventos_menu(SDL_Event *e , EstadoJuego *estado_actual, int* seleccion , const int items_count , Sonido* sonidos){
+int manejar_eventos_menu(SDL_Event *e , EstadoJuego *estado_actual, int* seleccion , const int items_count , Sonido* sonidos){
 
     switch (e->type){
 
@@ -280,9 +294,10 @@ void manejar_eventos_menu(SDL_Event *e , EstadoJuego *estado_actual, int* selecc
             }
             break;
     }
+    return 0;
 }
 
-void manejar_eventos_dificultad(SDL_Event *e , EstadoJuego *estado_actual, int* seleccion , const int items_count , Juego* juego , Dificultad* difs , SDL_Window* ventana){
+int manejar_eventos_dificultad(Graficos *graficos, SDL_Event *e , EstadoJuego *estado_actual, int* seleccion , const int items_count , Juego* juego , Dificultad* difs , SDL_Window* ventana){
 
     switch(e->type){
 
@@ -306,10 +321,12 @@ void manejar_eventos_dificultad(SDL_Event *e , EstadoJuego *estado_actual, int* 
                             juego->dificultad.dimension = difs[0].dimension;
                             juego->dificultad.cantidad_minas = difs[0].cantidad_minas;
 
-                            juego->mapa = matrizCrear(juego->dificultad.dimension , juego->dificultad.dimension , sizeof(Casilla)); //Mover a otro lado despues
-                            juego->minasCoord = matrizCrear(juego->dificultad.cantidad_minas , 0 , sizeof(Coord));
+                            juego->mapa = (Casilla**)matrizCrear(juego->dificultad.dimension , juego->dificultad.dimension , sizeof(Casilla)); //Mover a otro lado despues
+                            juego->minasCoord = (Coord *)matrizCrear(juego->dificultad.cantidad_minas , 0 , sizeof(Coord));
                             *estado_actual = ESTADO_JUGANDO;
-                            SDL_SetWindowSize(ventana , TAM_PIXEL * (difs[0].dimension * PIXELES_X_LADO + 20) , TAM_PIXEL * (difs[0].dimension * PIXELES_X_LADO + 4 + 3*8 + 28));
+                            graficos->tamXVentana = TAM_PIXEL * (difs[0].dimension * PIXELES_X_LADO + 20);
+                            graficos->tamYVentana = TAM_PIXEL * (difs[0].dimension * PIXELES_X_LADO + 4 + 3*8 + 28);
+                            SDL_SetWindowSize(ventana, graficos->tamXVentana, graficos->tamYVentana);
                             break;
 
                         case 1:
@@ -317,10 +334,12 @@ void manejar_eventos_dificultad(SDL_Event *e , EstadoJuego *estado_actual, int* 
                             juego->dificultad.dimension = difs[1].dimension;
                             juego->dificultad.cantidad_minas = difs[1].cantidad_minas;
 
-                            juego->mapa = matrizCrear(juego->dificultad.dimension , juego->dificultad.dimension , sizeof(Casilla));
-                            juego->minasCoord = matrizCrear(juego->dificultad.cantidad_minas , 0 , sizeof(Coord));
+                            juego->mapa = (Casilla**)matrizCrear(juego->dificultad.dimension , juego->dificultad.dimension , sizeof(Casilla*));
+                            juego->minasCoord = (Coord *)matrizCrear(juego->dificultad.cantidad_minas , 0 , sizeof(Coord));
                             *estado_actual = ESTADO_JUGANDO;
-                            SDL_SetWindowSize(ventana , TAM_PIXEL * (difs[1].dimension * PIXELES_X_LADO + 20) , TAM_PIXEL * (difs[1].dimension * PIXELES_X_LADO + 4 + 3*8 + 28));
+                            graficos->tamXVentana = TAM_PIXEL * (difs[1].dimension * PIXELES_X_LADO + 20);
+                            graficos->tamYVentana = TAM_PIXEL * (difs[1].dimension * PIXELES_X_LADO + 4 + 3*8 + 28);
+                            SDL_SetWindowSize(ventana, graficos->tamXVentana, graficos->tamYVentana);
                             break;
 
                         case 2:
@@ -328,19 +347,22 @@ void manejar_eventos_dificultad(SDL_Event *e , EstadoJuego *estado_actual, int* 
                             juego->dificultad.dimension = difs[2].dimension;
                             juego->dificultad.cantidad_minas = difs[2].cantidad_minas;
 
-                            juego->mapa = matrizCrear(juego->dificultad.dimension , juego->dificultad.dimension , sizeof(Casilla));
-                            juego->minasCoord = matrizCrear(juego->dificultad.cantidad_minas , 0 , sizeof(Coord));
+                            juego->mapa = (Casilla**)matrizCrear(juego->dificultad.dimension , juego->dificultad.dimension , sizeof(Casilla));
+                            juego->minasCoord = (Coord *)matrizCrear(juego->dificultad.cantidad_minas , 0 , sizeof(Coord));
                             *estado_actual = ESTADO_JUGANDO;
-                            SDL_SetWindowSize(ventana , TAM_PIXEL * (difs[2].dimension * PIXELES_X_LADO + 20) , TAM_PIXEL * (difs[2].dimension * PIXELES_X_LADO + 4 + 3*8 + 28));
+                            graficos->tamXVentana = TAM_PIXEL * (difs[2].dimension * PIXELES_X_LADO + 20);
+                            graficos->tamYVentana = TAM_PIXEL * (difs[2].dimension * PIXELES_X_LADO + 4 + 3*8 + 28);
+                            SDL_SetWindowSize(ventana, graficos->tamXVentana, graficos->tamYVentana);
                             break;
                     }
                     break;
             }
             break;
     }
+    return 0;
 }
 
-void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* juego , Coord* picords , Coord* rbutton , Sonido* sonidos){
+int manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* juego , Coord* picords , Coord* rbutton , Sonido* sonidos){
 
     Casilla **mapa = juego->mapa;
 
@@ -349,6 +371,7 @@ void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* ju
     int casillasLibresDeMinas = (juego->dificultad.dimension * juego->dificultad.dimension) - juego->dificultad.cantidad_minas;
 
     if (e->type == SDL_MOUSEBUTTONDOWN){
+        juego->senialRender=1;
 
         int boton = e->button.button; // guardado del boton anterior antes de nuevo evento
         EventoClick handlerClick;
@@ -370,7 +393,7 @@ void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* ju
 
                     if (SDL_PollEvent(e) && e->type == SDL_MOUSEBUTTONDOWN && e->button.button != boton){
 
-                        handlerClick(juego , sonidos , xG , yG , juego->minasCoord , juego->dificultad.cantidad_minas);
+                        handlerClick(juego , sonidos , xG , yG);
                         continue;
                     }
 
@@ -381,7 +404,7 @@ void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* ju
             else{
 
                 handlerClick = (boton == SDL_BUTTON_LEFT) ? handlerClickIzquierdo : handlerClickDerecho;
-                handlerClick(juego , sonidos , xG , yG , juego->minasCoord , juego->dificultad.cantidad_minas);
+                handlerClick(juego , sonidos , xG , yG);
 
                 if (juego->cantCasillasPresionadas == casillasLibresDeMinas){
 
@@ -393,9 +416,10 @@ void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* ju
             }
         }
     }
+    return 0;
 }
 
-void manejar_eventos_ganado(SDL_Event *e , EstadoJuego *estado_actual , Juego* juego){
+int manejar_eventos_ganado(SDL_Event *e , EstadoJuego *estado_actual , Juego* juego){
 
     int TAMX = TAM_PIXEL * (juego->dificultad.dimension * PIXELES_X_LADO + 20);
     int TAMY = TAM_PIXEL * (juego->dificultad.dimension * PIXELES_X_LADO + 4 + 3 * 8 + 28);
@@ -406,6 +430,7 @@ void manejar_eventos_ganado(SDL_Event *e , EstadoJuego *estado_actual , Juego* j
 
     switch(e->type){
             case SDL_MOUSEBUTTONDOWN:
+                juego->senialRender=1;
                 if ((x <= e->button.x && e->button.x <= (x + 30)) &&
                     (y <= e->button.y && e->button.y <= (y + 30)) &&
                     (e->button.button == SDL_BUTTON_LEFT))
@@ -415,6 +440,7 @@ void manejar_eventos_ganado(SDL_Event *e , EstadoJuego *estado_actual , Juego* j
                 //rectanguloLlenoAbsoluto(renderer, RR, (win_width / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12, pcords->y + 15 + 4, TAM_BOTON_CERRADO, TAM_BOTON_CERRADO);
                 break;
             case SDL_TEXTINPUT:
+                juego->senialRender=1;
                 // Actualizacion de nombreJugador al presionar una tecla
                 if (strlen(juego->nombreJugador) + strlen(e->text.text) <= 40)
                 {
@@ -422,6 +448,7 @@ void manejar_eventos_ganado(SDL_Event *e , EstadoJuego *estado_actual , Juego* j
                 }
                 break;
             case SDL_KEYDOWN:
+                juego->senialRender=1;
                 // Borrado de letra al presionar borrar
                 if (e->key.keysym.sym == SDLK_BACKSPACE && strlen(juego->nombreJugador) > 0)
                     juego->nombreJugador[strlen(juego->nombreJugador) - 1] = '\0';
@@ -480,6 +507,7 @@ void manejar_eventos_ganado(SDL_Event *e , EstadoJuego *estado_actual , Juego* j
                 }
                 break;
     }
+    return 0;
 }
 
 //////////////////////////////////////////////////////////////////////
