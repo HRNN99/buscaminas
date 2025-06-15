@@ -186,7 +186,7 @@ int main(int argc, char *argv[])
 
             case ESTADO_JUGANDO:
                 
-                manejar_eventos_juego(&e, &estado_actual, estado_anterior, &juego, minasCoord, minasEnMapa, &picords, &rbutton, &sonidos);
+                manejar_eventos_juego(&sistemas,&e, &estado_actual, estado_anterior, &juego, minasCoord, minasEnMapa, &picords, &rbutton, &sonidos);
                 break;
 
             case ESTADO_GANADO:
@@ -233,7 +233,7 @@ int main(int argc, char *argv[])
             interfazGanado(sistemas.renderer, sistemas.ventana, sistemas.font, &juego, &picords, filas, &rbutton);
             break;
         case ESTADO_CARGAR:
-            dibujar_menu(sistemas.renderer, sistemas.ventana, sistemas.font, cargar_items, menu_count, &seleccion);
+            dibujar_menu(&sistemas.renderer, &sistemas.ventana, &sistemas.font, cargar_items, menu_count, &seleccion);
         }
         
 
@@ -405,7 +405,7 @@ void manejar_eventos_ganado(SDL_Event *e , EstadoJuego *estado_actual, Juego* ju
     }
 }
 
-void manejar_eventos_juego(SDL_Event *e, EstadoJuego *estado_actual,EstadoJuego estado_anterior ,Juego *juego, Coord *minasCoord, int minas, Coord *picords, Coord *rbutton, Sonido *sonidos)
+void manejar_eventos_juego(Sistema *sistemas, SDL_Event *e, EstadoJuego *estado_actual,EstadoJuego estado_anterior ,Juego *juego, Coord *minasCoord, int minas, Coord *picords, Coord *rbutton, Sonido *sonidos)
 {
 
     Casilla **mapa = juego->mapa;
@@ -413,51 +413,61 @@ void manejar_eventos_juego(SDL_Event *e, EstadoJuego *estado_actual,EstadoJuego 
     int xG = ((e->button.x - (picords->x * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
     int yG = ((e->button.y - (picords->y * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
     int casillasLibresDeMinas = (juego->dimMapa * juego->dimMapa) - minas;
-
-    if (e->type == SDL_MOUSEBUTTONDOWN)
+    // guardado del boton anterior antes de nuevo evento
+    int boton = e->button.button; 
+    int tecla = e->key.keysym.sym;
+    switch(e->type)
     {
-        int boton = e->button.button; // guardado del boton anterior antes de nuevo evento
         EventoClick handlerClick;
-
-        if ((rbutton->x * TAM_PIXEL <= e->button.x && e->button.x <= (rbutton->x + 28) * TAM_PIXEL) &&
-            (rbutton->y * TAM_PIXEL <= e->button.y && e->button.y <= (rbutton->y + 28) * TAM_PIXEL) && (boton == SDL_BUTTON_LEFT))
-        {
-            Mix_PlayChannel(-1, sonidos->sonidoCat, 0);
-
-            juego->iniciado = false;
-        }
-        else
-        {
-            if (mapa[yG][xG].presionada &&
-                mapa[yG][xG].estado > 0)
+        case SDL_MOUSEBUTTONDOWN:
+            
+            if ((rbutton->x * TAM_PIXEL <= e->button.x && e->button.x <= (rbutton->x + 28) * TAM_PIXEL) &&
+                (rbutton->y * TAM_PIXEL <= e->button.y && e->button.y <= (rbutton->y + 28) * TAM_PIXEL) && (boton == SDL_BUTTON_LEFT))
             {
+                Mix_PlayChannel(-1, sonidos->sonidoCat, 0);
 
-                handlerClick = clickDoble;
-                Uint32 tiempoDeEspera = SDL_GetTicks() + 100;
-                while (SDL_GetTicks() < tiempoDeEspera)
-                {
-                    if (SDL_PollEvent(e) && e->type == SDL_MOUSEBUTTONDOWN &&
-                        e->button.button != boton)
-                    {
-                        handlerClick(juego, sonidos, xG, yG, minasCoord, minas);
-                        continue;
-                    }
-                    SDL_Delay(1);
-                }
+                juego->iniciado = false;
             }
             else
             {
-                handlerClick = (boton == SDL_BUTTON_LEFT) ? handlerClickIzquierdo : handlerClickDerecho;
-                handlerClick(juego, sonidos, xG, yG, minasCoord, minas);
-                if (juego->cantCasillasPresionadas == casillasLibresDeMinas)
+                if (mapa[yG][xG].presionada &&
+                    mapa[yG][xG].estado > 0)
                 {
-                    puts("¡Ganaste el juego!");
-                    SDL_StartTextInput();
-                    juego->nombreJugador[0] = '\0';
-                    *estado_actual = ESTADO_GANADO;
+
+                    handlerClick = clickDoble;
+                    Uint32 tiempoDeEspera = SDL_GetTicks() + 100;
+                    while (SDL_GetTicks() < tiempoDeEspera)
+                    {
+                        if (SDL_PollEvent(e) && e->type == SDL_MOUSEBUTTONDOWN &&
+                            e->button.button != boton)
+                        {
+                            handlerClick(juego, sonidos, xG, yG, minasCoord, minas);
+                            continue;
+                        }
+                        SDL_Delay(1);
+                    }
+                }
+                else
+                {
+                    handlerClick = (boton == SDL_BUTTON_LEFT) ? handlerClickIzquierdo : handlerClickDerecho;
+                    handlerClick(juego, sonidos, xG, yG, minasCoord, minas);
+                    if (juego->cantCasillasPresionadas == casillasLibresDeMinas)
+                    {
+                        puts("¡Ganaste el juego!");
+                        SDL_StartTextInput();
+                        juego->nombreJugador[0] = '\0';
+                        *estado_actual = ESTADO_GANADO;
+                    }
                 }
             }
-        }
+            break;
+        case SDL_KEYDOWN:
+            if(tecla == SDLK_p)
+            {
+                interfazPausa(sistemas->renderer, sistemas->ventana, sistemas->font, juego, picords, juego->dimMapa, rbutton);
+                puts("click escape");
+            }
+            break;
     }
 }
 
