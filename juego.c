@@ -284,7 +284,7 @@ void interfazGanado(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font,
 }
 
 
-void interfazPausa(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, Juego *juego, Coord *pcords, int dimensionM, Coord *rbutton)
+/*void interfazPausa(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, Juego *juego, Coord *pcords, int dimensionM, Coord *rbutton)
 {
     int win_width, win_height;
     SDL_GetWindowSize(ventana, &win_width, &win_height);
@@ -313,25 +313,78 @@ void interfazPausa(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, 
     snprintf(limitador, 12, "%-s", juego->nombreJugador);
     renderizarTexto(font, 20, limitador, BB, GS, renderer, margenX + 15, posYtexto - 12); // Fix Y por como toma esa coordenada
     
-    // Renderizar mejores posiciones
-    if(juego->totalPuntajes >= 3){
-        dibujarAbsoluto(renderer, 24, construirCoronaConColores(corona, GS, AD, DS), margenX, posYtexto+=30, 1);
-        snprintf(limitador, sizeof(limitador), "%05d %-s", juego->puntajes[0].puntos, juego->puntajes[0].nombre);
-        renderizarTexto(font, 16, limitador, BB, GS, renderer, margenX + 35, posYtexto + 5);
-
-        dibujarAbsoluto(renderer, 24, construirCoronaConColores(corona, GS, BB, GA), margenX, posYtexto+=25, 1);
-        snprintf(limitador, sizeof(limitador), "%05d %-s", juego->puntajes[1].puntos, juego->puntajes[1].nombre);
-        renderizarTexto(font, 16, limitador, BB, GS, renderer, margenX + 35, posYtexto + 5);
-        
-        snprintf(limitador, sizeof(limitador), "%05d %-s", juego->puntajes[2].puntos, juego->puntajes[2].nombre);
-        dibujarAbsoluto(renderer, 24, construirCoronaConColores(corona, GS, BR, BS), margenX, posYtexto+=25, 1);
-        renderizarTexto(font, 16, limitador, BB, GS, renderer, margenX + 35, posYtexto + 5);
-    }
     // Mostrar todo
     SDL_RenderPresent(renderer);
     juego->finPartida = true;
 }
 
+*/
+
+void interfazPausa(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, Juego *juego, Coord *pcords, int dimensionM, Coord *rbutton, int *eleccion, bool musicaActiva, const char *menu_items[], int menu_count)
+{
+
+
+    int win_width, win_height;
+    SDL_GetWindowSize(ventana, &win_width, &win_height);
+
+    
+    pcords->x = (win_width / 2) - (TAMX_GANADO / 2);
+    pcords->y = (win_height / 2) - (TAMY_GANADO / 2);
+    rectanguloLlenoAbsoluto(renderer, GS, pcords->x, pcords->y, TAMX_GANADO, TAMY_GANADO);
+    marcoInvertido(renderer, pcords->x, pcords->y, TAMX_GANADO, TAMY_GANADO, 4);
+
+    // Boton de pausar musica
+    dibujarAbsoluto(renderer, 20, 
+                    musicaActiva ? music_button : music_button_pausa,
+                    (win_width / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12 + 5, pcords->y + 15 + 4 + 5, 1);
+
+    marcoInvertido(renderer, (win_width / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12, pcords->y + 15 + 4, TAM_BOTON_CERRADO, TAM_BOTON_CERRADO, 4);
+    marcoInvertido(renderer, (win_width / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12, pcords->y + 15 + 4, TAM_BOTON_CERRADO, TAM_BOTON_CERRADO, 4);
+
+    // Texto principal y puntaje
+    char textoPuntaje[21] = "Tiempo: ";
+    char puntajeChar[12];
+    strcat(textoPuntaje, itoa(juego->puntaje, puntajeChar, 10));
+    int posYtexto = pcords->y + 20;
+    int margenX = pcords->x + 20;
+
+    renderizarTexto(font, 30, "Pausa", BB, GS, renderer, margenX, posYtexto);
+    renderizarTexto(font, 24, textoPuntaje, BB, GS, renderer, margenX, posYtexto += 45);
+
+    // Menú de opciones
+    int espacio = 45;
+    posYtexto += 35;
+
+    for (int i = 0; i < menu_count; i++) {
+        SDL_Color colorTexto = {255, 255, 255, 255};
+        SDL_Color colorFondo = (i == *eleccion) ? (SDL_Color){255, 100, 255, 255} : (SDL_Color){100, 100, 100, 255};
+
+        SDL_Surface *surface = TTF_RenderText_Solid(font, menu_items[i], colorTexto);
+        SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+        int text_width, text_height;
+        TTF_SizeText(font, menu_items[i], &text_width, &text_height);
+        SDL_Rect fondo = {margenX, posYtexto, TAMX_GANADO - 40, text_height + 10};
+
+        SDL_SetRenderDrawColor(renderer, colorFondo.r, colorFondo.g, colorFondo.b, colorFondo.a);
+        SDL_RenderFillRect(renderer, &fondo);
+
+        SDL_Rect textRect = {
+            fondo.x + (fondo.w - text_width) / 2,
+            fondo.y + (fondo.h - text_height) / 2,
+            text_width,
+            text_height
+        };
+        SDL_RenderCopy(renderer, texture, NULL, &textRect);
+
+        SDL_FreeSurface(surface);
+        SDL_DestroyTexture(texture);
+
+        posYtexto += espacio;
+    }
+
+
+}
 
 void mapaReiniciar(SDL_Renderer *renderer, Coord *pcord, Juego *juego, int filas, int columnas, Coord *minasCoord, int minas)
 {
@@ -624,20 +677,20 @@ void convertirAJuego(JuegoGuardado *src, Juego *dest) {
 void guardarPartidas(Juego partidas[3], const char *filename) {
     FILE *f = fopen(filename, "wb");
     if (!f) return;
-    JuegoGuardado buffer[3];
+    JuegoGuardado aux[3];
     for (int i = 0; i < 3; ++i)
-        convertirAJuegoGuardado(&partidas[i], &buffer[i]);
-    fwrite(buffer, sizeof(JuegoGuardado), 3, f);
+        convertirAJuegoGuardado(&partidas[i], &aux[i]);
+    fwrite(aux, sizeof(JuegoGuardado), 3, f);
     fclose(f);
 }
 
 void cargarPartidas(Juego partidas[3], const char *filename) {
     FILE *f = fopen(filename, "rb");
     if (!f) return;
-    JuegoGuardado buffer[3];
-    fread(buffer, sizeof(JuegoGuardado), 3, f);
+    JuegoGuardado aux[3];
+    fread(aux, sizeof(JuegoGuardado), 3, f);
     for (int i = 0; i < 3; ++i)
-        convertirAJuego(&buffer[i], &partidas[i]);
+        convertirAJuego(&aux[i], &partidas[i]);
     fclose(f);
 }
 

@@ -54,12 +54,7 @@ int cargarMusica(const char *ruta, Mix_Music **musica, int volumen) {
 }
 
 
-void iniciarMusicaMenu(Mix_Music **musica) {
-    detenerMusica();
-    Mix_PlayMusic(*musica, -1); // -1 for infinite loop
-}
-
-void iniciarMusicaJuego(Mix_Music **musica) {
+void iniciarMusica(Mix_Music **musica) {
     detenerMusica();
     Mix_PlayMusic(*musica, -1);
 }
