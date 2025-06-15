@@ -24,6 +24,10 @@
 #define ERROR_LINEA_LARGA 11
 #define NOMBRE_VENTANA "Buscaminas"
 #define MAX_PUNTAJES 5
+#define TAMX_GANADO 220
+#define TAMY_GANADO 276
+#define TAM_BOTON_CERRADO 30
+
 //ESTADOS
 typedef enum{
     ESTADO_MENU,
@@ -64,6 +68,8 @@ typedef struct
     int dimMapa;
     char nombreJugador[40];
     bool finPartida;
+    Puntaje puntajes[MAX_PUNTAJES];
+    int totalPuntajes;
     time_t start_time;
     Casilla **mapa;
 } Juego;

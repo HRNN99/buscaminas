@@ -14,7 +14,11 @@ SDL_Color colores[] =
     {235,141,235,255},
     {120,120,120,255},
     {84,84,84,255},
-    {48,48,48,255}
+    {48,48,48,255},
+    {255, 251, 0, 255}, // Dorado
+    {245, 216, 0, 255}, // Sombra Dorado
+    {204, 133, 0, 255}, // Bronce 
+    {150, 100, 0, 255}, // Bronce sombra
 };
 
 //Funcion que  dibuja pixel por pixel
@@ -39,6 +43,45 @@ void dibujar(SDL_Renderer *renderer , int pixeles , const int dibujo[][pixeles] 
             SDL_RenderFillRect(renderer, &pixel);
         }
     }
+}
+
+//Funcion que dibuja pixel por pixel en relacion absoluta
+void dibujarAbsoluto(SDL_Renderer *renderer , int pixeles , const int dibujo[][pixeles] , int gX , int gY, int escala){
+
+    for (int y = 0; y < pixeles; y++){
+
+        for (int x = 0; x < pixeles; x++){
+
+            //Utilizo los componentes rgba del color elegido en la paleta
+            SDL_SetRenderDrawColor(renderer,
+                                   colores[dibujo[y][x]].r,
+                                   colores[dibujo[y][x]].g,
+                                   colores[dibujo[y][x]].b,
+                                   colores[dibujo[y][x]].a);
+
+            //Estructura para representar un rectangulo, utilizado para plasmar un pixel
+            SDL_Rect pixel = {gX + x*escala , gY + y*escala , escala , escala};
+            //Dibuja un rectangulo lleno en el renderer
+            SDL_RenderFillRect(renderer, &pixel);
+        }
+    }
+}
+
+int (*construirCoronaConColores(const int origen[][24], int fondo, int principal, int sombra))[24] {
+    int (*copia)[24] = malloc(sizeof(int[24][24]));
+    if (!copia) return NULL;
+
+    for (int i = 0; i < 24; i++) {
+        for (int j = 0; j < 24; j++) {
+            switch (origen[i][j]) {
+                case GS: copia[i][j] = fondo; break;
+                case AD: copia[i][j] = principal; break;
+                case DS: copia[i][j] = sombra; break;
+                default: copia[i][j] = origen[i][j]; break;
+            }
+        }
+    }
+    return copia;
 }
 
 void rectanguloLleno(SDL_Renderer *renderer , int color , const int gX , const int gY , int W , int H){
@@ -115,10 +158,7 @@ int renderizarTexto(TTF_Font *font, int size, const char *texto, int colorTexto,
     SDL_Surface *textSurface = TTF_RenderText_Solid(font, texto, sdlColor);
     SDL_Texture *textTexture = SDL_CreateTextureFromSurface(render, textSurface);
 
-    // Creo un rectangulo por detras de las letras para evitar limpiar el render
-    SDL_Rect rectFondo = {x, y, textSurface->w, textSurface->h};
     SDL_SetRenderDrawColor(render , colores[colorFondo].r , colores[colorFondo].g , colores[colorFondo].b , colores[colorFondo].a);
-    SDL_RenderFillRect(render , &rectFondo);
 
     // Escribo el texto
     SDL_Rect textRect = {x, y, textSurface->w, textSurface->h};

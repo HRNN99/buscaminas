@@ -217,15 +217,15 @@ void interfaz(SDL_Renderer *renderer, TTF_Font *font, Juego *juego, Coord *pcord
 
     // Puntaje y bombas
     int fontSize = 16;
-    renderizarTexto(font, fontSize, "Puntaje:", GF, GS, renderer, pad * 3, pad + (altoC / 2));
+    renderizarTexto(font, fontSize, "Tiempo:", GF, GS, renderer, pad * 3, pad + (altoC / 2));
     char puntaje[21] = "";
     itoa(juego->puntaje, puntaje, 10); // Armado de String a imprimir
-    renderizarTexto(font, fontSize, puntaje, GF, GS, renderer, pad * 3, pad + (altoC / 2) + fontSize + 2);
+    renderizarTexto(font, fontSize, puntaje, GF, GS, renderer, pad * 3, pad + (altoC / 2) + fontSize + 4);
     renderizarTexto(font, fontSize, "Minas:", GF, GS, renderer, (pad * 3) + anchoM + 22, pad + (altoC / 2));
 
     char bombasEnMapaTexto[21] = "";
     itoa(juego->cantMinasEnInterfaz, bombasEnMapaTexto, 10); // Armado de String a imprimir
-    renderizarTexto(font, fontSize, bombasEnMapaTexto, GF, GS, renderer, (pad * 3) + anchoM + 22, pad + (altoC / 2) + fontSize + 2);
+    renderizarTexto(font, fontSize, bombasEnMapaTexto, GF, GS, renderer, (pad * 3) + anchoM + 22, pad + (altoC / 2) + fontSize + 4);
 
     // Aumento de puntaje por segundo
     if (!juego->finPartida)
@@ -241,29 +241,43 @@ void interfazGanado(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font,
     SDL_GetWindowSize(ventana, &win_width, &win_height);
 
     // Ventana
-    int TAMX_GANADO = 220, TAMY_GANADO = 276, TAM_BOTON = 30;
     pcords->x = (win_width / 2) - (TAMX_GANADO / 2);
     pcords->y = (win_height / 2) - (TAMY_GANADO / 2);
     rectanguloLlenoAbsoluto(renderer, GS, pcords->x, pcords->y, TAMX_GANADO, TAMY_GANADO);
     marcoInvertido(renderer, pcords->x, pcords->y, (TAMX_GANADO), (TAMY_GANADO), 4);
     // Boton cerrar ventana
-    rectanguloLlenoAbsoluto(renderer, RR, (win_width / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12, pcords->y + 15 + 4, TAM_BOTON, TAM_BOTON);
-    marcoInvertido(renderer, (win_width / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12, pcords->y + 15 + 4, TAM_BOTON, TAM_BOTON, 4);
-    // Renderizar "Puntaje" y "Nombre:"
+    dibujarAbsoluto(renderer, 20, close_button, (win_width / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12 + 5, pcords->y + 15 + 4 + 5, 1);
+    marcoInvertido(renderer, (win_width / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12, pcords->y + 15 + 4, TAM_BOTON_CERRADO, TAM_BOTON_CERRADO, 4);
+    
     char textoPuntaje[21] = "Tiempo: ";
     char puntajeChar[12];
     strcat(textoPuntaje, itoa(juego->puntaje, puntajeChar, 10)); // Armado de String a imprimir
     int posYtexto = pcords->y + 20;
     int margenX = pcords->x + 20;
+
     renderizarTexto(font, 30, "Ganaste!", BB, GS, renderer, margenX, posYtexto);
     renderizarTexto(font, 24, textoPuntaje, BB, GS, renderer, margenX, posYtexto += 45);
+
     renderizarTexto(font, 16, "Ingrese su nombre:", BB, GS, renderer, margenX, posYtexto += 35);
-    rectanguloLlenoAbsoluto(renderer, BB, margenX, posYtexto += 40, 5, 2);                           // Linea antes del nombre
-    renderizarTexto(font, 20, juego->nombreJugador, BB, GS, renderer, margenX + 15, posYtexto - 12); // Fix Y por como toma esa coordenada
+    rectanguloLlenoAbsoluto(renderer, BB, margenX, posYtexto += 40, 5, 2); // Linea antes del nombre
+    char limitador[17] = {0}; // Limito los caracteres por temas visuales
+    snprintf(limitador, 12, "%s", juego->nombreJugador);
+    renderizarTexto(font, 20, limitador, BB, GS, renderer, margenX + 15, posYtexto - 12); // Fix Y por como toma esa coordenada
+    
     // Renderizar mejores posiciones
-    renderizarTexto(font, 16, "Pepito 15", BB, GS, renderer, margenX + 20, posYtexto += 30);
-    renderizarTexto(font, 16, "Juan 45", BB, GS, renderer, margenX + 20, posYtexto += 20);
-    renderizarTexto(font, 16, "Rodo 126", BB, GS, renderer, margenX + 20, posYtexto += 20);
+    if(juego->totalPuntajes >= 3){
+        dibujarAbsoluto(renderer, 24, construirCoronaConColores(corona, GS, AD, DS), margenX, posYtexto+=30, 1);
+        snprintf(limitador, sizeof(limitador), "%05d %-s\n", juego->puntajes[0].puntos, juego->puntajes[0].nombre);
+        renderizarTexto(font, 16, limitador, BB, GS, renderer, margenX + 35, posYtexto + 5);
+
+        dibujarAbsoluto(renderer, 24, construirCoronaConColores(corona, GS, BB, GA), margenX, posYtexto+=25, 1);
+        snprintf(limitador, sizeof(limitador), "%05d %-s\n", juego->puntajes[1].puntos, juego->puntajes[1].nombre);
+        renderizarTexto(font, 16, limitador, BB, GS, renderer, margenX + 35, posYtexto + 5);
+        
+        snprintf(limitador, sizeof(limitador), "%05d %-s\n", juego->puntajes[2].puntos, juego->puntajes[2].nombre);
+        dibujarAbsoluto(renderer, 24, construirCoronaConColores(corona, GS, BR, BS), margenX, posYtexto+=25, 1);
+        renderizarTexto(font, 16, limitador, BB, GS, renderer, margenX + 35, posYtexto + 5);
+    }
     // Mostrar todo
     SDL_RenderPresent(renderer);
     juego->finPartida = true;
