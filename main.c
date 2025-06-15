@@ -136,8 +136,6 @@ int main(int argc, char *argv[]){
     Coord picords = {0,0};
     Coord rbutton = {0,0};
 
-    time_t current_time;
-
     int corriendo = true; // Variable flag true para mantener corriendo el programa
     SDL_Event e; // Variable para registrar eventos
     EstadoJuego estado_actual = ESTADO_MENU; //Variable para estados
@@ -196,6 +194,7 @@ int main(int argc, char *argv[]){
                     matrizDestruir(juego.mapa , juego.dificultad.dimension);
                     printf("\nSaliendo...\n");
                     break;
+                default: break;
             }
         }
 
@@ -256,7 +255,7 @@ int main(int argc, char *argv[]){
 
 //////////////////////////////////////////////////////////////////////
 
-void manejar_eventos_menu(SDL_Event *e , EstadoJuego *estado_actual, int* seleccion , const int items_count , Sonido* sonidos){
+int manejar_eventos_menu(SDL_Event *e , EstadoJuego *estado_actual, int* seleccion , const int items_count , Sonido* sonidos){
 
     switch (e->type){
 
@@ -295,9 +294,10 @@ void manejar_eventos_menu(SDL_Event *e , EstadoJuego *estado_actual, int* selecc
             }
             break;
     }
+    return 0;
 }
 
-void manejar_eventos_dificultad(Graficos *graficos, SDL_Event *e , EstadoJuego *estado_actual, int* seleccion , const int items_count , Juego* juego , Dificultad* difs , SDL_Window* ventana){
+int manejar_eventos_dificultad(Graficos *graficos, SDL_Event *e , EstadoJuego *estado_actual, int* seleccion , const int items_count , Juego* juego , Dificultad* difs , SDL_Window* ventana){
 
     switch(e->type){
 
@@ -321,8 +321,8 @@ void manejar_eventos_dificultad(Graficos *graficos, SDL_Event *e , EstadoJuego *
                             juego->dificultad.dimension = difs[0].dimension;
                             juego->dificultad.cantidad_minas = difs[0].cantidad_minas;
 
-                            juego->mapa = matrizCrear(juego->dificultad.dimension , juego->dificultad.dimension , sizeof(Casilla)); //Mover a otro lado despues
-                            juego->minasCoord = matrizCrear(juego->dificultad.cantidad_minas , 0 , sizeof(Coord));
+                            juego->mapa = (Casilla**)matrizCrear(juego->dificultad.dimension , juego->dificultad.dimension , sizeof(Casilla)); //Mover a otro lado despues
+                            juego->minasCoord = (Coord *)matrizCrear(juego->dificultad.cantidad_minas , 0 , sizeof(Coord));
                             *estado_actual = ESTADO_JUGANDO;
                             graficos->tamXVentana = TAM_PIXEL * (difs[0].dimension * PIXELES_X_LADO + 20);
                             graficos->tamYVentana = TAM_PIXEL * (difs[0].dimension * PIXELES_X_LADO + 4 + 3*8 + 28);
@@ -334,8 +334,8 @@ void manejar_eventos_dificultad(Graficos *graficos, SDL_Event *e , EstadoJuego *
                             juego->dificultad.dimension = difs[1].dimension;
                             juego->dificultad.cantidad_minas = difs[1].cantidad_minas;
 
-                            juego->mapa = matrizCrear(juego->dificultad.dimension , juego->dificultad.dimension , sizeof(Casilla));
-                            juego->minasCoord = matrizCrear(juego->dificultad.cantidad_minas , 0 , sizeof(Coord));
+                            juego->mapa = (Casilla**)matrizCrear(juego->dificultad.dimension , juego->dificultad.dimension , sizeof(Casilla*));
+                            juego->minasCoord = (Coord *)matrizCrear(juego->dificultad.cantidad_minas , 0 , sizeof(Coord));
                             *estado_actual = ESTADO_JUGANDO;
                             graficos->tamXVentana = TAM_PIXEL * (difs[1].dimension * PIXELES_X_LADO + 20);
                             graficos->tamYVentana = TAM_PIXEL * (difs[1].dimension * PIXELES_X_LADO + 4 + 3*8 + 28);
@@ -347,8 +347,8 @@ void manejar_eventos_dificultad(Graficos *graficos, SDL_Event *e , EstadoJuego *
                             juego->dificultad.dimension = difs[2].dimension;
                             juego->dificultad.cantidad_minas = difs[2].cantidad_minas;
 
-                            juego->mapa = matrizCrear(juego->dificultad.dimension , juego->dificultad.dimension , sizeof(Casilla));
-                            juego->minasCoord = matrizCrear(juego->dificultad.cantidad_minas , 0 , sizeof(Coord));
+                            juego->mapa = (Casilla**)matrizCrear(juego->dificultad.dimension , juego->dificultad.dimension , sizeof(Casilla));
+                            juego->minasCoord = (Coord *)matrizCrear(juego->dificultad.cantidad_minas , 0 , sizeof(Coord));
                             *estado_actual = ESTADO_JUGANDO;
                             graficos->tamXVentana = TAM_PIXEL * (difs[2].dimension * PIXELES_X_LADO + 20);
                             graficos->tamYVentana = TAM_PIXEL * (difs[2].dimension * PIXELES_X_LADO + 4 + 3*8 + 28);
@@ -359,9 +359,10 @@ void manejar_eventos_dificultad(Graficos *graficos, SDL_Event *e , EstadoJuego *
             }
             break;
     }
+    return 0;
 }
 
-void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* juego , Coord* picords , Coord* rbutton , Sonido* sonidos){
+int manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* juego , Coord* picords , Coord* rbutton , Sonido* sonidos){
 
     Casilla **mapa = juego->mapa;
 
@@ -415,9 +416,10 @@ void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* ju
             }
         }
     }
+    return 0;
 }
 
-void manejar_eventos_ganado(SDL_Event *e , EstadoJuego *estado_actual , Juego* juego){
+int manejar_eventos_ganado(SDL_Event *e , EstadoJuego *estado_actual , Juego* juego){
 
     int TAMX = TAM_PIXEL * (juego->dificultad.dimension * PIXELES_X_LADO + 20);
     int TAMY = TAM_PIXEL * (juego->dificultad.dimension * PIXELES_X_LADO + 4 + 3 * 8 + 28);
@@ -505,6 +507,7 @@ void manejar_eventos_ganado(SDL_Event *e , EstadoJuego *estado_actual , Juego* j
                 }
                 break;
     }
+    return 0;
 }
 
 //////////////////////////////////////////////////////////////////////

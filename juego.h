@@ -115,10 +115,10 @@ typedef struct{
 typedef void (*EventoClick)(Juego *juego, Sonido *sonidos, int x, int y, Coord *minasCoord, int minas);
 
 //Prototipos
-void manejar_eventos_menu(SDL_Event *e , EstadoJuego *estado_actual , int* seleccion , const int items_count , Sonido* sonidos);
-void manejar_eventos_dificultad(Graficos *graficos, SDL_Event *e , EstadoJuego *estado_actual, int* seleccion , const int items_count , Juego* juego , Dificultad* difs , SDL_Window* ventana);
-void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* juego , Coord* picords , Coord* rbutton , Sonido *sonidos);
-void manejar_eventos_ganado(SDL_Event *e, EstadoJuego *estado_actual, Juego *juego);
+int manejar_eventos_menu(SDL_Event *e , EstadoJuego *estado_actual , int* seleccion , const int items_count , Sonido* sonidos);
+int manejar_eventos_dificultad(Graficos *graficos, SDL_Event *e , EstadoJuego *estado_actual, int* seleccion , const int items_count , Juego* juego , Dificultad* difs , SDL_Window* ventana);
+int manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* juego , Coord* picords , Coord* rbutton , Sonido *sonidos);
+int manejar_eventos_ganado(SDL_Event *e, EstadoJuego *estado_actual, Juego *juego);
 
 void fondoColor(SDL_Renderer* renderer);
 void casillaColocacion(SDL_Renderer *renderer, Casilla **mapa , int dimension , Coord *picord);
