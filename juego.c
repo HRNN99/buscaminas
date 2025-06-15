@@ -319,7 +319,7 @@ void casillaColocacion(SDL_Renderer *renderer , Casilla **mapa , int dimension ,
                 }
                 else
                 {
-                    dibujar(renderer, PIXELES_X_LADO, square1, gX, gY, picord->x, picord->y);
+                    dibujar(renderer, PIXELES_X_LADO, square1 , gX, gY, picord->x, picord->y);
                 }
 
             }

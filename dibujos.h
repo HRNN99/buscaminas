@@ -17,14 +17,17 @@
 #define RR 4 //Rojo
 #define VV 5 //Verde Oscuro
 #define AA 6 //Azul
-#define RS 7//Rosa
-#define GA 8//Gris A
-#define GB 9//Gris B
+#define RS 7 //Rosa
+#define GA 8 //Gris A
+#define GB 9 //Gris B
 #define GC 10//Gris C
 #define AD 11//Amarillo dorado
 #define DS 12//Dorado sombra
-#define BR 13//Bronce 
+#define BR 13//Bronce
 #define BS 14//Bronce sombra
+#define PP 15//Purpura
+#define RO 16//Rojo obscuro
+#define CI 17//Cian
 
 void dibujar(SDL_Renderer *renderer , int pixeles , const int dibujo[][pixeles] , int gX , int gY , int pXi , int pYi);
 void dibujarAbsoluto(SDL_Renderer *renderer , int pixeles , const int dibujo[][pixeles] , int gX , int gY , int escala);
