@@ -450,7 +450,7 @@ void casillaBandera(Juego *juego, int xG, int yG)
     printf("Estado (%i , %i): %i\n", xG, yG, mapa[yG][xG].estadoBandera);
 }
 
-// funciones Log
+//Manejo de archivos----------------------------------------------------------------------------------------------------------
 void setLog(Log *log, int coordX, int coordY, char tipoEvento[80])
 {
     time_t ahora = time(NULL);
@@ -461,8 +461,8 @@ void setLog(Log *log, int coordX, int coordY, char tipoEvento[80])
     log->coordXY[1] = coordY;
 }
 
-// Función para abrir un archivo y manejar errores
-FILE *abrirArchivo(const char *nombre, const char *modo)
+
+FILE *abrirArchivo(const char *nombre, const char *modo)// Función para abrir un archivo y manejar errores
 {
     FILE *archivo = fopen(nombre, modo);
     if (!archivo)
@@ -473,6 +473,25 @@ FILE *abrirArchivo(const char *nombre, const char *modo)
         return NULL;
     }
     return archivo;
+}
+
+
+
+
+// clickHandlers-----------------------------------------------------------------------------------------------------------
+void handlerClickIzquierdo(Juego *juego, Sonido *sonidos, int x, int y, Coord *minasCoord, int minas)
+{
+    printf("Hiciste click en la casilla (%i , %i)\n", x, y);
+    casillaEstado(juego, minasCoord, sonidos, minas, x, y, false);
+    juego->mapa[y][x].estado == -1 ? Mix_PlayChannel(-1, sonidos->sonidoMina, 0) 
+    : juego->mapa[y][x].estadoBandera == 0 ? Mix_PlayChannel(-1, sonidos->sonidoClick, 0): NULL; // Reproduce sonido de mina si se presiona una mina
+}
+
+void handlerClickDerecho(Juego *juego, Sonido *sonidos, int x, int y, Coord *minasCoord, int minas)
+{
+    printf("Hiciste click derecho en la casilla (%i , %i), colocando bandera\n", x, y);
+    casillaBandera(juego, x, y);
+    juego->mapa[y][x].presionada == 0 ? Mix_PlayChannel(-1, sonidos->sonidoBandera, 0): NULL;
 }
 
 void clickDoble(Juego *juego, Sonido *sonidos, int gX, int gY, Coord *minasCoord, int minas)
@@ -505,18 +524,104 @@ void clickDoble(Juego *juego, Sonido *sonidos, int gX, int gY, Coord *minasCoord
     return;
 }
 
-// clickHandlers
-void handlerClickIzquierdo(Juego *juego, Sonido *sonidos, int x, int y, Coord *minasCoord, int minas)
-{
-    printf("Hiciste click en la casilla (%i , %i)\n", x, y);
-    casillaEstado(juego, minasCoord, sonidos, minas, x, y, false);
-    juego->mapa[y][x].estado == -1 ? Mix_PlayChannel(-1, sonidos->sonidoMina, 0) 
-    : juego->mapa[y][x].estadoBandera == 0 ? Mix_PlayChannel(-1, sonidos->sonidoClick, 0): NULL; // Reproduce sonido de mina si se presiona una mina
+//---------------------------------------------------------------------------------------
+
+
+
+//CARGADO DE PARTIDAS
+
+void convertirAJuegoGuardado(Juego *orig, JuegoGuardado *dest) {
+    dest->iniciado = orig->iniciado;
+    dest->cantCasillasPresionadas = orig->cantCasillasPresionadas;
+    dest->puntaje = orig->puntaje;
+    dest->cantMinasEnInterfaz = orig->cantMinasEnInterfaz;
+    dest->dimMapa = orig->dimMapa;
+    strncpy(dest->nombreJugador, orig->nombreJugador, 40);
+    dest->finPartida = orig->finPartida;
+    dest->totalPuntajes = orig->totalPuntajes;
+    dest->start_time = orig->start_time;
+    memcpy(dest->puntajes, orig->puntajes, sizeof(Puntaje) * MAX_PUNTAJES);
+
+    int dim = orig->dimMapa;
+    for (int i = 0; i < dim; ++i)
+        for (int j = 0; j < dim; ++j)
+            dest->mapa[i * dim + j] = orig->mapa[i][j];
 }
 
-void handlerClickDerecho(Juego *juego, Sonido *sonidos, int x, int y, Coord *minasCoord, int minas)
-{
-    printf("Hiciste click derecho en la casilla (%i , %i), colocando bandera\n", x, y);
-    casillaBandera(juego, x, y);
-    juego->mapa[y][x].presionada == 0 ? Mix_PlayChannel(-1, sonidos->sonidoBandera, 0): NULL;
+void convertirAJuego(JuegoGuardado *src, Juego *dest) {
+    dest->iniciado = src->iniciado;
+    dest->cantCasillasPresionadas = src->cantCasillasPresionadas;
+    dest->puntaje = src->puntaje;
+    dest->cantMinasEnInterfaz = src->cantMinasEnInterfaz;
+    dest->dimMapa = src->dimMapa;
+    strncpy(dest->nombreJugador, src->nombreJugador, 40);
+    dest->finPartida = src->finPartida;
+    dest->totalPuntajes = src->totalPuntajes;
+    dest->start_time = src->start_time;
+    memcpy(dest->puntajes, src->puntajes, sizeof(Puntaje) * MAX_PUNTAJES);
+
+    int dim = src->dimMapa;
+    dest->mapa = malloc(dim * sizeof(Casilla *));
+    for (int i = 0; i < dim; ++i) {
+        dest->mapa[i] = malloc(dim * sizeof(Casilla));
+        for (int j = 0; j < dim; ++j)
+            dest->mapa[i][j] = src->mapa[i * dim + j];
+    }
+}
+
+
+
+void guardarPartidas(Juego partidas[3], const char *filename) {
+    FILE *f = fopen(filename, "wb");
+    if (!f) return;
+    JuegoGuardado buffer[3];
+    for (int i = 0; i < 3; ++i)
+        convertirAJuegoGuardado(&partidas[i], &buffer[i]);
+    fwrite(buffer, sizeof(JuegoGuardado), 3, f);
+    fclose(f);
+}
+
+void cargarPartidas(Juego partidas[3], const char *filename) {
+    FILE *f = fopen(filename, "rb");
+    if (!f) return;
+    JuegoGuardado buffer[3];
+    fread(buffer, sizeof(JuegoGuardado), 3, f);
+    for (int i = 0; i < 3; ++i)
+        convertirAJuego(&buffer[i], &partidas[i]);
+    fclose(f);
+}
+
+
+bool archivoExiste(const char *filename) {
+    FILE *file = fopen(filename, "rb");
+    if (file) {
+        fclose(file);
+        return true;
+    }
+    return false;
+}
+
+void inicializarPartidas(Juego partidas[3]) {
+    for (int i = 0; i < 3; ++i) {
+        partidas[i].iniciado = false;
+        partidas[i].finPartida = false;
+        partidas[i].cantCasillasPresionadas = 0;
+        partidas[i].puntaje = 0;
+        partidas[i].cantMinasEnInterfaz = 10;
+        partidas[i].dimMapa = 10;
+        strcpy(partidas[i].nombreJugador, "Sin nombre");
+        partidas[i].totalPuntajes = 0;
+        partidas[i].start_time = time(NULL);
+
+        int dim = partidas[i].dimMapa;
+        partidas[i].mapa = malloc(dim * sizeof(Casilla *));
+        for (int j = 0; j < dim; ++j) {
+            partidas[i].mapa[j] = malloc(dim * sizeof(Casilla));
+            for (int k = 0; k < dim; ++k) {
+                partidas[i].mapa[j][k].estado = 0;
+                partidas[i].mapa[j][k].presionada = false;
+                partidas[i].mapa[j][k].estadoBandera = 0;
+            }
+        }
+    }
 }

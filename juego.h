@@ -27,6 +27,9 @@
 #define TAMX_GANADO 220
 #define TAMY_GANADO 276
 #define TAM_BOTON_CERRADO 30
+#define MAX_SLOTS 3
+#define ARCHIVO_PARTIDAS "partidas.dat"
+
 
 //ESTADOS
 typedef enum{
@@ -41,7 +44,9 @@ typedef enum{
 // sistemas
 typedef struct
 {
-    
+    SDL_Window *ventana;
+    SDL_Renderer *renderer;
+    TTF_Font *font;
 
 } Sistema;
 
@@ -93,14 +98,28 @@ typedef struct
     SDL_Rect rect;
 } MenuItem;
 
+typedef struct {
+    bool iniciado;
+    int cantCasillasPresionadas;
+    int puntaje;
+    int cantMinasEnInterfaz;
+    int dimMapa;
+    char nombreJugador[40];
+    bool finPartida;
+    Puntaje puntajes[MAX_PUNTAJES];
+    int totalPuntajes;
+    time_t start_time;
+    Casilla mapa[20 * 20]; // max 100x100
+} JuegoGuardado;
+
 // punteros a funciones
 typedef void (*EventoClick)(Juego *juego, Sonido *sonidos, int x, int y, Coord *minasCoord, int minas);
 
 // Prototipos
-void manejar_eventos_menu(SDL_Event *e, EstadoJuego *estado_actual, Sonido *sonidos, int *seleccion, const int menu_count);
+void manejar_eventos_menu(SDL_Event *e, EstadoJuego *estado_actual, Sonido *sonidos, int *seleccion, const int menu_count, Juego partidas[3], Juego *juego);
 void dibujar_menu(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, const char *menu_items[], const int menu_count, int *seleccion);
 
-void manejar_eventos_juego(SDL_Event *e, EstadoJuego *estado_actual, Juego *juego, Coord *minasCoord, int minas, Coord *picords, Coord *rbutton, Sonido *sonidos);
+void manejar_eventos_juego(SDL_Event *e, EstadoJuego *estado_actual, EstadoJuego estado_anterior, Juego *juego, Coord *minasCoord, int minas, Coord *picords, Coord *rbutton, Sonido *sonidos);
 void manejar_eventos_ganado(SDL_Event *e, EstadoJuego *estado_actual, Juego *juego);
 
 void fondoColor(SDL_Renderer *renderer);
@@ -127,4 +146,13 @@ void handlerClickDerecho(Juego *juego, Sonido *sonidos, int x, int y, Coord *min
 void clickDoble(Juego *juego, Sonido *sonidos,  int gX, int gY, Coord *minasCoord, int minas);
 // Log
 void setLog(Log *log, int coordX, int coordY, char tipoEvento[80]);
+
+//carga de partidas
+
+void convertirAJuegoGuardado(Juego *orig, JuegoGuardado *dest);
+void convertirAJuego(JuegoGuardado *src, Juego *dest);
+void guardarPartidas(Juego partidas[3], const char *filename);
+void cargarPartidas(Juego partidas[3], const char *filename);
+bool archivoExiste(const char *filename);
+void inicializarPartidas(Juego partidas[3]);
 #endif // JUEGO_H

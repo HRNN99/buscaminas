@@ -18,21 +18,30 @@ int main(int argc, char *argv[])
 
     int filas = 0, columnas = 0, minasEnMapa = 0;
     char rutaFuente[100];
-
-    // Creacion archivo log
-
-    FILE *archivoLog = fopen("partida.log", "w");
-    if (!archivoLog)
-    {
-        puts("Error creando el archivo log");
-        return ERROR_ARCHIVO;
-    }
     Log log;
+    Sonido sonidos;
+    Sistema sistemas;
+    // Creacion archivo Log
+    FILE *archivoLog = abrirArchivo("partida.log", "w");
+    
     setLog(&log, -1, -1, "Inicio del juego");
     escribirArchivoLog(archivoLog, &log);
 
     // Lectura del archivo de configuarcion
     leerConfiguracion(&filas, &columnas, &minasEnMapa, rutaFuente);
+
+    //creacion archivo guardado
+
+    Juego partidas[3];
+
+    if (!archivoExiste(ARCHIVO_PARTIDAS)) {
+        inicializarPartidas(partidas);
+        guardarPartidas(partidas, ARCHIVO_PARTIDAS);
+        printf("Archivo creado e inicializado.\n");
+    } else {
+        cargarPartidas(partidas, ARCHIVO_PARTIDAS);
+        printf("Partidas cargadas exitosamente.\n");
+    }
 
     // Iniciar SDL con funcion Video y audio
     if(SDL_Init(SDL_INIT_VIDEO) || SDL_Init(SDL_INIT_AUDIO))
@@ -40,7 +49,7 @@ int main(int argc, char *argv[])
         puts("Error al iniciar SDL");
         return ERROR_CONFIGURACION;
     }
-    Sonido sonidos;
+    
     if(iniciarSonido(&sonidos))
     {
         return ERROR_CONFIGURACION;
@@ -48,8 +57,8 @@ int main(int argc, char *argv[])
     
     // Inicio TTF y busco la fuente. Si no la encuentra imprime un error
     TTF_Init();
-    TTF_Font *font = TTF_OpenFont(rutaFuente, 32);
-    if (!font)
+    sistemas.font = TTF_OpenFont(rutaFuente, 32);
+    if (!sistemas.font)
     {
         printf("Error cargando fuente: %s\n", TTF_GetError());
         return ERROR_FUENTE;
@@ -62,16 +71,19 @@ int main(int argc, char *argv[])
     int TAMX = TAM_PIXEL * (columnas * PIXELES_X_LADO + 20);
     int TAMY = TAM_PIXEL * (filas * PIXELES_X_LADO + 4 + 3 * 8 + 28);
     // Funcion para crear ventana con posicion especifica, dimension y banderas.
-    SDL_Window *ventana = SDL_CreateWindow(nombreVentana, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, TAMX, TAMY, 2);
+    sistemas.ventana = SDL_CreateWindow(nombreVentana, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, TAMX, TAMY, 2);
     // Funcion para crear el renderizado en ventana acelerado por hardware
-    SDL_Renderer *renderer = SDL_CreateRenderer(ventana, -1, SDL_RENDERER_ACCELERATED);
+    sistemas.renderer = SDL_CreateRenderer(sistemas.ventana, -1, SDL_RENDERER_ACCELERATED);
     // Funcion para establecer el modo de mezcla de colores para el renderizado, el modo blend nos permite utilizar transparencia
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawBlendMode(sistemas.renderer, SDL_BLENDMODE_BLEND);
 
     //////////////////////////////////////////////////////////////////////
-
+    const char *cargar_items[] = {
+        "Partida 1",
+        "Partida 2",
+        "Partida 3"};
     const char *menu_items[] = {
-        "Nueva Partida",
+        "Partida Rapida",
         "Cargar Partida",
         "Salir"};
 
@@ -144,7 +156,8 @@ int main(int argc, char *argv[])
     time_t current_time;
 
     // Variable para estados
-    EstadoJuego estado_actual = ESTADO_JUGANDO;
+    EstadoJuego estado_actual = ESTADO_MENU;
+    EstadoJuego estado_anterior = ESTADO_MENU;
     int seleccion = 0;
     iniciarMusicaMenu(&sonidos.musicaMenu);
     
@@ -156,6 +169,11 @@ int main(int argc, char *argv[])
         {
             if (e.type == SDL_QUIT)
             {
+                if(estado_anterior == ESTADO_CARGAR)
+                    {
+                        guardarPartidas(partidas, ARCHIVO_PARTIDAS);
+                        estado_anterior == ESTADO_MENU;
+                    }
                 corriendo = false;
                 printf("\n---Cerrando Ventana---\n");
             }
@@ -163,11 +181,12 @@ int main(int argc, char *argv[])
             switch (estado_actual)
             {
             case ESTADO_MENU:
-                manejar_eventos_menu(&e, &estado_actual, &sonidos, &seleccion, menu_count);
+                manejar_eventos_menu(&e, &estado_actual, &sonidos, &seleccion, menu_count, partidas, &juego);
                 break;
 
             case ESTADO_JUGANDO:
-                manejar_eventos_juego(&e, &estado_actual, &juego, minasCoord, minasEnMapa, &picords, &rbutton, &sonidos);
+                
+                manejar_eventos_juego(&e, &estado_actual, estado_anterior, &juego, minasCoord, minasEnMapa, &picords, &rbutton, &sonidos);
                 break;
 
             case ESTADO_GANADO:
@@ -181,6 +200,10 @@ int main(int argc, char *argv[])
                 corriendo = false;
                 printf("\nSaliendo...\n");
                 break;
+            case ESTADO_CARGAR:
+                estado_anterior = ESTADO_CARGAR;
+                manejar_eventos_menu(&e, &estado_actual, &sonidos, &seleccion, menu_count, partidas, &juego);
+                break;
             }
         }
         
@@ -189,30 +212,32 @@ int main(int argc, char *argv[])
         switch (estado_actual)
         {
         case ESTADO_MENU:
-            dibujar_menu(renderer, ventana, font, menu_items, menu_count, &seleccion);
+            dibujar_menu(sistemas.renderer, sistemas.ventana, sistemas.font, menu_items, menu_count, &seleccion);
             break;
 
         case ESTADO_JUGANDO:
-            interfaz(renderer, font, &juego, &picords, filas, &rbutton);
+            interfaz(sistemas.renderer, sistemas.font, &juego, &picords, filas, &rbutton);
             
 
             if (!juego.iniciado)
             {
-
-                mapaReiniciar(renderer, &picords, &juego, filas, columnas, minasCoord, minasEnMapa);
+                mapaReiniciar(sistemas.renderer, &picords, &juego, filas, columnas, minasCoord, minasEnMapa);
                 system("cls");
                 mapaImprimir(juego.mapa, filas, columnas);
             }
 
-            casillaColocacion(juego.mapa, renderer, filas, columnas, &picords);
+            casillaColocacion(juego.mapa, sistemas.renderer, filas, columnas, &picords);
             break;
         case ESTADO_GANADO:
             
-            interfazGanado(renderer, ventana, font, &juego, &picords, filas, &rbutton);
+            interfazGanado(sistemas.renderer, sistemas.ventana, sistemas.font, &juego, &picords, filas, &rbutton);
             break;
+        case ESTADO_CARGAR:
+            dibujar_menu(sistemas.renderer, sistemas.ventana, sistemas.font, cargar_items, menu_count, &seleccion);
         }
+        
 
-        SDL_RenderPresent(renderer);
+        SDL_RenderPresent(sistemas.renderer);
         SDL_Delay(16);
 
     }
@@ -221,7 +246,7 @@ int main(int argc, char *argv[])
     return EJECUCION_OK;
 }
 
-void manejar_eventos_menu(SDL_Event *e, EstadoJuego *estado_actual, Sonido *sonidos, int *seleccion, const int menu_count)
+void manejar_eventos_menu(SDL_Event *e, EstadoJuego *estado_actual, Sonido *sonidos, int *seleccion, const int menu_count, Juego partidas[3], Juego *juego)
 {
     
     switch (e->type)
@@ -244,22 +269,49 @@ void manejar_eventos_menu(SDL_Event *e, EstadoJuego *estado_actual, Sonido *soni
 
         case SDLK_RETURN:
             Mix_PlayChannel(-1, sonidos->sonidoEnter, 0);
-            switch (*seleccion)
+            if(*estado_actual == ESTADO_MENU)
             {
+              switch (*seleccion)
+                {
 
-            case 0:
-                *estado_actual = ESTADO_JUGANDO;
-                iniciarMusicaJuego(&sonidos->musicaFondo);
-                break;
+                case 0:
+                    *estado_actual = ESTADO_JUGANDO;
+                    iniciarMusicaJuego(&sonidos->musicaFondo);
+                    break;
 
-            case 1:
-                *estado_actual = ESTADO_CARGAR;
-                break;
+                case 1:
+                    *estado_actual = ESTADO_CARGAR;
+                    break;
 
-            case 2:
-                *estado_actual = ESTADO_SALIENDO;
-                break;
+                case 2:
+                    *estado_actual = ESTADO_SALIENDO;
+                    break;
+                }  
+            }else if(*estado_actual == ESTADO_CARGAR)
+            {
+                switch (*seleccion)
+                {
+
+                case 0:
+                    
+                    *estado_actual = ESTADO_JUGANDO;
+                    juego = &partidas[*seleccion];
+                    iniciarMusicaJuego(&sonidos->musicaFondo);
+                    break;
+
+                case 1:
+                    *estado_actual = ESTADO_JUGANDO;
+                    juego = &partidas[*seleccion];
+                    iniciarMusicaJuego(&sonidos->musicaFondo);
+                    break;
+                case 2:
+                    *estado_actual = ESTADO_JUGANDO;
+                    juego = &partidas[*seleccion];
+                    iniciarMusicaJuego(&sonidos->musicaFondo);
+                    break;
+                }
             }
+                
             break;
         }
         break;
@@ -333,7 +385,8 @@ void manejar_eventos_ganado(SDL_Event *e , EstadoJuego *estado_actual, Juego* ju
                     }
 
                     fclose(aPuntuacionTemp);
-                    *estado_actual = ESTADO_JUGANDO;
+                    *estado_actual = ESTADO_MENU;
+                    
 
                     // Elimino puntuacion
                     if (remove("puntuacion.txt") != 0) {
@@ -352,7 +405,7 @@ void manejar_eventos_ganado(SDL_Event *e , EstadoJuego *estado_actual, Juego* ju
     }
 }
 
-void manejar_eventos_juego(SDL_Event *e, EstadoJuego *estado_actual, Juego *juego, Coord *minasCoord, int minas, Coord *picords, Coord *rbutton, Sonido *sonidos)
+void manejar_eventos_juego(SDL_Event *e, EstadoJuego *estado_actual,EstadoJuego estado_anterior ,Juego *juego, Coord *minasCoord, int minas, Coord *picords, Coord *rbutton, Sonido *sonidos)
 {
 
     Casilla **mapa = juego->mapa;
