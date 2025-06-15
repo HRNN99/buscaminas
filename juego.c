@@ -8,14 +8,14 @@ int pad = 8;
 int altoC = 28;
 int anchoM = 144;
 int fontSize = 16;
-void dibujar_menu(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, const char *menu_items[], const int menu_count, int *seleccion)
+void dibujar_menu(Graficos* graficos, const char *menu_items[], const int menu_count, int *seleccion)
 {
 
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderClear(renderer);
+    SDL_SetRenderDrawColor(graficos->renderer, 0, 0, 0, 255);
+    SDL_RenderClear(graficos->renderer);
 
     int win_width, win_height;
-    SDL_GetWindowSize(ventana, &win_width, &win_height);
+    SDL_GetWindowSize(graficos->ventana, &win_width, &win_height);
 
     int base_y = 50;
     int espacio = 50;
@@ -24,7 +24,7 @@ void dibujar_menu(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, c
     {
 
         int text_width, text_height;
-        TTF_SizeText(font, menu_items[i], &text_width, &text_height);
+        TTF_SizeText(graficos->font, menu_items[i], &text_width, &text_height);
 
         SDL_Rect fondo;
         fondo.x = (win_width - text_width) / 2;
@@ -38,19 +38,19 @@ void dibujar_menu(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, c
         SDL_Color colorFondo = (i == *seleccion) ? (SDL_Color){255, 100, 255, 255} : (SDL_Color){100, 100, 100, 255};
 
         // Se crea una superficie de texto con el texto contenido en el menu[i]
-        SDL_Surface *surface = TTF_RenderText_Solid(font, menu_items[i], colorTexto);
+        SDL_Surface *surface = TTF_RenderText_Solid(graficos->font, menu_items[i], colorTexto);
         // Convierte la superficie en una textura para poder ser renderizada
-        SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+        SDL_Texture *texture = SDL_CreateTextureFromSurface(graficos->renderer, surface);
 
         // Se establece el color de dibujado usando color de fondo
-        SDL_SetRenderDrawColor(renderer, colorFondo.r, colorFondo.g, colorFondo.b, colorFondo.a);
+        SDL_SetRenderDrawColor(graficos->renderer, colorFondo.r, colorFondo.g, colorFondo.b, colorFondo.a);
         // Se dibuja el rectangulo lleno en el render
-        SDL_RenderFillRect(renderer, &fondo);
+        SDL_RenderFillRect(graficos->renderer, &fondo);
 
         // Calcula automaticamente el ancho y alto de texto renderizado, y actualiza valores de menu.rect
         SDL_QueryTexture(texture, NULL, NULL, &fondo.w, &fondo.h);
         // Se dibuja el texto en el render
-        SDL_RenderCopy(renderer, texture, NULL, &fondo);
+        SDL_RenderCopy(graficos->renderer, texture, NULL, &fondo);
 
         // Se liberan variables temporales
         SDL_FreeSurface(surface);
@@ -262,7 +262,7 @@ void interfazGanado(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font,
     // Boton cerrar ventana
     dibujarAbsoluto(renderer, 20, close_button, (win_width / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12 + 5, pcords->y + 15 + 4 + 5, 1);
     marcoInvertido(renderer, (win_width / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12, pcords->y + 15 + 4, TAM_BOTON_CERRADO, TAM_BOTON_CERRADO, 4);
-    
+
     char textoPuntaje[21] = "Tiempo: ";
     char puntajeChar[12];
     strcat(textoPuntaje, itoa(juego->puntaje, puntajeChar, 10)); // Armado de String a imprimir
@@ -277,7 +277,7 @@ void interfazGanado(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font,
     char limitador[17] = {0}; // Limito los caracteres por temas visuales
     snprintf(limitador, 12, "%-s", juego->nombreJugador);
     renderizarTexto(font, 20, juego->nombreJugador, BB, GS, renderer, margenX + 15, posYtexto - 12); // Fix Y por como toma esa coordenada
-    
+
     // Renderizar mejores posiciones
     if(juego->totalPuntajes >= 3){
         dibujarAbsoluto(renderer, 24, construirCoronaConColores(corona, GS, AD, DS), margenX, posYtexto+=30, 1);
@@ -287,7 +287,7 @@ void interfazGanado(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font,
         dibujarAbsoluto(renderer, 24, construirCoronaConColores(corona, GS, BB, GA), margenX, posYtexto+=25, 1);
         snprintf(limitador, sizeof(limitador), "%05d %-s", juego->puntajes[1].puntos, juego->puntajes[1].nombre);
         renderizarTexto(font, 16, limitador, BB, GS, renderer, margenX + 35, posYtexto + 5);
-        
+
         snprintf(limitador, sizeof(limitador), "%05d %-s", juego->puntajes[2].puntos, juego->puntajes[2].nombre);
         dibujarAbsoluto(renderer, 24, construirCoronaConColores(corona, GS, BR, BS), margenX, posYtexto+=25, 1);
         renderizarTexto(font, 16, limitador, BB, GS, renderer, margenX + 35, posYtexto + 5);

@@ -65,6 +65,16 @@ typedef struct
 
 typedef struct
 {
+    int piX;
+    int piY;
+    SDL_Renderer *renderer;
+    SDL_Window *ventana;
+    TTF_Font *font;
+    
+} Graficos;
+
+typedef struct
+{
     int y;
     int x;
 } Coord;
@@ -87,7 +97,7 @@ typedef void (*EventoClick)(Juego *juego, int x, int y, Coord *minasCoord, int m
 
 // Prototipos
 void manejar_eventos_menu(SDL_Event *e, EstadoJuego *estado_actual, int *seleccion, const int menu_count);
-void dibujar_menu(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, const char *menu_items[], const int menu_count, int *seleccion);
+void dibujar_menu(Graficos* graficos, const char *menu_items[], const int menu_count, int *seleccion);
 
 void manejar_eventos_juego(SDL_Event *e, EstadoJuego *estado_actual, Juego *juego, Coord *minasCoord, int minas, Coord *picords, Coord *rbutton);
 void manejar_eventos_ganado(SDL_Event *e, EstadoJuego *estado_actual, Juego *juego);

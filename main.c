@@ -17,7 +17,6 @@ int main(int argc, char *argv[])
 
     int filas = 0, columnas = 0, minasEnMapa = 0;
     char rutaFuente[100];
-
     // Creacion archivo log
 
     FILE *archivoLog = fopen("partida.log", "w");
@@ -109,6 +108,14 @@ int main(int argc, char *argv[])
     EstadoJuego estado_actual = ESTADO_MENU;
     int seleccion = 0;
 
+    // Creacion de struct para reducir parametros en funciones comunes
+    Graficos graficos;
+    graficos.ventana = ventana;
+    graficos.renderer = renderer;
+    graficos.font = font;
+    graficos.piX = 0;
+    graficos.piY = 0;
+    
     // While para mantener el programa corriendo
     while (corriendo)
     {
@@ -150,7 +157,7 @@ int main(int argc, char *argv[])
             {
             case ESTADO_MENU:
 
-                dibujar_menu(renderer, ventana, font, menu_items, menu_count, &seleccion);
+                dibujar_menu(&graficos, menu_items, menu_count, &seleccion);
                 juego.senialRender=0;
                 break;
 
