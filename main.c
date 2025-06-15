@@ -161,7 +161,7 @@ int main(int argc, char *argv[])
                 break;
 
             case ESTADO_JUGANDO:
-                manejar_eventos_juego(&e, &estado_actual, &juego, &minasCoord, minasEnMapa, &picords, &rbutton, &sonidos);
+                manejar_eventos_juego(&e, &estado_actual, &juego, minasCoord, minasEnMapa, &picords, &rbutton, &sonidos);
                 break;
 
             case ESTADO_GANADO:
@@ -193,7 +193,7 @@ int main(int argc, char *argv[])
             if (!juego.iniciado)
             {
 
-                mapaReiniciar(renderer, &picords, &juego, filas, columnas, &minasCoord, minasEnMapa);
+                mapaReiniciar(renderer, &picords, &juego, filas, columnas, minasCoord, minasEnMapa);
                 system("cls");
                 mapaImprimir(juego.mapa, filas, columnas);
             }
@@ -375,7 +375,7 @@ void manejar_eventos_juego(SDL_Event *e, EstadoJuego *estado_actual, Juego *jueg
                     if (SDL_PollEvent(e) && e->type == SDL_MOUSEBUTTONDOWN &&
                         e->button.button != boton)
                     {
-                        handlerClick(juego, xG, yG, minasCoord, minas);
+                        handlerClick(juego, sonidos, xG, yG, minasCoord, minas);
                         continue;
                     }
                     SDL_Delay(1);
@@ -384,7 +384,7 @@ void manejar_eventos_juego(SDL_Event *e, EstadoJuego *estado_actual, Juego *jueg
             else
             {
                 handlerClick = (boton == SDL_BUTTON_LEFT) ? handlerClickIzquierdo : handlerClickDerecho;
-                handlerClick(juego, xG, yG, minasCoord, minas);
+                handlerClick(juego, sonidos, xG, yG, minasCoord, minas);
                 if (juego->cantCasillasPresionadas == casillasLibresDeMinas)
                 {
                     puts("¡Ganaste el juego!");
