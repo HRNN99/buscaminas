@@ -109,17 +109,34 @@ int main(int argc, char *argv[])
     juego.sonidoClick = NULL;
     juego.sonidoBandera = NULL;
     juego.sonidoCat = NULL;
+    juego.sonidoPerder = NULL;
+    juego.sonidoFlecha = NULL;
+    juego.sonidoEnter = NULL;
+    juego.musicaFondo = NULL;
+    juego.musicaMenu = NULL;
+    
 
    //-----------------------------------------------------
 
 
-    if(cargarSonido("Sounds/sonidoMina.mp3", &juego.sonidoMina)
-        || cargarSonido("Sounds/sonidoCat.mp3", &juego.sonidoCat)
-        || cargarSonido("Sounds/sonidoClick.mp3", &juego.sonidoClick)
-        || cargarSonido("Sounds/sonidoBandera.mp3", &juego.sonidoBandera))
+    if(cargarSonido("Sounds/sonidoMina.mp3", &juego.sonidoMina, 32)
+        || cargarSonido("Sounds/sonidoCat.mp3", &juego.sonidoCat, 128)
+        || cargarSonido("Sounds/sonidoClick.mp3", &juego.sonidoClick, 128)
+        || cargarSonido("Sounds/sonidoBandera.mp3", &juego.sonidoBandera, 64)
+        || cargarSonido("Sounds/sonidoPerdio.mp3", &juego.sonidoPerder, 32)
+        || cargarSonido("Sounds/sonidoFlecha.mp3", &juego.sonidoFlecha, 32)
+        || cargarSonido("Sounds/sonidoEnter.mp3", &juego.sonidoEnter, 32))
     {
         return ERROR_SONIDO;
     }
+
+    if(cargarMusica("Sounds/musicaFondo.mp3", &juego.musicaFondo, 32)
+        || cargarMusica("Sounds/musicaMenu.mp3", &juego.musicaMenu, 32))
+    {
+        return ERROR_SONIDO;
+    }
+
+    
     //-----------------------------------------------------
 
     SDL_Event e;       // Variable para registrar eventos
@@ -131,11 +148,12 @@ int main(int argc, char *argv[])
     // Variable para estados
     EstadoJuego estado_actual = ESTADO_MENU;
     int seleccion = 0;
-
+    iniciarMusicaMenu(&juego.musicaMenu);
+    
     // While para mantener el programa corriendo
     while (corriendo)
     {
-
+        
         while (SDL_PollEvent(&e))
         {
             if (e.type == SDL_QUIT)
@@ -147,7 +165,7 @@ int main(int argc, char *argv[])
             switch (estado_actual)
             {
             case ESTADO_MENU:
-                manejar_eventos_menu(&e, &estado_actual, &seleccion, menu_count);
+                manejar_eventos_menu(&e, &estado_actual, &juego, &seleccion, menu_count);
                 break;
 
             case ESTADO_JUGANDO:
@@ -167,19 +185,18 @@ int main(int argc, char *argv[])
                 break;
             }
         }
-
+        
         // SDL_RenderClear(renderer);
 
         switch (estado_actual)
         {
         case ESTADO_MENU:
-
             dibujar_menu(renderer, ventana, font, menu_items, menu_count, &seleccion);
             break;
 
         case ESTADO_JUGANDO:
-
             interfaz(renderer, font, &juego, &picords, filas, &rbutton);
+            
 
             if (!juego.iniciado)
             {
@@ -192,6 +209,7 @@ int main(int argc, char *argv[])
             casillaColocacion(juego.mapa, renderer, filas, columnas, &picords);
             break;
         case ESTADO_GANADO:
+            
             interfazGanado(renderer, ventana, font, &juego, &picords, filas, &rbutton);
             break;
         }
@@ -204,9 +222,9 @@ int main(int argc, char *argv[])
     return EJECUCION_OK;
 }
 
-void manejar_eventos_menu(SDL_Event *e, EstadoJuego *estado_actual, int *seleccion, const int menu_count)
+void manejar_eventos_menu(SDL_Event *e, EstadoJuego *estado_actual, Juego *juego, int *seleccion, const int menu_count)
 {
-
+    
     switch (e->type)
     {
 
@@ -216,19 +234,23 @@ void manejar_eventos_menu(SDL_Event *e, EstadoJuego *estado_actual, int *selecci
         {
 
         case SDLK_UP:
+            Mix_PlayChannel(-1, juego->sonidoFlecha, 0);
             *seleccion = (*seleccion - 1 + menu_count) % menu_count;
             break;
 
         case SDLK_DOWN:
+            Mix_PlayChannel(-1, juego->sonidoFlecha, 0);
             *seleccion = (*seleccion + 1) % menu_count;
             break;
 
         case SDLK_RETURN:
+            Mix_PlayChannel(-1, juego->sonidoEnter, 0);
             switch (*seleccion)
             {
 
             case 0:
                 *estado_actual = ESTADO_JUGANDO;
+                iniciarMusicaJuego(&juego->musicaFondo);
                 break;
 
             case 1:

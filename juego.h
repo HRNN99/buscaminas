@@ -2,7 +2,7 @@
 #define JUEGO_H
 
 #include "dibujos.h"
-#include "sonido.h"
+#include <SDL2/SDL_mixer.h>
 #include <time.h>
 
 
@@ -71,6 +71,11 @@ typedef struct
     Mix_Chunk *sonidoClick;
     Mix_Chunk *sonidoBandera;
     Mix_Chunk *sonidoCat;
+    Mix_Chunk *sonidoPerder;
+    Mix_Chunk *sonidoEnter;
+    Mix_Chunk *sonidoFlecha;
+    Mix_Music *musicaFondo;
+    Mix_Music *musicaMenu;
 } Juego;
 
 typedef struct
@@ -96,7 +101,7 @@ typedef struct
 typedef void (*EventoClick)(Juego *juego, int x, int y, Coord *minasCoord, int minas);
 
 // Prototipos
-void manejar_eventos_menu(SDL_Event *e, EstadoJuego *estado_actual, int *seleccion, const int menu_count);
+void manejar_eventos_menu(SDL_Event *e, EstadoJuego *estado_actual, Juego *juego, int *seleccion, const int menu_count);
 void dibujar_menu(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, const char *menu_items[], const int menu_count, int *seleccion);
 
 void manejar_eventos_juego(SDL_Event *e, EstadoJuego *estado_actual, Juego *juego, Coord *minasCoord, int minas, Coord *picords, Coord *rbutton);
@@ -126,4 +131,4 @@ void handlerClickDerecho(Juego *juego, int x, int y, Coord *minasCoord, int mina
 void clickDoble(Juego *juego, int gX, int gY, Coord *minasCoord, int minas);
 // Log
 void setLog(Log *log, int coordX, int coordY, char tipoEvento[80]);
-#endif // JUEGO_
+#endif // JUEGO_H

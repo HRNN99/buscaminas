@@ -370,8 +370,11 @@ void casillaEstado(Juego *juego, Coord *minasCoord, int minas, int gX, int gY, b
 
     if (casillaSeleccionada->estado == -1)
     {
+        Mix_PauseMusic();
+        
         juego->finPartida = true;
-
+        
+        
         // Mostrar todas las bombas
         for (int i = 0; i < minas; i++)
         {
@@ -384,6 +387,9 @@ void casillaEstado(Juego *juego, Coord *minasCoord, int minas, int gX, int gY, b
             juego->mapa[mY][mX].presionada = true; // Presionar todas las minas
             juego->mapa[mY][mX].estado = 5;        // Estado de mina revelada
         }
+        Mix_PlayChannel(-1, juego->sonidoPerder, 0); // Sonido de mina
+        SDL_Delay(2000); // Espera para reproducir el sonido
+        Mix_PlayMusic(juego->musicaFondo, -1); // Musica de menu
         return;
     }
 
