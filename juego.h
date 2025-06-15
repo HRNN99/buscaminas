@@ -74,6 +74,8 @@ typedef struct
     Coord* piCord;
     SDL_Renderer *renderer;
     SDL_Window *ventana;
+    int tamXVentana;
+    int tamYVentana;
     TTF_Font *font;
     int G; // Grosor
     int pad; // Padding

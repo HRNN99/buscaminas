@@ -9,9 +9,6 @@ void dibujar_menu(Graficos* graficos, const char *menu_items[], const int menu_c
     SDL_SetRenderDrawColor(graficos->renderer, 0, 0, 0, 255);
     SDL_RenderClear(graficos->renderer);
 
-    int win_width, win_height;
-    SDL_GetWindowSize(graficos->ventana, &win_width, &win_height);
-
     int base_y = 50;
     int espacio = 50;
 
@@ -22,7 +19,7 @@ void dibujar_menu(Graficos* graficos, const char *menu_items[], const int menu_c
         TTF_SizeText(graficos->font, menu_items[i], &text_width, &text_height);
 
         SDL_Rect fondo;
-        fondo.x = (win_width - text_width) / 2;
+        fondo.x = (graficos->tamXVentana - text_width) / 2;
         fondo.y = base_y + i * espacio;
         fondo.w = text_width;
         fondo.h = text_height;
@@ -241,17 +238,14 @@ void tiempoYbombas(Graficos *graficos, Juego *juego)
 
 void interfazGanado(Graficos *graficos, Juego *juego)
 {
-    int win_width, win_height;
-    SDL_GetWindowSize(graficos->ventana, &win_width, &win_height);
-
     // Ventana
-    graficos->piCord->x = (win_width / 2) - (TAMX_GANADO / 2);
-    graficos->piCord->y = (win_height / 2) - (TAMY_GANADO / 2);
+    graficos->piCord->x = (graficos->tamXVentana / 2) - (TAMX_GANADO / 2);
+    graficos->piCord->y = (graficos->tamYVentana / 2) - (TAMY_GANADO / 2);
     rectanguloLlenoAbsoluto(graficos->renderer, GS, graficos->piCord->x, graficos->piCord->y, TAMX_GANADO, TAMY_GANADO);
     marcoInvertido(graficos->renderer, graficos->piCord->x, graficos->piCord->y, (TAMX_GANADO), (TAMY_GANADO), 4);
     // Boton cerrar ventana
-    dibujarAbsoluto(graficos->renderer, 20, close_button, (win_width / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12 + 5, graficos->piCord->y + 15 + 4 + 5, 1);
-    marcoInvertido(graficos->renderer, (win_width / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12, graficos->piCord->y + 15 + 4, TAM_BOTON_CERRADO, TAM_BOTON_CERRADO, 4);
+    dibujarAbsoluto(graficos->renderer, 20, close_button, (graficos->tamXVentana / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12 + 5, graficos->piCord->y + 15 + 4 + 5, 1);
+    marcoInvertido(graficos->renderer, (graficos->tamXVentana / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12, graficos->piCord->y + 15 + 4, TAM_BOTON_CERRADO, TAM_BOTON_CERRADO, 4);
 
     char textoPuntaje[21] = "Tiempo: ";
     char puntajeChar[12];

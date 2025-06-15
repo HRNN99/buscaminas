@@ -23,10 +23,10 @@
 #define GC 10//Gris C
 #define AD 11//Amarillo dorado
 #define DS 12//Dorado sombra
-#define BR 13//Bronce 
+#define BR 13//Bronce
 #define BS 14//Bronce sombra
 
-SDL_Color colores[];
+SDL_Color colores[15];
 
 void dibujar(SDL_Renderer *renderer , int pixeles , const int dibujo[][pixeles] , int gX , int gY , int pXi , int pYi);
 void dibujarAbsoluto(SDL_Renderer *renderer , int pixeles , const int dibujo[][pixeles] , int gX , int gY , int escala);

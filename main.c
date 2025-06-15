@@ -101,9 +101,6 @@ int main(int argc, char *argv[])
     SDL_Event e;       // Variable para registrar eventos
     int corriendo = 1; // Variable flag true para mantener corriendo el programa
 
-    int boton, renderizarGanado = 0, casillasLibresDeMinas = (filas * columnas) - minasEnMapa;
-    time_t current_time;
-
     // Variable para estados
     EstadoJuego estado_actual = ESTADO_MENU;
     int seleccion = 0;
@@ -118,7 +115,8 @@ int main(int argc, char *argv[])
     graficos.G = 2; // Grosor
     graficos.pad = graficos.G * 4;
     graficos.altoC = 28;
-
+    graficos.tamXVentana = TAMX;
+    graficos.tamYVentana = TAMY;
     // While para mantener el programa corriendo
     while (corriendo)
     {
@@ -150,6 +148,7 @@ int main(int argc, char *argv[])
                 corriendo = false;
                 printf("\nSaliendo...\n");
                 break;
+            default: break;
             }
         }
 
@@ -183,6 +182,7 @@ int main(int argc, char *argv[])
                 interfazGanado(&graficos, &juego);
                 juego.senialRender=0;
                 break;
+            default: break;
             }
         }
         SDL_RenderPresent(renderer);
