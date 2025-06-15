@@ -17,8 +17,12 @@ SDL_Color colores[] =
     {48,48,48,255},
     {255, 251, 0, 255}, // Dorado
     {245, 216, 0, 255}, // Sombra Dorado
-    {204, 133, 0, 255}, // Bronce 
+    {204, 133, 0, 255}, // Bronce
     {150, 100, 0, 255}, // Bronce sombra
+
+    {34,20,99,255}, //Purpura
+    {120,2,40,255}, //Rojo obscuro
+    {11,150,181,255}//Cian
 };
 
 //Funcion que  dibuja pixel por pixel
