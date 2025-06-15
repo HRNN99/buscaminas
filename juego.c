@@ -216,7 +216,7 @@ void interfaz(SDL_Renderer *renderer, TTF_Font *font, Juego *juego, Coord *pcord
 
     // Puntaje y bombas
     int fontSize = 16;
-    renderizarTexto(font, fontSize, "Puntaje:", GF, GS, renderer, pad * 3, pad + (altoC / 2));
+    renderizarTexto(font, fontSize, "Tiempo:", GF, GS, renderer, pad * 3, pad + (altoC / 2));
     char puntaje[21] = "";
     itoa(juego->puntaje, puntaje, 10); // Armado de String a imprimir
     renderizarTexto(font, fontSize, puntaje, GF, GS, renderer, pad * 3, pad + (altoC / 2) + fontSize + 2);
@@ -245,7 +245,7 @@ void interfazGanado(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font,
     rectanguloLlenoAbsoluto(renderer, GS, pcords->x, pcords->y, TAMX_GANADO, TAMY_GANADO);
     marcoInvertido(renderer, pcords->x, pcords->y, (TAMX_GANADO), (TAMY_GANADO), 4);
     // Boton cerrar ventana
-    rectanguloLlenoAbsoluto(renderer, RR, (win_width / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12, pcords->y + 15 + 4, TAM_BOTON_CERRADO, TAM_BOTON_CERRADO);
+    dibujarAbsoluto(renderer, 20, close_button, (win_width / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12 + 5, pcords->y + 15 + 4 + 5, 1);
     marcoInvertido(renderer, (win_width / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12, pcords->y + 15 + 4, TAM_BOTON_CERRADO, TAM_BOTON_CERRADO, 4);
     // Renderizar "Puntaje" y "Nombre:"
     char textoPuntaje[21] = "Tiempo: ";
@@ -261,11 +261,11 @@ void interfazGanado(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font,
     // Renderizar mejores posiciones
     //dibujar(renderer, 1, restart_button, margenX, posYtexto += 30, 10, 10);
     int anchoM = dimensionM * PIXELES_X_LADO + 4;
-    dibujarAbsoluto(renderer, 24, construirCoronaConColores(corona, GS, AD, DS), margenX, posYtexto+=30, (anchoM / 2) - 7, pcords->y);
+    dibujarAbsoluto(renderer, 24, construirCoronaConColores(corona, GS, AD, DS), margenX, posYtexto+=30, 1);
     renderizarTexto(font, 16, juego->puntajes[0].nombre, BB, GS, renderer, margenX + 35, posYtexto + 5);
-    dibujarAbsoluto(renderer, 24, construirCoronaConColores(corona, GS, BB, GA), margenX, posYtexto+=25, (anchoM / 2) - 7, pcords->y);
+    dibujarAbsoluto(renderer, 24, construirCoronaConColores(corona, GS, BB, GA), margenX, posYtexto+=25, 1);
     renderizarTexto(font, 16, juego->puntajes[1].nombre, BB, GS, renderer, margenX + 35, posYtexto + 5);
-    dibujarAbsoluto(renderer, 24, construirCoronaConColores(corona, GS, BR, BS), margenX, posYtexto+=25, (anchoM / 2) - 7, pcords->y);
+    dibujarAbsoluto(renderer, 24, construirCoronaConColores(corona, GS, BR, BS), margenX, posYtexto+=25, 1);
     renderizarTexto(font, 16, juego->puntajes[2].nombre, BB, GS, renderer, margenX + 35, posYtexto + 5);
     // Mostrar todo
     SDL_RenderPresent(renderer);

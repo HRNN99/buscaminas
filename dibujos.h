@@ -27,7 +27,7 @@
 #define BS 14//Bronce sombra
 
 void dibujar(SDL_Renderer *renderer , int pixeles , const int dibujo[][pixeles] , int gX , int gY , int pXi , int pYi);
-void dibujarAbsoluto(SDL_Renderer *renderer , int pixeles , const int dibujo[][pixeles] , int gX , int gY , int pXi , int pYi);
+void dibujarAbsoluto(SDL_Renderer *renderer , int pixeles , const int dibujo[][pixeles] , int gX , int gY , int escala);
 void rectanguloLleno(SDL_Renderer *renderer , int color , const int gX , const int gY , int W , int H);
 void rectanguloLlenoAbsoluto(SDL_Renderer *renderer , int color , const int gX , const int gY , int W , int H);
 void marco(SDL_Renderer* renderer , int X , int Y , int W , int H , int G);
