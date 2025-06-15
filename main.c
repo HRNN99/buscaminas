@@ -325,7 +325,7 @@ void manejar_eventos_ganado(SDL_Event *e , EstadoJuego *estado_actual, Juego* ju
 
                     // Guardo los puntajes en array
                     while (fgets(linea, sizeof(linea)+1, aPuntuacion) && total < MAX_PUNTAJES) {
-                        strncpy(puntajes[total].nombre, linea + 6, 40);
+                        strncpy(puntajes[total].nombre, linea + 6, 40); // +6 por el formato del archivo, 5 de tiempo y 1 de espacio
                         puntajes[total].nombre[39] = '\0';
                         puntajes[total].puntos = atoi(linea);
                         total++;
