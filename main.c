@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
             case ESTADO_GANADO:
                 manejar_eventos_ganado(&e, &estado_actual, &juego);
                 break;
-                
+
             case ESTADO_SALIENDO:
                 corriendo = false;
                 printf("\nSaliendo...\n");
@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if(estado_actual==ESTADO_JUGANDO || estado_actual == ESTADO_GANADO)tiempoYbombas(renderer, font, &juego, &picords, filas, &rbutton);
+        if(estado_actual==ESTADO_JUGANDO || estado_actual == ESTADO_GANADO)tiempoYbombas(renderer, font, &juego, &picords, &rbutton);
 
         if(juego.senialRender){
             switch (estado_actual)
@@ -156,8 +156,6 @@ int main(int argc, char *argv[])
 
             case ESTADO_JUGANDO:
 
-                interfaz(renderer, font, &juego, &picords, filas, &rbutton);
-
                 if (!juego.iniciado)
                 {
 
@@ -166,11 +164,12 @@ int main(int argc, char *argv[])
                     mapaImprimir(juego.mapa, filas, columnas);
                 }
 
+                interfaz(renderer, font, &juego, &picords, &rbutton);
                 casillaColocacion(juego.mapa, renderer, filas, columnas, &picords);
                 juego.senialRender=0;
                 break;
             case ESTADO_GANADO:
-                interfazGanado(renderer, ventana, font, &juego, &picords, filas, &rbutton);
+                interfazGanado(renderer, ventana, font, &juego, &picords, &rbutton);
                 juego.senialRender=0;
                 break;
             }

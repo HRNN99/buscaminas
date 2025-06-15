@@ -185,7 +185,7 @@ void fondoColor(SDL_Renderer *renderer)
     SDL_RenderPresent(renderer);                    // Aplicacion
 }
 
-void interfaz(SDL_Renderer *renderer, TTF_Font *font, Juego *juego, Coord *pcords, int dimensionM, Coord *rbutton)
+void interfaz(SDL_Renderer *renderer, TTF_Font *font, Juego *juego, Coord *pcords, Coord *rbutton)
 {
     pcords->x = 0;
     pcords->y = 0;
@@ -195,7 +195,7 @@ void interfaz(SDL_Renderer *renderer, TTF_Font *font, Juego *juego, Coord *pcord
     int G = 2; // Grosor
     int pad = G * 4;
 
-    int anchoM = dimensionM * PIXELES_X_LADO + 4;
+    int anchoM = juego->dimMapa * PIXELES_X_LADO + 4;
     int altoC = 28;
     int anchoI = anchoM + 16;
     int altoI = pad + altoC + pad + anchoM + pad;
@@ -229,7 +229,7 @@ void interfaz(SDL_Renderer *renderer, TTF_Font *font, Juego *juego, Coord *pcord
 }
 
 // TODO: agilizar esta funcion. Se ejeccuta todo le juego
-void tiempoYbombas(SDL_Renderer *renderer, TTF_Font *font, Juego *juego, Coord *pcords, int dimensionM, Coord *rbutton)
+void tiempoYbombas(SDL_Renderer *renderer, TTF_Font *font, Juego *juego, Coord *pcords, Coord *rbutton)
 {
 
     // Renderizado de tiempo
@@ -249,7 +249,7 @@ void tiempoYbombas(SDL_Renderer *renderer, TTF_Font *font, Juego *juego, Coord *
     }
 }
 
-void interfazGanado(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, Juego *juego, Coord *pcords, int dimensionM, Coord *rbutton)
+void interfazGanado(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, Juego *juego, Coord *pcords, Coord *rbutton)
 {
     int win_width, win_height;
     SDL_GetWindowSize(ventana, &win_width, &win_height);
