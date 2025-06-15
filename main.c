@@ -123,9 +123,8 @@ int main(int argc, char *argv[]){
                     break;
 
                  case ESTADO_GANADO:
-
-                 if(e.type == SDL_MOUSEBUTTONDOWN)
-                    printf("Hiciste click en el pixel (%i , %i)\n", e.button.x, e.button.y);
+                    if(e.type == SDL_MOUSEBUTTONDOWN)
+                        printf("Hiciste click en el pixel (%i , %i)\n", e.button.x, e.button.y);
                     manejar_eventos_ganado(&e , &estado_actual, &juego);
                     break;
 
@@ -295,7 +294,7 @@ void manejar_eventos_ganado(SDL_Event *e , EstadoJuego *estado_actual, Juego* ju
     switch(e->type){
             case SDL_TEXTINPUT:
                 // Actualizacion de nombreJugador al presionar una tecla
-                if (strlen(juego->nombreJugador) + strlen(e->text.text) < 100)
+                if (strlen(juego->nombreJugador) + strlen(e->text.text) <= 40)
                 {
                     strcat(juego->nombreJugador, e->text.text);
                 }
@@ -325,8 +324,14 @@ void manejar_eventos_ganado(SDL_Event *e , EstadoJuego *estado_actual, Juego* ju
                     int iterador = 0;
                     int guardado = 0;
                     Puntaje puntaje[MAX_PUNTAJES];
+                    for (size_t i = 0; i < MAX_PUNTAJES; i++)
+                    {
+                        memset(puntaje[i].nombre, '\0', sizeof(puntaje->nombre));
+                        puntaje[i].puntos = 0;
+                    }
+
                     // Guardo todos los valores en un array
-                    while(iterador < 20 && fgets(linea, sizeof(linea)+1, aPuntuacion) ){
+                    while(fgets(linea, sizeof(linea)+1, aPuntuacion)){
                         char* iniPalabra = linea+6;
                         strncpy(puntuacion, linea, 5);
                         puntaje[iterador].puntos = atoi(puntuacion);
@@ -334,15 +339,24 @@ void manejar_eventos_ganado(SDL_Event *e , EstadoJuego *estado_actual, Juego* ju
                         iterador++;
                     }
                     // Guardo en orden en el archivo temp
-                        for (size_t i = 0; i < iterador; i++)
+                    if(iterador == 0)
+                        fprintf(aPuntuacionTemp, "%05d %-40s\n",  juego->puntaje,  juego->nombreJugador);
+                    for (size_t i = 0; i < iterador; i++)
+                    {
+                        if (!guardado && (i == iterador-1 || juego->puntaje < puntaje[i].puntos))
                         {
-                            if (!guardado && juego->puntaje < puntaje[i].puntos)
-                            {
-                                fprintf(aPuntuacionTemp, "%05d %-40s\n",  juego->puntaje,  juego->nombreJugador);
-                                guardado = 1;
-                            }
+                            fprintf(aPuntuacionTemp, "%05d %-40s\n",  juego->puntaje,  juego->nombreJugador);
+                            guardado = 1;
+                        }
+                        if(!(i == iterador-1)){
                             fprintf(aPuntuacionTemp, "%05d %-40s\n",  puntaje[i].puntos,  puntaje[i].nombre);
+                        }
+
                     }
+                    if(!guardado){
+                        fprintf(aPuntuacionTemp, "%05d %-40s\n",  juego->puntaje,  juego->nombreJugador);
+                    }
+
                     guardado = 0;
                     fclose(aPuntuacion);
                     fclose(aPuntuacionTemp);
@@ -389,10 +403,11 @@ void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* ju
                     printf("Hiciste click en la casilla (%i , %i)\n",xG,yG);
                     casillaEstado(juego , minasCoord , minas , xG , yG);
 
+                    // Juego terminado
                     if (juego->cantCasillasPresionadas == casillasLibresDeMinas){
                         puts("¡Ganaste el juego!");
                         SDL_StartTextInput();
-                        juego->nombreJugador[0] = '\0';
+                        memset(juego->nombreJugador, '\0', sizeof(juego->nombreJugador));
                         *estado_actual = ESTADO_GANADO;
                     }
                     break;
