@@ -297,7 +297,7 @@ void interfazGanado(Graficos *graficos, Juego *juego)
     juego->finPartida = true;
 }
 
-void mapaReiniciar(SDL_Renderer *renderer, Coord *pcord, Juego *juego, int filas, int columnas, Coord *minasCoord, int minas)
+void mapaReiniciar(Juego *juego, int filas, int columnas, Coord *minasCoord, int minas)
 {
 
     juego->iniciado = true;

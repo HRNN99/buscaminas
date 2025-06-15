@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
                 if (!juego.iniciado)
                 {
 
-                    mapaReiniciar(renderer, &picords, &juego, filas, columnas, &minasCoord, minasEnMapa);
+                    mapaReiniciar(&juego, filas, columnas, &minasCoord, minasEnMapa);
                     system("cls");
                     mapaImprimir(juego.mapa, filas, columnas);
                 }
