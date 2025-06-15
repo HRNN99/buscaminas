@@ -1,38 +1,23 @@
 #include <stdio.h>
+#include <ctype.h>
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
 #include <math.h>
 #include <SDL2/SDL_ttf.h>
 
-#include "dibujos.h" //Header de estados
+#include "dibujos.h"
 #include "juego.h"
 #include "sonido.h" //Header de sonido
 
-int leerConfiguracion(int *, int *, int *, char *);
-int escribirArchivoLog(FILE *archivoLog, Log *log);
+bool linea_ignorable(const char* linea);
+int cargar_dificultades(const char* archivo , Dificultad* difs , int num_dif);
+int escribirArchivoLog(FILE* archivoLog, Log* log);
 int leerPuntajes(Juego* juego);
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]){
 
-    int filas = 0, columnas = 0, minasEnMapa = 0;
-    char rutaFuente[100];
-
-    // Creacion archivo log
-
-    FILE *archivoLog = fopen("partida.log", "w");
-    if (!archivoLog)
-    {
-        puts("Error creando el archivo log");
-        return ERROR_ARCHIVO;
-    }
-    Log log;
-    setLog(&log, -1, -1, "Inicio del juego");
-    escribirArchivoLog(archivoLog, &log);
-
-    // Lectura del archivo de configuarcion
-    leerConfiguracion(&filas, &columnas, &minasEnMapa, rutaFuente);
+    //////////////////////////////////////////////////////////////////////
 
     // Iniciar SDL con funcion Video y audio
     if(SDL_Init(SDL_INIT_VIDEO) || SDL_Init(SDL_INIT_AUDIO))
@@ -40,29 +25,20 @@ int main(int argc, char *argv[])
         puts("Error al iniciar SDL");
         return ERROR_CONFIGURACION;
     }
+
     Sonido sonidos;
     if(iniciarSonido(&sonidos))
     {
         return ERROR_CONFIGURACION;
     }
-    
-    // Inicio TTF y busco la fuente. Si no la encuentra imprime un error
-    TTF_Init();
-    TTF_Font *font = TTF_OpenFont(rutaFuente, 32);
-    if (!font)
-    {
-        printf("Error cargando fuente: %s\n", TTF_GetError());
-        return ERROR_FUENTE;
-    }
 
-    char nombreVentana[100];
-    // String formateado para el titulo de ventana
-    sprintf(nombreVentana, "Buscaminas %ix%i", filas, columnas);
+    //////////////////////////////////////////////////////////////////////
+
     // Tamaño de ancho y altura de la ventana, utilizo 1 sola variable ya que sera cuadrada
-    int TAMX = TAM_PIXEL * (columnas * PIXELES_X_LADO + 20);
-    int TAMY = TAM_PIXEL * (filas * PIXELES_X_LADO + 4 + 3 * 8 + 28);
+    int TAMX =  TAM_PIXEL * (16 * PIXELES_X_LADO + 20);
+    int TAMY =  TAM_PIXEL * (16 * PIXELES_X_LADO + 4 + 3*8 + 28);
     // Funcion para crear ventana con posicion especifica, dimension y banderas.
-    SDL_Window *ventana = SDL_CreateWindow(nombreVentana, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, TAMX, TAMY, 2);
+    SDL_Window *ventana = SDL_CreateWindow("Buscaminas", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, TAMX, TAMY, 2);
     // Funcion para crear el renderizado en ventana acelerado por hardware
     SDL_Renderer *renderer = SDL_CreateRenderer(ventana, -1, SDL_RENDERER_ACCELERATED);
     // Funcion para establecer el modo de mezcla de colores para el renderizado, el modo blend nos permite utilizar transparencia
@@ -70,43 +46,64 @@ int main(int argc, char *argv[])
 
     //////////////////////////////////////////////////////////////////////
 
-    const char *menu_items[] = {
+    //Creacion archivo log
+    FILE* archivoLog = fopen("partida.log", "w");
+
+    if(!archivoLog){
+
+        puts("Error creando el archivo log");
+        return ERROR_ARCHIVO;
+    }
+
+    Log log;
+    setLog(&log, -1, -1, "Inicio del juego");
+    escribirArchivoLog(archivoLog, &log);
+
+    //////////////////////////////////////////////////////////////////////
+
+    // Inicio TTF y busco la fuente. Si no la encuentra imprime un error
+    TTF_Init();
+    TTF_Font *font = TTF_OpenFont("Fonts/digital-7.ttf", 32);
+
+    if (!font){
+
+        printf("Error cargando fuente: %s\n", TTF_GetError());
+        return ERROR_FUENTE;
+    }
+
+    //////////////////////////////////////////////////////////////////////
+
+    const char* menu_items[] = {
         "Nueva Partida",
         "Cargar Partida",
-        "Salir"};
-
+        "Salir"
+    };
     int menu_count = sizeof(menu_items) / sizeof(menu_items[0]);
+    int seleccion_menu = 0;
+
+    const char* dificultad_items[] = {
+        "Facil",
+        "Intermedio",
+        "Dificil"
+    };
+    int dificultad_count = sizeof(dificultad_items) / sizeof(dificultad_items[0]);
+    int seleccion_dificultad = 0;
+
+    Dificultad dificultades[dificultad_count];
+
+    cargar_dificultades("buscaminas.conf" , dificultades , dificultad_count);
 
     //////////////////////////////////////////////////////////////////////
-
-    // fondoColor(renderer); //Funcion para establecer fondo del render color defecto
-
-    Coord picords = {0, 0};
-    Coord rbutton = {0, 0};
-    // interfaz(renderer , &picords , filas , &rbutton); //Funcion para colocar la interfaz
-
-    //////////////////////////////////////////////////////////////////////
-
-    // Creacion de matriz mapa
-    Casilla **mapa = matrizCrear(filas, columnas, sizeof(Casilla));
-
-    // Vector de coordenadas para las minas
-    Coord minasCoord[minasEnMapa];
 
     Juego juego;
-    juego.mapa = mapa;
+    juego.mapa = NULL;
     juego.iniciado = false;
 
-    
-
-    // Iniciacion de valores de mapa
-    // mapaReiniciar(renderer , &picords , &juego , filas , columnas , &minasCoord , minasEnMapa);
-   
     // Inicializar el juego
     juego.puntaje = 0;
     juego.cantCasillasPresionadas = 0;
-    juego.cantMinasEnInterfaz = minasEnMapa;
-    juego.dimMapa = filas;
+    //juego.cantMinasEnInterfaz = minasEnMapa;
+    //juego.dimMapa = filas;
     juego.finPartida = false;
     juego.start_time = time(NULL); // Iniciar el contador cuando inicia el juego
     juego.nombreJugador[0] = '\0';
@@ -114,8 +111,7 @@ int main(int argc, char *argv[])
     // Leer archivo de puntajes
     leerPuntajes(&juego);
 
-   //-----------------------------------------------------
-
+    //////////////////////////////////////////////////////////////////////
 
     if(cargarSonido("Sounds/sonidoMina.mp3", &sonidos.sonidoMina, 32)
         || cargarSonido("Sounds/sonidoCat.mp3", &sonidos.sonidoCat, 128)
@@ -134,141 +130,275 @@ int main(int argc, char *argv[])
         return ERROR_SONIDO;
     }
 
-    
-    //-----------------------------------------------------
+    //////////////////////////////////////////////////////////////////////
 
-    SDL_Event e;       // Variable para registrar eventos
-    int corriendo = 1; // Variable flag true para mantener corriendo el programa
+    Coord picords = {0,0};
+    Coord rbutton = {0,0};
 
-    int boton, renderizarGanado = 0, fontSize = 16, casillasLibresDeMinas = (filas * columnas) - minasEnMapa;
+    int renderizarGanado = 0 , fontSize = 16; // casillasLibresDeMinas = (filas * columnas) - minasEnMapa;
     time_t current_time;
 
-    // Variable para estados
-    EstadoJuego estado_actual = ESTADO_JUGANDO;
-    int seleccion = 0;
+    int corriendo = true; // Variable flag true para mantener corriendo el programa
+    SDL_Event e; // Variable para registrar eventos
+    EstadoJuego estado_actual = ESTADO_MENU; //Variable para estados
     iniciarMusicaMenu(&sonidos.musicaMenu);
-    
+
+    //////////////////////////////////////////////////////////////////////
+
     // While para mantener el programa corriendo
-    while (corriendo)
-    {
-        
-        while (SDL_PollEvent(&e))
-        {
-            if (e.type == SDL_QUIT)
-            {
+    while (corriendo){
+
+        //////////////////////////////////////////////////////////////////////
+
+        while(SDL_PollEvent(&e)){
+
+            if(e.type == SDL_QUIT){
+
                 corriendo = false;
+                matrizDestruir(juego.mapa , juego.dificultad.dimension);
                 printf("\n---Cerrando Ventana---\n");
             }
 
-            switch (estado_actual)
-            {
+            switch(estado_actual){
+                case ESTADO_MENU:
+                    manejar_eventos_menu(&e , &estado_actual , &seleccion_menu , menu_count , &sonidos);
+                    break;
+
+                case ESTADO_DIFICULTAD:
+                    manejar_eventos_dificultad(&e , &estado_actual , &seleccion_dificultad , dificultad_count , &juego , dificultades , ventana);
+                    break;
+
+                case ESTADO_JUGANDO:
+                    manejar_eventos_juego(&e , &estado_actual , &juego , &picords , &rbutton , &sonidos);
+                    break;
+
+                case ESTADO_GANADO:
+                    if (e.type == SDL_MOUSEBUTTONDOWN)
+                    printf("Hiciste click en el pixel (%i , %i)\n", e.button.x, e.button.y);
+                    manejar_eventos_ganado(&e, &estado_actual, &juego);
+                    break;
+
+                case ESTADO_SALIENDO:
+                    corriendo = false;
+                    matrizDestruir(juego.mapa , juego.dificultad.dimension);
+                    printf("\nSaliendo...\n");
+                    break;
+            }
+        }
+
+        //////////////////////////////////////////////////////////////////////
+
+        //SDL_RenderClear(renderer);
+
+        switch(estado_actual){
+
             case ESTADO_MENU:
-                manejar_eventos_menu(&e, &estado_actual, &sonidos, &seleccion, menu_count);
+
+                dibujar_menu(renderer , ventana , font , menu_items , menu_count , &seleccion_menu);
+                break;
+
+            case ESTADO_DIFICULTAD:
+
+                dibujar_menu(renderer , ventana , font , dificultad_items , dificultad_count , &seleccion_dificultad);
                 break;
 
             case ESTADO_JUGANDO:
-                manejar_eventos_juego(&e, &estado_actual, &juego, minasCoord, minasEnMapa, &picords, &rbutton, &sonidos);
+
+                interfaz(renderer , font , &juego , &picords , &rbutton);
+
+                if(!juego.iniciado){
+
+                    mapaReiniciar(renderer , &picords , &juego);
+                    system("cls");
+                    mapaImprimir(juego.mapa , juego.dificultad.dimension , juego.dificultad.dimension);
+
+                }
+
+                casillaColocacion(renderer , juego.mapa , juego.dificultad.dimension , &picords);
                 break;
 
             case ESTADO_GANADO:
 
-                if (e.type == SDL_MOUSEBUTTONDOWN)
-                    printf("Hiciste click en el pixel (%i , %i)\n", e.button.x, e.button.y);
-                manejar_eventos_ganado(&e, &estado_actual, &juego);
+                interfazGanado(renderer , ventana , font , &juego , &picords , juego.dificultad.dimension , &rbutton);
                 break;
 
-            case ESTADO_SALIENDO:
-                corriendo = false;
-                printf("\nSaliendo...\n");
-                break;
-            }
         }
-        
-        // SDL_RenderClear(renderer);
 
-        switch (estado_actual)
-        {
-        case ESTADO_MENU:
-            dibujar_menu(renderer, ventana, font, menu_items, menu_count, &seleccion);
-            break;
-
-        case ESTADO_JUGANDO:
-            interfaz(renderer, font, &juego, &picords, filas, &rbutton);
-            
-
-            if (!juego.iniciado)
-            {
-
-                mapaReiniciar(renderer, &picords, &juego, filas, columnas, minasCoord, minasEnMapa);
-                system("cls");
-                mapaImprimir(juego.mapa, filas, columnas);
-            }
-
-            casillaColocacion(juego.mapa, renderer, filas, columnas, &picords);
-            break;
-        case ESTADO_GANADO:
-            
-            interfazGanado(renderer, ventana, font, &juego, &picords, filas, &rbutton);
-            break;
-        }
+        //////////////////////////////////////////////////////////////////////
 
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
-
     }
-    // TODO cerrar todo SDL
+
+    //////////////////////////////////////////////////////////////////////
+
+    if(!juego.mapa) matrizDestruir(juego.mapa , juego.dificultad.dimension);
+
     fclose(archivoLog);
+    FinalizarSDL(ventana, renderer, font, EXIT_SUCCESS, archivoLog); // Funcion para la finalizacion de SDL y sus componentes
     return EJECUCION_OK;
 }
 
-void manejar_eventos_menu(SDL_Event *e, EstadoJuego *estado_actual, Sonido *sonidos, int *seleccion, const int menu_count)
-{
-    
-    switch (e->type)
-    {
+//////////////////////////////////////////////////////////////////////
 
-    case SDL_KEYDOWN:
+void manejar_eventos_menu(SDL_Event *e , EstadoJuego *estado_actual, int* seleccion , const int items_count , Sonido* sonidos){
 
-        switch (e->key.keysym.sym)
-        {
+    switch (e->type){
 
-        case SDLK_UP:
-            Mix_PlayChannel(-1, sonidos->sonidoFlecha, 0);
-            *seleccion = (*seleccion - 1 + menu_count) % menu_count;
-            break;
+        case SDL_KEYDOWN:
 
-        case SDLK_DOWN:
-            Mix_PlayChannel(-1, sonidos->sonidoFlecha, 0);
-            *seleccion = (*seleccion + 1) % menu_count;
-            break;
+            switch (e->key.keysym.sym){
 
-        case SDLK_RETURN:
-            Mix_PlayChannel(-1, sonidos->sonidoEnter, 0);
-            switch (*seleccion)
-            {
+                case SDLK_UP:
+                    Mix_PlayChannel(-1, sonidos->sonidoFlecha, 0);
+                    *seleccion = (*seleccion - 1 + items_count) % items_count;
+                    break;
 
-            case 0:
-                *estado_actual = ESTADO_JUGANDO;
-                iniciarMusicaJuego(&sonidos->musicaFondo);
-                break;
+                case SDLK_DOWN:
+                    Mix_PlayChannel(-1, sonidos->sonidoFlecha, 0);
+                    *seleccion = (*seleccion + 1) % items_count;
+                    break;
 
-            case 1:
-                *estado_actual = ESTADO_CARGAR;
-                break;
+                case SDLK_RETURN:
+                    Mix_PlayChannel(-1, sonidos->sonidoEnter, 0);
+                    switch (*seleccion){
 
-            case 2:
-                *estado_actual = ESTADO_SALIENDO;
-                break;
+                        case 0:
+                            *estado_actual = ESTADO_DIFICULTAD;
+                            iniciarMusicaJuego(&sonidos->musicaFondo);
+                            break;
+
+                        case 1:
+                            *estado_actual = ESTADO_CARGAR;
+                            break;
+
+                        case 2:
+                            *estado_actual = ESTADO_SALIENDO;
+                            break;
+                    }
+                    break;
             }
             break;
-        }
-        break;
     }
 }
 
-void manejar_eventos_ganado(SDL_Event *e , EstadoJuego *estado_actual, Juego* juego){
-    int TAMX = TAM_PIXEL * (juego->dimMapa * PIXELES_X_LADO + 20);
-    int TAMY = TAM_PIXEL * (juego->dimMapa * PIXELES_X_LADO + 4 + 3 * 8 + 28);
+void manejar_eventos_dificultad(SDL_Event *e , EstadoJuego *estado_actual, int* seleccion , const int items_count , Juego* juego , Dificultad* difs , SDL_Window* ventana){
+
+    switch(e->type){
+
+        case SDL_KEYDOWN:
+
+            switch(e->key.keysym.sym){
+
+                case SDLK_UP:
+                    *seleccion = (*seleccion - 1 + items_count) % items_count;
+                    break;
+
+                case SDLK_DOWN:
+                    *seleccion = (*seleccion + 1) % items_count;
+                    break;
+
+                case SDLK_RETURN:
+                    switch(*seleccion){
+
+                        case 0:
+                            //juego->dificultad.nombre = difs[0].nombre;
+                            juego->dificultad.dimension = difs[0].dimension;
+                            juego->dificultad.cantidad_minas = difs[0].cantidad_minas;
+
+                            juego->mapa = matrizCrear(juego->dificultad.dimension , juego->dificultad.dimension , sizeof(Casilla)); //Mover a otro lado despues
+                            juego->minasCoord = matrizCrear(juego->dificultad.cantidad_minas , 0 , sizeof(Coord));
+                            *estado_actual = ESTADO_JUGANDO;
+                            SDL_SetWindowSize(ventana , TAM_PIXEL * (difs[0].dimension * PIXELES_X_LADO + 20) , TAM_PIXEL * (difs[0].dimension * PIXELES_X_LADO + 4 + 3*8 + 28));
+                            break;
+
+                        case 1:
+                            //juego->dificultad.nombre = difs[1].nombre;
+                            juego->dificultad.dimension = difs[1].dimension;
+                            juego->dificultad.cantidad_minas = difs[1].cantidad_minas;
+
+                            juego->mapa = matrizCrear(juego->dificultad.dimension , juego->dificultad.dimension , sizeof(Casilla));
+                            juego->minasCoord = matrizCrear(juego->dificultad.cantidad_minas , 0 , sizeof(Coord));
+                            *estado_actual = ESTADO_JUGANDO;
+                            SDL_SetWindowSize(ventana , TAM_PIXEL * (difs[1].dimension * PIXELES_X_LADO + 20) , TAM_PIXEL * (difs[1].dimension * PIXELES_X_LADO + 4 + 3*8 + 28));
+                            break;
+
+                        case 2:
+                            //juego->dificultad.nombre = difs[2].nombre;
+                            juego->dificultad.dimension = difs[2].dimension;
+                            juego->dificultad.cantidad_minas = difs[2].cantidad_minas;
+
+                            juego->mapa = matrizCrear(juego->dificultad.dimension , juego->dificultad.dimension , sizeof(Casilla));
+                            juego->minasCoord = matrizCrear(juego->dificultad.cantidad_minas , 0 , sizeof(Coord));
+                            *estado_actual = ESTADO_JUGANDO;
+                            SDL_SetWindowSize(ventana , TAM_PIXEL * (difs[2].dimension * PIXELES_X_LADO + 20) , TAM_PIXEL * (difs[2].dimension * PIXELES_X_LADO + 4 + 3*8 + 28));
+                            break;
+                    }
+                    break;
+            }
+            break;
+    }
+}
+
+void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* juego , Coord* picords , Coord* rbutton , Sonido* sonidos){
+
+    Casilla **mapa = juego->mapa;
+
+    int xG = ((e->button.x - (picords->x * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
+    int yG = ((e->button.y - (picords->y * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
+    int casillasLibresDeMinas = (juego->dificultad.dimension * juego->dificultad.dimension) - juego->dificultad.cantidad_minas;
+
+    if (e->type == SDL_MOUSEBUTTONDOWN){
+
+        int boton = e->button.button; // guardado del boton anterior antes de nuevo evento
+        EventoClick handlerClick;
+
+        if ((rbutton->x * TAM_PIXEL <= e->button.x && e->button.x <= (rbutton->x + 28) * TAM_PIXEL) &&
+            (rbutton->y * TAM_PIXEL <= e->button.y && e->button.y <= (rbutton->y + 28) * TAM_PIXEL) && (boton == SDL_BUTTON_LEFT))
+        {
+            Mix_PlayChannel(-1, sonidos->sonidoCat, 0);
+            juego->iniciado = false;
+        }
+
+        else{
+
+            if (mapa[yG][xG].presionada && mapa[yG][xG].estado > 0){
+
+                handlerClick = clickDoble;
+                Uint32 tiempoDeEspera = SDL_GetTicks() + 100;
+                while (SDL_GetTicks() < tiempoDeEspera){
+
+                    if (SDL_PollEvent(e) && e->type == SDL_MOUSEBUTTONDOWN && e->button.button != boton){
+
+                        handlerClick(juego , sonidos , xG , yG , juego->minasCoord , juego->dificultad.cantidad_minas);
+                        continue;
+                    }
+
+                    SDL_Delay(1);
+                }
+            }
+
+            else{
+
+                handlerClick = (boton == SDL_BUTTON_LEFT) ? handlerClickIzquierdo : handlerClickDerecho;
+                handlerClick(juego , sonidos , xG , yG , juego->minasCoord , juego->dificultad.cantidad_minas);
+
+                if (juego->cantCasillasPresionadas == casillasLibresDeMinas){
+
+                    puts("¡Ganaste el juego!");
+                    SDL_StartTextInput();
+                    juego->nombreJugador[0] = '\0';
+                    *estado_actual = ESTADO_GANADO;
+                }
+            }
+        }
+    }
+}
+
+void manejar_eventos_ganado(SDL_Event *e , EstadoJuego *estado_actual , Juego* juego){
+
+    int TAMX = TAM_PIXEL * (juego->dificultad.dimension * PIXELES_X_LADO + 20);
+    int TAMY = TAM_PIXEL * (juego->dificultad.dimension * PIXELES_X_LADO + 4 + 3 * 8 + 28);
 
     // X e Y de boton cerrado
     int x=(TAMX/2)+(TAMX_GANADO/2)- 15 - 20 - 12;
@@ -282,7 +412,7 @@ void manejar_eventos_ganado(SDL_Event *e , EstadoJuego *estado_actual, Juego* ju
                 {
                     *estado_actual=ESTADO_JUGANDO;
                 }
-    //         rectanguloLlenoAbsoluto(renderer, RR, (win_width / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12, pcords->y + 15 + 4, TAM_BOTON_CERRADO, TAM_BOTON_CERRADO);
+                //rectanguloLlenoAbsoluto(renderer, RR, (win_width / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12, pcords->y + 15 + 4, TAM_BOTON_CERRADO, TAM_BOTON_CERRADO);
                 break;
             case SDL_TEXTINPUT:
                 // Actualizacion de nombreJugador al presionar una tecla
@@ -352,117 +482,87 @@ void manejar_eventos_ganado(SDL_Event *e , EstadoJuego *estado_actual, Juego* ju
     }
 }
 
-void manejar_eventos_juego(SDL_Event *e, EstadoJuego *estado_actual, Juego *juego, Coord *minasCoord, int minas, Coord *picords, Coord *rbutton, Sonido *sonidos)
-{
+//////////////////////////////////////////////////////////////////////
 
-    Casilla **mapa = juego->mapa;
-
-    int xG = ((e->button.x - (picords->x * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
-    int yG = ((e->button.y - (picords->y * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
-    int casillasLibresDeMinas = (juego->dimMapa * juego->dimMapa) - minas;
-
-    if (e->type == SDL_MOUSEBUTTONDOWN)
-    {
-        int boton = e->button.button; // guardado del boton anterior antes de nuevo evento
-        EventoClick handlerClick;
-
-        if ((rbutton->x * TAM_PIXEL <= e->button.x && e->button.x <= (rbutton->x + 28) * TAM_PIXEL) &&
-            (rbutton->y * TAM_PIXEL <= e->button.y && e->button.y <= (rbutton->y + 28) * TAM_PIXEL) && (boton == SDL_BUTTON_LEFT))
-        {
-            Mix_PlayChannel(-1, sonidos->sonidoCat, 0);
-
-            juego->iniciado = false;
-        }
-        else
-        {
-            if (mapa[yG][xG].presionada &&
-                mapa[yG][xG].estado > 0)
-            {
-
-                handlerClick = clickDoble;
-                Uint32 tiempoDeEspera = SDL_GetTicks() + 100;
-                while (SDL_GetTicks() < tiempoDeEspera)
-                {
-                    if (SDL_PollEvent(e) && e->type == SDL_MOUSEBUTTONDOWN &&
-                        e->button.button != boton)
-                    {
-                        handlerClick(juego, sonidos, xG, yG, minasCoord, minas);
-                        continue;
-                    }
-                    SDL_Delay(1);
-                }
-            }
-            else
-            {
-                handlerClick = (boton == SDL_BUTTON_LEFT) ? handlerClickIzquierdo : handlerClickDerecho;
-                handlerClick(juego, sonidos, xG, yG, minasCoord, minas);
-                if (juego->cantCasillasPresionadas == casillasLibresDeMinas)
-                {
-                    puts("¡Ganaste el juego!");
-                    SDL_StartTextInput();
-                    juego->nombreJugador[0] = '\0';
-                    *estado_actual = ESTADO_GANADO;
-                }
-            }
-        }
-    }
+bool linea_ignorable(const char* linea){
+    while(isspace(*linea)) linea++;
+    return (*linea == '\0' || *linea == '#');
 }
 
-int leerConfiguracion(int *filas, int *columnas, int *minasEnMapa, char *rutaFuente)
-{
-    FILE *config = fopen("buscaminas.conf", "r+t");
+int cargar_dificultades(const char* archivo , Dificultad* difs , int num_dif){
 
-    if (!config)
-    {
+    FILE* config = fopen(archivo, "r");
+
+    if (!config){
         puts("Error al abrir archivo de configuracion. Cerrando juego...");
         return ERROR_ARCHIVO;
     }
 
-    if (fscanf(config, "DIMENSION_MAPA = %d\n", filas) != 1)
-    {
-        puts("Error al leer DIMENSION_MAPA.");
-        fclose(config);
-        return ERROR_ARCHIVO;
-    }
-
-    if (*filas < 8 || *filas > 32)
-    {
-        puts("Error de configuracion DIMENSION_MAPA valores validos entre 8 y 32.");
-        fclose(config);
-        return ERROR_CONFIGURACION;
-    }
-
-    *columnas = *filas; // Mapa cuadrado siempre
+    char linea[150];
+    int i = 0;
 
     char minasTexto[5];
-    if (fscanf(config, "CANTIDAD_MINAS = %s\n", minasTexto) != 1)
-    {
-        puts("Error al leer CANTIDAD_MINAS.");
-        fclose(config);
+
+    while(fgets(linea , sizeof(linea) , config) && i <= num_dif){
+
+        if(linea_ignorable(linea)) continue;
+
+        if(strncmp(linea , "DIFICULTAD" , 10) == 0){
+            sscanf(linea , "DIFICULTAD = %20[^\n]" , difs[i].nombre);
+
+            printf("%s\n",difs[i].nombre);
+
+            do{ fgets(linea , sizeof(linea) , config); }while(linea_ignorable(linea));
+
+            sscanf(linea , "DIMENSION_MAPA = %i" , &difs[i].dimension);
+
+            if(difs[i].dimension < 8 || difs[i].dimension > 32){
+                puts("Error de configuracion DIMENSION_MAPA valores validos entre 8 y 32.");
+                fclose(config);
+                return ERROR_CONFIGURACION;
+            }
+
+            printf("%i\n",difs[i].dimension);
+
+            do{ fgets(linea , sizeof(linea) , config); }while(linea_ignorable(linea));
+            if(sscanf(linea , "CANTIDAD_MINAS = %5[^\n]" , minasTexto) == -1){
+                puts("Error al leer CANTIDAD_MINAS.");
+                fclose(config);
+                return ERROR_ARCHIVO;
+            }
+
+            char* porcentaje = strchr(minasTexto , '%');
+            difs[i].cantidad_minas = atoi(minasTexto);
+
+            if(porcentaje)
+                difs[i].cantidad_minas = round(((difs[i].dimension)*(difs[i].dimension))*((float)difs[i].cantidad_minas/100));
+
+            if(difs[i].cantidad_minas < 0){
+                puts("Error de configuracion CANTIDAD_MINAS valores negativos no validos");
+                fclose(config);
+                return ERROR_CONFIGURACION;
+            }
+
+            printf("%i\n",difs[i].cantidad_minas);
+
+            i++;
+        }
+
+    }
+
+    if(i != num_dif){
+        puts("Error al cargar todas las dificultades. Cerrando juego...");
         return ERROR_ARCHIVO;
     }
 
-    char *porcentaje = strchr(minasTexto, '%');
-    *minasEnMapa = atoi(minasTexto);
-
-    // Lo convierto a un porcentual del mapa
-    if (porcentaje)
-        *minasEnMapa = round(((*filas) * (*columnas)) * ((float)*minasEnMapa / 100));
-
-    if (fscanf(config, "RUTA_FUENTE = %s\n", rutaFuente) != 1)
-    {
-        puts("Error al leer RUTA_FUENTE.");
-        fclose(config);
-        return ERROR_ARCHIVO;
-    }
-    // printf("%d, %d, %s", *filas, *minasEnMapa, rutaFuente);
     fclose(config);
-
     return 0;
 }
 
-int escribirArchivoLog(FILE *archivoLog, Log *log)
-{
+//////////////////////////////////////////////////////////////////////
+
+int escribirArchivoLog(FILE *archivoLog, Log *log){
+
     if (log->coordXY[0] == -1 && log->coordXY[1] == -1)
     {
         fprintf(archivoLog, "[%d-%d-%d %02d:%02d:%02d] %-15s\n",

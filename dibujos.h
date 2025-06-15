@@ -33,6 +33,7 @@ void rectanguloLlenoAbsoluto(SDL_Renderer *renderer , int color , const int gX ,
 void marco(SDL_Renderer* renderer , int X , int Y , int W , int H , int G);
 void marcoInvertido(SDL_Renderer* renderer , int X , int Y , int W , int H , int G);
 int renderizarTexto(TTF_Font *font, int size, const char *texto, int colorTexto, int colorFondo, SDL_Renderer *render, int x, int y);
+
 void FinalizarSDL(SDL_Window *ventana, SDL_Renderer *renderer, TTF_Font *font, int estadoExit, FILE* archivoLog);
 void FinalizarVentanaSDL(SDL_Window *ventana, SDL_Renderer *renderer);
 int (*construirCoronaConColores(const int destino[][24], int fondo, int principal, int sombra))[24];

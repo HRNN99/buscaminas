@@ -4,8 +4,7 @@
 #include "sonido.h"
 #include "time.h"
 
-void dibujar_menu(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, const char *menu_items[], const int menu_count, int *seleccion)
-{
+void dibujar_menu(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, const char *menu_items[], const int menu_count, int *seleccion){
 
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
@@ -16,8 +15,7 @@ void dibujar_menu(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, c
     int base_y = 50;
     int espacio = 50;
 
-    for (int i = 0; i < menu_count; i++)
-    {
+    for (int i = 0; i < menu_count; i++){
 
         int text_width, text_height;
         TTF_SizeText(font, menu_items[i], &text_width, &text_height);
@@ -55,8 +53,7 @@ void dibujar_menu(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, c
 }
 
 // Funcion destinada a crear una matriz con memoria dinamica
-Casilla **matrizCrear(size_t filas, size_t columnas, size_t tamElem)
-{
+Casilla **matrizCrear(size_t filas, size_t columnas, size_t tamElem){
 
     Casilla **mat = malloc(filas * sizeof(Casilla *));
     if (!mat)
@@ -85,8 +82,7 @@ Casilla **matrizCrear(size_t filas, size_t columnas, size_t tamElem)
 }
 
 // Funcion para liberar la memoria de la matriz creada
-void matrizDestruir(Casilla **mat, size_t filas)
-{
+void matrizDestruir(Casilla **mat, size_t filas){
 
     Casilla **ult = mat + filas - 1;
 
@@ -99,13 +95,12 @@ void matrizDestruir(Casilla **mat, size_t filas)
 }
 
 // Funcion que inicializa el mapa de juego en valores por defecto
-void mapaVacio(Casilla **mapa, int filas, int columnas)
-{
+void mapaVacio(Casilla **mapa , int dimension){
 
-    for (int y = 0; y < filas; y++)
-    {
-        for (int x = 0; x < columnas; x++)
-        {
+    for (int y = 0; y < dimension; y++){
+
+        for (int x = 0; x < dimension; x++){
+
             mapa[y][x].estado = 0;
             mapa[y][x].estadoBandera = 0;
             mapa[y][x].presionada = false;
@@ -114,8 +109,7 @@ void mapaVacio(Casilla **mapa, int filas, int columnas)
 }
 
 // Funcion que llena el mapa de juego con minas y aleda�os
-void mapaLlenar(Casilla **mapa, int filas, int columnas, Coord *minasCoord, int minas)
-{
+void mapaLlenar(Casilla **mapa , int dimension , Coord *minasCoord , int minas){
 
     int x, y, m = 0;
     srand(time(NULL));
@@ -123,8 +117,8 @@ void mapaLlenar(Casilla **mapa, int filas, int columnas, Coord *minasCoord, int 
     while (m < minas)
     {
 
-        x = rand() % columnas;
-        y = rand() % filas;
+        x = rand() % dimension;
+        y = rand() % dimension;
 
         if (mapa[y][x].estado != -1)
         {
@@ -145,7 +139,7 @@ void mapaLlenar(Casilla **mapa, int filas, int columnas, Coord *minasCoord, int 
                     int nf = y + dy;
                     int nc = x + dx;
 
-                    if ((nf >= 0 && nf < filas) && (nc >= 0 && nc < columnas) && (mapa[nf][nc].estado != -1))
+                    if ((nf >= 0 && nf < dimension) && (nc >= 0 && nc < dimension) && (mapa[nf][nc].estado != -1))
                         mapa[nf][nc].estado++;
                 }
             }
@@ -155,8 +149,7 @@ void mapaLlenar(Casilla **mapa, int filas, int columnas, Coord *minasCoord, int 
     }
 }
 
-void mapaImprimir(Casilla **mapa, int filas, int columnas)
-{
+void mapaImprimir(Casilla **mapa, int filas, int columnas){
 
     // TEST ONLY //Impresion de matriz
     for (size_t i = 0; i < filas; i++)
@@ -174,15 +167,15 @@ void mapaImprimir(Casilla **mapa, int filas, int columnas)
 ////////////////////////////////////////////////////////////////////////////////////////
 
 // Establecer el renderizado con un color base (negro)
-void fondoColor(SDL_Renderer *renderer)
-{
+void fondoColor(SDL_Renderer *renderer){
+
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // color
     SDL_RenderClear(renderer);                      // limpieza
     SDL_RenderPresent(renderer);                    // Aplicacion
 }
 
-void interfaz(SDL_Renderer *renderer, TTF_Font *font, Juego *juego, Coord *pcords, int dimensionM, Coord *rbutton)
-{
+void interfaz(SDL_Renderer *renderer , TTF_Font* font , Juego *juego , Coord *pcords , Coord *rbutton){
+
     pcords->x = 0;
     pcords->y = 0;
     rbutton->x = 0;
@@ -191,7 +184,7 @@ void interfaz(SDL_Renderer *renderer, TTF_Font *font, Juego *juego, Coord *pcord
     int G = 2; // Grosor
     int pad = G * 4;
 
-    int anchoM = dimensionM * PIXELES_X_LADO + 4;
+    int anchoM = juego->dificultad.dimension * PIXELES_X_LADO + 4;
     int altoC = 28;
     int anchoI = anchoM + 16;
     int altoI = pad + altoC + pad + anchoM + pad;
@@ -224,7 +217,7 @@ void interfaz(SDL_Renderer *renderer, TTF_Font *font, Juego *juego, Coord *pcord
     renderizarTexto(font, fontSize, "Minas:", GF, GS, renderer, (pad * 3) + anchoM + 22, pad + (altoC / 2));
 
     char bombasEnMapaTexto[21] = "";
-    itoa(juego->cantMinasEnInterfaz, bombasEnMapaTexto, 10); // Armado de String a imprimir
+    itoa(juego->dificultad.cantidad_minas , bombasEnMapaTexto, 10); // Armado de String a imprimir
     renderizarTexto(font, fontSize, bombasEnMapaTexto, GF, GS, renderer, (pad * 3) + anchoM + 22, pad + (altoC / 2) + fontSize + 4);
 
     // Aumento de puntaje por segundo
@@ -248,7 +241,7 @@ void interfazGanado(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font,
     // Boton cerrar ventana
     dibujarAbsoluto(renderer, 20, close_button, (win_width / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12 + 5, pcords->y + 15 + 4 + 5, 1);
     marcoInvertido(renderer, (win_width / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12, pcords->y + 15 + 4, TAM_BOTON_CERRADO, TAM_BOTON_CERRADO, 4);
-    
+
     char textoPuntaje[21] = "Tiempo: ";
     char puntajeChar[12];
     strcat(textoPuntaje, itoa(juego->puntaje, puntajeChar, 10)); // Armado de String a imprimir
@@ -263,7 +256,7 @@ void interfazGanado(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font,
     char limitador[17] = {0}; // Limito los caracteres por temas visuales
     snprintf(limitador, 12, "%-s", juego->nombreJugador);
     renderizarTexto(font, 20, limitador, BB, GS, renderer, margenX + 15, posYtexto - 12); // Fix Y por como toma esa coordenada
-    
+
     // Renderizar mejores posiciones
     if(juego->totalPuntajes >= 3){
         dibujarAbsoluto(renderer, 24, construirCoronaConColores(corona, GS, AD, DS), margenX, posYtexto+=30, 1);
@@ -273,7 +266,7 @@ void interfazGanado(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font,
         dibujarAbsoluto(renderer, 24, construirCoronaConColores(corona, GS, BB, GA), margenX, posYtexto+=25, 1);
         snprintf(limitador, sizeof(limitador), "%05d %-s", juego->puntajes[1].puntos, juego->puntajes[1].nombre);
         renderizarTexto(font, 16, limitador, BB, GS, renderer, margenX + 35, posYtexto + 5);
-        
+
         snprintf(limitador, sizeof(limitador), "%05d %-s", juego->puntajes[2].puntos, juego->puntajes[2].nombre);
         dibujarAbsoluto(renderer, 24, construirCoronaConColores(corona, GS, BR, BS), margenX, posYtexto+=25, 1);
         renderizarTexto(font, 16, limitador, BB, GS, renderer, margenX + 35, posYtexto + 5);
@@ -283,47 +276,42 @@ void interfazGanado(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font,
     juego->finPartida = true;
 }
 
-void mapaReiniciar(SDL_Renderer *renderer, Coord *pcord, Juego *juego, int filas, int columnas, Coord *minasCoord, int minas)
-{
+void mapaReiniciar(SDL_Renderer *renderer , Coord *pcord , Juego *juego){
 
     juego->iniciado = true;
     Casilla **mapa = juego->mapa;
 
     juego->puntaje = 0;
-    juego->dimMapa = filas;
-    juego->cantMinasEnInterfaz = minas;
     juego->finPartida = false;
     juego->cantCasillasPresionadas = 0;
     juego->start_time = time(NULL); // Iniciar el contador cuando inicia el juego
     juego->nombreJugador[0] = '\0';
-    
 
-    mapaVacio(mapa, filas, columnas);
-    mapaLlenar(mapa, filas, columnas, minasCoord, minas);
+
+    mapaVacio(mapa , juego->dificultad.dimension);
+    mapaLlenar(mapa , juego->dificultad.dimension , juego->minasCoord , juego->dificultad.cantidad_minas);
 }
 
 // Funcion que coloca todas las casillas sin valor
-void casillaColocacion(Casilla **mapa, SDL_Renderer *renderer, int fil, int col, Coord *picord)
-{
+void casillaColocacion(SDL_Renderer *renderer , Casilla **mapa , int dimension , Coord *picord){
+
 
     int gX = 0; // Variable para coordenada X
     int gY = 0; // Variable para ccoordenada Y
 
     int x, y = 0;
-    while (y < fil)
-    {
+
+    while (y < dimension){
 
         x = 0;
-        while (x < col)
-        {
+        while (x < dimension){
 
-            // mapa[y][x].estadoBandera = 0; // Uso el ciclo para inicializar todo en 0
-            gX = x % col;
-            gY = y % fil;
+            //mapa[y][x].estadoBandera = 0; // Uso el ciclo para inicializar todo en 0
+            gX = x % dimension;
+            gY = y % dimension;
 
             // Si la casilla no esta presionada dibujo el estado por defecto
-            if (!mapa[y][x].presionada)
-            {
+            if (!mapa[y][x].presionada){
 
                 if (mapa[y][x].estadoBandera != 0)
                 {
@@ -333,10 +321,11 @@ void casillaColocacion(Casilla **mapa, SDL_Renderer *renderer, int fil, int col,
                 {
                     dibujar(renderer, PIXELES_X_LADO, square1, gX, gY, picord->x, picord->y);
                 }
+
             }
             // Si la casilla esta presionada dibujo su valor de estado
-            else
-            {
+            else{
+
                 dibujar(renderer, PIXELES_X_LADO, eleccion(mapa[y][x].estado), gX, gY, picord->x, picord->y);
             }
 
@@ -351,17 +340,15 @@ void casillaColocacion(Casilla **mapa, SDL_Renderer *renderer, int fil, int col,
 }
 
 // Funcion que coloca estados en las casillas
-void casillaEstado(Juego *juego, Coord *minasCoord, Sonido *sonidos, int minas, int gX, int gY, bool chordClick)
-{
+void casillaEstado(Juego *juego , Sonido *sonidos , int gX, int gY, bool chordClick){
 
-    if (gX < 0 || gX >= juego->dimMapa || gY < 0 || gY >= juego->dimMapa)
+    if (gX < 0 || gX >= juego->dificultad.dimension || gY < 0 || gY >= juego->dificultad.dimension)
         return;
 
     Casilla *casillaSeleccionada = &juego->mapa[gY][gX];
     Casilla *casillaBandera = &juego->mapa[gY][gX];
 
-    if (chordClick && casillaSeleccionada->presionada && casillaSeleccionada->estado > 0)
-    {
+    if (chordClick && casillaSeleccionada->presionada && casillaSeleccionada->estado > 0){
 
         for (int i = -1; i < 2; i++)
         {
@@ -369,10 +356,11 @@ void casillaEstado(Juego *juego, Coord *minasCoord, Sonido *sonidos, int minas, 
             {
                 if (i == 0 && j == 0)
                     continue; // Evita repetirse a sí mismo
-                casillaEstado(juego, minasCoord, sonidos, minas, gX + i, gY + j, false);
+                casillaEstado(juego , sonidos , gX + i , gY + j , false);
             }
         }
     }
+
     // No hacer nada si ya está presionada o tiene bandera
     if (casillaSeleccionada->presionada || casillaBandera->estadoBandera != 0)
         return;
@@ -381,26 +369,25 @@ void casillaEstado(Juego *juego, Coord *minasCoord, Sonido *sonidos, int minas, 
     juego->cantCasillasPresionadas++;
 
     // Juego Perdido
+    if (casillaSeleccionada->estado == -1){
 
-    if (casillaSeleccionada->estado == -1)
-    {
         Mix_PauseMusic();
-        
-        juego->finPartida = true;
-        
-        
-        // Mostrar todas las bombas
-        for (int i = 0; i < minas; i++)
-        {
 
-            int mX = minasCoord[i].x;
-            int mY = minasCoord[i].y;
+        juego->finPartida = true;
+
+
+        // Mostrar todas las bombas
+        for (int i = 0; i < juego->dificultad.cantidad_minas ; i++){
+
+            int mX = juego->minasCoord[i].x;
+            int mY = juego->minasCoord[i].y;
 
             if (gX == mX && gY == mY)
                 continue;
             juego->mapa[mY][mX].presionada = true; // Presionar todas las minas
             juego->mapa[mY][mX].estado = 5;        // Estado de mina revelada
         }
+
         Mix_PlayChannel(-1, sonidos->sonidoPerder, 0); // Sonido de mina
         SDL_Delay(2000); // Espera para reproducir el sonido
         Mix_PlayMusic(sonidos->musicaFondo, -1); // Musica de menu
@@ -408,9 +395,7 @@ void casillaEstado(Juego *juego, Coord *minasCoord, Sonido *sonidos, int minas, 
     }
 
     // Dibuja numero y termina
-
-    if (casillaSeleccionada->estado > 0 || casillaSeleccionada->estado == -1)
-    {
+    if (casillaSeleccionada->estado > 0 || casillaSeleccionada->estado == -1){
 
         // dibujar(renderer, PIXELES_X_LADO, eleccion(casillaSeleccionada->estado), gX, gY, picords->x, picords->y);
         return;
@@ -421,18 +406,19 @@ void casillaEstado(Juego *juego, Coord *minasCoord, Sonido *sonidos, int minas, 
     {
         for (int j = -1; j < 2; j++)
         {
+
             if (i == 0 && j == 0)
                 continue; // Evita repetirse a sí mismo
-            casillaEstado(juego, minasCoord, sonidos, minas, gX + i, gY + j, false);
+            casillaEstado(juego , sonidos , gX + i , gY + j , false);
+
         }
     }
 }
 
 // Funcion para colocar bandera
-void casillaBandera(Juego *juego, int xG, int yG)
-{
+void casillaBandera(Juego *juego, int xG, int yG){
 
-    if (xG < 0 || xG >= juego->dimMapa || yG < 0 || yG >= juego->dimMapa)
+    if (xG < 0 || xG >= juego->dificultad.dimension || yG < 0 || yG >= juego->dificultad.dimension)
         return;
 
     Casilla **mapa = juego->mapa;
@@ -442,17 +428,17 @@ void casillaBandera(Juego *juego, int xG, int yG)
 
     // Suma y resta de bombas dependiendo el caso
     if (mapa[yG][xG].estadoBandera == 1)
-        (juego->cantMinasEnInterfaz)--;
+        (juego->dificultad.cantidad_minas)--;
     else if (mapa[yG][xG].estadoBandera == 2)
-        (juego->cantMinasEnInterfaz)++;
+        (juego->dificultad.cantidad_minas)++;
 
     // dibujar(renderer, PIXELES_X_LADO, eleccionBandera(mapa[gY][gX].estadoBandera), gX, gY, picord->x, picord->y);
     printf("Estado (%i , %i): %i\n", xG, yG, mapa[yG][xG].estadoBandera);
 }
 
 // funciones Log
-void setLog(Log *log, int coordX, int coordY, char tipoEvento[80])
-{
+void setLog(Log *log, int coordX, int coordY, char tipoEvento[80]){
+
     time_t ahora = time(NULL);
     struct tm *aux = localtime(&ahora);
     log->fechaHora = *aux; // Asignar la fecha y hora actual al log
@@ -462,8 +448,8 @@ void setLog(Log *log, int coordX, int coordY, char tipoEvento[80])
 }
 
 // Función para abrir un archivo y manejar errores
-FILE *abrirArchivo(const char *nombre, const char *modo)
-{
+FILE *abrirArchivo(const char *nombre, const char *modo){
+
     FILE *archivo = fopen(nombre, modo);
     if (!archivo)
     {
@@ -475,8 +461,8 @@ FILE *abrirArchivo(const char *nombre, const char *modo)
     return archivo;
 }
 
-void clickDoble(Juego *juego, Sonido *sonidos, int gX, int gY, Coord *minasCoord, int minas)
-{
+void clickDoble(Juego *juego , Sonido *sonidos , int gX , int gY){
+
     Casilla **mapa = juego->mapa;
 
     int cont = 0;
@@ -487,9 +473,9 @@ void clickDoble(Juego *juego, Sonido *sonidos, int gX, int gY, Coord *minasCoord
             if (mapa[gY + j][gX + i].estadoBandera == 1)
             {
 
-                if ((i == 0 && j == 0) || (gX + i < 0 || gX + i >= juego->dimMapa || gY + j < 0 || gY + j >= juego->dimMapa))
+                if ((i == 0 && j == 0) || (gX + i < 0 || gX + i >= juego->dificultad.dimension || gY + j < 0 || gY + j >= juego->dificultad.dimension))
                     continue; // Evita repetirse a sí mismo
-                if (gX < 0 || gX >= juego->dimMapa || gY < 0 || gY >= juego->dimMapa)
+                if (gX < 0 || gX >= juego->dificultad.dimension || gY < 0 || gY >= juego->dificultad.dimension)
                     return;
 
                 cont++;
@@ -500,23 +486,23 @@ void clickDoble(Juego *juego, Sonido *sonidos, int gX, int gY, Coord *minasCoord
     if (mapa[gY][gX].estado == cont)
     {
 
-        casillaEstado(juego, minasCoord, sonidos, minas, gX, gY, true);
+        casillaEstado(juego , sonidos , gX , gY , true);
     }
     return;
 }
 
 // clickHandlers
-void handlerClickIzquierdo(Juego *juego, Sonido *sonidos, int x, int y, Coord *minasCoord, int minas)
-{
+void handlerClickIzquierdo(Juego *juego , Sonido *sonidos , int x , int y){
+
     printf("Hiciste click en la casilla (%i , %i)\n", x, y);
-    casillaEstado(juego, minasCoord, sonidos, minas, x, y, false);
-    juego->mapa[y][x].estado == -1 ? Mix_PlayChannel(-1, sonidos->sonidoMina, 0) 
+    casillaEstado(juego , sonidos , x , y , false);
+    juego->mapa[y][x].estado == -1 ? Mix_PlayChannel(-1, sonidos->sonidoMina, 0)
     : juego->mapa[y][x].estadoBandera == 0 ? Mix_PlayChannel(-1, sonidos->sonidoClick, 0): NULL; // Reproduce sonido de mina si se presiona una mina
 }
 
-void handlerClickDerecho(Juego *juego, Sonido *sonidos, int x, int y, Coord *minasCoord, int minas)
-{
+void handlerClickDerecho(Juego *juego , Sonido *sonidos , int x , int y){
+
     printf("Hiciste click derecho en la casilla (%i , %i), colocando bandera\n", x, y);
-    casillaBandera(juego, x, y);
+    casillaBandera(juego , x , y);
     juego->mapa[y][x].presionada == 0 ? Mix_PlayChannel(-1, sonidos->sonidoBandera, 0): NULL;
 }
