@@ -22,12 +22,10 @@
 #define ERROR_ELIMINACION_ARCHIVO 15
 #define ERROR_RENOMBRE_ARCHIVO 16
 #define ERROR_LINEA_LARGA 11
-#define MAX_PUNTAJES 20
-
 #define NOMBRE_VENTANA "Buscaminas"
-// ESTADOS
-typedef enum
-{
+#define MAX_PUNTAJES 5
+//ESTADOS
+typedef enum{
     ESTADO_MENU,
     ESTADO_GANADO,
     ESTADO_JUGANDO,
