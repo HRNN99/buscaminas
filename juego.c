@@ -111,8 +111,7 @@ void mapaVacio(Casilla **mapa , int dimension){
 }
 
 // Funcion que llena el mapa de juego con minas y aleda�os
-void mapaLlenar(Casilla **mapa, int filas, int columnas, Coord *minasCoord, int minas)
-{
+void mapaLlenar(Casilla **mapa , int dimension , Coord *minasCoord , int minas){
 
     int x, y, m = 0;
     srand(time(NULL));
@@ -120,8 +119,8 @@ void mapaLlenar(Casilla **mapa, int filas, int columnas, Coord *minasCoord, int 
     while (m < minas)
     {
 
-        x = rand() % columnas;
-        y = rand() % filas;
+        x = rand() % dimension;
+        y = rand() % dimension;
 
         if (mapa[y][x].estado != -1)
         {
@@ -142,7 +141,7 @@ void mapaLlenar(Casilla **mapa, int filas, int columnas, Coord *minasCoord, int 
                     int nf = y + dy;
                     int nc = x + dx;
 
-                    if ((nf >= 0 && nf < filas) && (nc >= 0 && nc < columnas) && (mapa[nf][nc].estado != -1))
+                    if ((nf >= 0 && nf < dimension) && (nc >= 0 && nc < dimension) && (mapa[nf][nc].estado != -1))
                         mapa[nf][nc].estado++;
                 }
             }
@@ -210,37 +209,35 @@ void interfaz(SDL_Renderer *renderer, Coord *pcords, int dimensionM, Coord *rbut
     pcords->y += G;
 }
 
-void mapaReiniciar(SDL_Renderer *renderer, Coord *pcord, Juego *juego, int dimension , Coord *minasCoord, int minas){
+void mapaReiniciar(SDL_Renderer *renderer , Coord *pcord , Juego *juego){
 
     juego->iniciado = true;
     Casilla **mapa = juego->mapa;
 
     juego->puntaje = 0;
-    juego->dimMapa = dimension;
-    juego->cantMinasEnInterfaz = minas;
     juego->finPartida = false;
     juego->cantCasillasPresionadas = 0;
     juego->start_time = time(NULL); // Iniciar el contador cuando inicia el juego
 
-    mapaVacio(mapa, dimension);
-    mapaLlenar(mapa, dimension, dimension, minasCoord, minas);
+    mapaVacio(mapa , juego->dificultad.dimension);
+    mapaLlenar(mapa , juego->dificultad.dimension , juego->minasCoord , juego->dificultad.cantidad_minas);
 }
 
 // Funcion que coloca todas las casillas sin valor
-void casillaColocacion(Casilla **mapa, SDL_Renderer *renderer, int fil, int col, Coord *picord){
+void casillaColocacion(SDL_Renderer *renderer , Casilla **mapa , int dimension , Coord *picord){
 
     int gX = 0; // Variable para coordenada X
     int gY = 0; // Variable para ccoordenada Y
 
     int x, y = 0;
-    while (y < fil){
+    while (y < dimension){
 
         x = 0;
-        while (x < col){
+        while (x < dimension){
 
             //mapa[y][x].estadoBandera = 0; // Uso el ciclo para inicializar todo en 0
-            gX = x % col;
-            gY = y % fil;
+            gX = x % dimension;
+            gY = y % dimension;
 
 
             //Si la casilla no esta presionada dibujo el estado por defecto
@@ -272,7 +269,7 @@ void casillaColocacion(Casilla **mapa, SDL_Renderer *renderer, int fil, int col,
 // Funcion que coloca estados en las casillas
 void casillaEstado(Juego *juego , int gX , int gY){
 
-    if (gX < 0 || gX >= juego->dimMapa || gY < 0 || gY >= juego->dimMapa)
+    if (gX < 0 || gX >= juego->dificultad.dimension || gY < 0 || gY >= juego->dificultad.dimension)
         return;
 
     Casilla *casillaSeleccionada = &juego->mapa[gY][gX];
@@ -328,7 +325,7 @@ void casillaEstado(Juego *juego , int gX , int gY){
 // Funcion para colocar bandera
 void casillaBandera(Juego *juego, int xG, int yG){
 
-    if (xG < 0 || xG >= juego->dimMapa || yG < 0 || yG >= juego->dimMapa)
+    if (xG < 0 || xG >= juego->dificultad.dimension || yG < 0 || yG >= juego->dificultad.dimension)
         return;
 
     Casilla **mapa = juego->mapa;
@@ -338,9 +335,9 @@ void casillaBandera(Juego *juego, int xG, int yG){
 
     //Suma y resta de bombas dependiendo el caso
     if (mapa[yG][xG].estadoBandera == 1)
-        (juego->cantMinasEnInterfaz)--;
+        (juego->dificultad.cantidad_minas)--;
     else if (mapa[yG][xG].estadoBandera == 2)
-        (juego->cantMinasEnInterfaz)++;
+        (juego->dificultad.cantidad_minas)++;
 
     //dibujar(renderer, PIXELES_X_LADO, eleccionBandera(mapa[gY][gX].estadoBandera), gX, gY, picord->x, picord->y);
     printf("Estado (%i , %i): %i\n",xG,yG,mapa[yG][xG].estadoBandera);

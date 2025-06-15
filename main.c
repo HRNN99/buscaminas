@@ -96,7 +96,7 @@ int main(int argc, char *argv[]){
     //Coord minasCoord[minasEnMapa];
 
     Juego juego;
-    juego.mapa = matrizCrear(1 , 1 , sizeof(Casilla));
+    juego.mapa = NULL;
     juego.iniciado = false;
 
     //////////////////////////////////////////////////////////////////////
@@ -160,13 +160,13 @@ int main(int argc, char *argv[]){
 
                 if(!juego.iniciado){
 
-                    mapaReiniciar(renderer , &picords , &juego , juego.dificultad.dimension , juego.minasCoord , juego.dificultad.cantidad_minas);
+                    mapaReiniciar(renderer , &picords , &juego);
                     system("cls");
                     mapaImprimir(juego.mapa , juego.dificultad.dimension , juego.dificultad.dimension);
 
                 }
 
-                casillaColocacion(juego.mapa, renderer, juego.dificultad.dimension , juego.dificultad.dimension , &picords);
+                casillaColocacion(renderer , juego.mapa , juego.dificultad.dimension , &picords);
                 break;
         }
 
@@ -330,7 +330,9 @@ int main(int argc, char *argv[]){
         }
         */
     }
-    matrizDestruir(juego.mapa , juego.dificultad.dimension);
+
+    if(!juego.mapa) matrizDestruir(juego.mapa , juego.dificultad.dimension);
+
     fclose(archivoLog);
     return EJECUCION_OK;
 }
