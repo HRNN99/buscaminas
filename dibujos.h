@@ -26,6 +26,8 @@
 #define BR 13//Bronce 
 #define BS 14//Bronce sombra
 
+SDL_Color colores[];
+
 void dibujar(SDL_Renderer *renderer , int pixeles , const int dibujo[][pixeles] , int gX , int gY , int pXi , int pYi);
 void dibujarAbsoluto(SDL_Renderer *renderer , int pixeles , const int dibujo[][pixeles] , int gX , int gY , int escala);
 void rectanguloLleno(SDL_Renderer *renderer , int color , const int gX , const int gY , int W , int H);

@@ -3,6 +3,12 @@
 #include "estados.h"
 #include "time.h"
 
+int G = 2; // Grosor
+int pad = 8;
+int altoC = 28;
+int anchoM = 144;
+int fontSize = 16;
+
 void dibujar_menu(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, const char *menu_items[], const int menu_count, int *seleccion)
 {
 
@@ -214,17 +220,35 @@ void interfaz(SDL_Renderer *renderer, TTF_Font *font, Juego *juego, Coord *pcord
     pcords->x += G;
     pcords->y += G;
 
-    // Puntaje y bombas
     int fontSize = 16;
-    renderizarTexto(font, fontSize, "Tiempo:", GF, GS, renderer, pad * 3, pad + (altoC / 2));
-    char puntaje[21] = "";
-    itoa(juego->puntaje, puntaje, 10); // Armado de String a imprimir
-    renderizarTexto(font, fontSize, puntaje, GF, GS, renderer, pad * 3, pad + (altoC / 2) + fontSize + 4);
     renderizarTexto(font, fontSize, "Minas:", GF, GS, renderer, (pad * 3) + anchoM + 22, pad + (altoC / 2));
-
     char bombasEnMapaTexto[21] = "";
     itoa(juego->cantMinasEnInterfaz, bombasEnMapaTexto, 10); // Armado de String a imprimir
     renderizarTexto(font, fontSize, bombasEnMapaTexto, GF, GS, renderer, (pad * 3) + anchoM + 22, pad + (altoC / 2) + fontSize + 4);
+
+}
+
+void tiempoYbombas(SDL_Renderer *renderer, TTF_Font *font, Juego *juego, Coord *pcords, int dimensionM, Coord *rbutton)
+{
+
+    // Puntaje y bombas
+    //renderizarTexto(font, fontSize, "Tiempo:", GF, GS, renderer, pad * 3, pad + (altoC / 2));
+
+    //Creo la textura del texto
+    SDL_Surface *textSurface = TTF_RenderText_Solid(font, "Tiempo:", colores[GF]);
+    SDL_Texture *textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+
+    SDL_SetRenderDrawColor(renderer , colores[GF].r , colores[GS].g , colores[GS].b , colores[GS].a);
+
+    // Escribo el texto
+    SDL_Rect textRect = {renderer, pad * 3, pad + (altoC / 2), textSurface->w, textSurface->h};
+    SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
+    SDL_FreeSurface(textSurface);
+    SDL_DestroyTexture(textTexture);
+
+    char puntaje[6] = "";
+    itoa(juego->puntaje, puntaje, 10); // Armado de String a imprimir
+    renderizarTexto(font, fontSize, puntaje, GF, GS, renderer, pad * 3, pad + (altoC / 2) + fontSize + 4);
 
     // Aumento de puntaje por segundo
     if (!juego->finPartida)

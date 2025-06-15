@@ -93,6 +93,7 @@ void manejar_eventos_ganado(SDL_Event *e, EstadoJuego *estado_actual, Juego *jue
 
 void fondoColor(SDL_Renderer *renderer);
 void interfaz(SDL_Renderer *renderer, TTF_Font *font, Juego *juego, Coord *pcords, int dimensionM, Coord *rbutton);
+void tiempoYbombas(SDL_Renderer *renderer, TTF_Font *font, Juego *juego, Coord *pcords, int dimensionM, Coord *rbutton);
 void interfazGanado(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, Juego *juego, Coord *pcords, int dimensionM, Coord *rbutton);
 
 void casillaColocacion(Casilla **mapa, SDL_Renderer *renderer, int fil, int col, Coord *picord);

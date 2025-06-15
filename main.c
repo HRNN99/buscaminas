@@ -16,6 +16,7 @@ int main(int argc, char *argv[])
 {
 
     int filas = 0, columnas = 0, minasEnMapa = 0;
+    int senialRender = 1;
     char rutaFuente[100];
 
     // Creacion archivo log
@@ -105,7 +106,7 @@ int main(int argc, char *argv[])
     time_t current_time;
 
     // Variable para estados
-    EstadoJuego estado_actual = ESTADO_JUGANDO;
+    EstadoJuego estado_actual = ESTADO_MENU;
     int seleccion = 0;
 
     // While para mantener el programa corriendo
@@ -123,10 +124,12 @@ int main(int argc, char *argv[])
             switch (estado_actual)
             {
             case ESTADO_MENU:
+                senialRender=1;
                 manejar_eventos_menu(&e, &estado_actual, &seleccion, menu_count);
                 break;
 
             case ESTADO_JUGANDO:
+                senialRender=1;
                 manejar_eventos_juego(&e, &estado_actual, &juego, &minasCoord, minasEnMapa, &picords, &rbutton);
                 break;
 
@@ -134,6 +137,7 @@ int main(int argc, char *argv[])
 
                 if (e.type == SDL_MOUSEBUTTONDOWN)
                     printf("Hiciste click en el pixel (%i , %i)\n", e.button.x, e.button.y);
+                senialRender=1;
                 manejar_eventos_ganado(&e, &estado_actual, &juego);
                 break;
 
@@ -144,34 +148,38 @@ int main(int argc, char *argv[])
             }
         }
 
-        // SDL_RenderClear(renderer);
-
-        switch (estado_actual)
-        {
-        case ESTADO_MENU:
-
-            dibujar_menu(renderer, ventana, font, menu_items, menu_count, &seleccion);
-            break;
-
-        case ESTADO_JUGANDO:
-
-            interfaz(renderer, font, &juego, &picords, filas, &rbutton);
-
-            if (!juego.iniciado)
+        tiempoYbombas(renderer, font, &juego, &picords, filas, &rbutton);
+        
+        if(senialRender){
+            switch (estado_actual)
             {
+            case ESTADO_MENU:
 
-                mapaReiniciar(renderer, &picords, &juego, filas, columnas, &minasCoord, minasEnMapa);
-                system("cls");
-                mapaImprimir(juego.mapa, filas, columnas);
+                dibujar_menu(renderer, ventana, font, menu_items, menu_count, &seleccion);
+                senialRender=0;
+                break;
+
+            case ESTADO_JUGANDO:
+
+                interfaz(renderer, font, &juego, &picords, filas, &rbutton);
+
+                if (!juego.iniciado)
+                {
+
+                    mapaReiniciar(renderer, &picords, &juego, filas, columnas, &minasCoord, minasEnMapa);
+                    system("cls");
+                    mapaImprimir(juego.mapa, filas, columnas);
+                }
+
+                casillaColocacion(juego.mapa, renderer, filas, columnas, &picords);
+                senialRender=0;
+                break;
+            case ESTADO_GANADO:
+                interfazGanado(renderer, ventana, font, &juego, &picords, filas, &rbutton);
+                senialRender=0;
+                break;
             }
-
-            casillaColocacion(juego.mapa, renderer, filas, columnas, &picords);
-            break;
-        case ESTADO_GANADO:
-            interfazGanado(renderer, ventana, font, &juego, &picords, filas, &rbutton);
-            break;
         }
-
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
 
@@ -310,7 +318,6 @@ void manejar_eventos_ganado(SDL_Event *e , EstadoJuego *estado_actual, Juego* ju
 
 void manejar_eventos_juego(SDL_Event *e, EstadoJuego *estado_actual, Juego *juego, Coord *minasCoord, int minas, Coord *picords, Coord *rbutton)
 {
-
     Casilla **mapa = juego->mapa;
 
     int xG = ((e->button.x - (picords->x * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
