@@ -320,44 +320,46 @@ void manejar_eventos_ganado(SDL_Event *e , EstadoJuego *estado_actual, Juego* ju
                         return ERROR_ARCHIVO;
                     }
                     char linea[47];
-                    char puntuacion[6];
-                    int iterador = 0;
-                    int guardado = 0;
-                    Puntaje puntaje[MAX_PUNTAJES];
+                    int total = 0;
+                    Puntaje puntajes[MAX_PUNTAJES];
+                    // Limpio basura
                     for (size_t i = 0; i < MAX_PUNTAJES; i++)
                     {
-                        memset(puntaje[i].nombre, '\0', sizeof(puntaje->nombre));
-                        puntaje[i].puntos = 0;
+                        memset(puntajes[i].nombre, '\0', sizeof(puntajes->nombre));
+                        puntajes[i].puntos = 0;
                     }
 
                     // Guardo todos los valores en un array
-                    while(fgets(linea, sizeof(linea)+1, aPuntuacion)){
-                        char* iniPalabra = linea+6;
-                        strncpy(puntuacion, linea, 5);
-                        puntaje[iterador].puntos = atoi(puntuacion);
-                        strncpy(puntaje[iterador].nombre, iniPalabra, 39);
-                        iterador++;
-                    }
-                    // Guardo en orden en el archivo temp
-                    if(iterador == 0)
-                        fprintf(aPuntuacionTemp, "%05d %-40s\n",  juego->puntaje,  juego->nombreJugador);
-                    for (size_t i = 0; i < iterador; i++)
-                    {
-                        if (!guardado && (i == iterador-1 || juego->puntaje < puntaje[i].puntos))
-                        {
-                            fprintf(aPuntuacionTemp, "%05d %-40s\n",  juego->puntaje,  juego->nombreJugador);
-                            guardado = 1;
-                        }
-                        if(!(i == iterador-1)){
-                            fprintf(aPuntuacionTemp, "%05d %-40s\n",  puntaje[i].puntos,  puntaje[i].nombre);
-                        }
-
-                    }
-                    if(!guardado){
-                        fprintf(aPuntuacionTemp, "%05d %-40s\n",  juego->puntaje,  juego->nombreJugador);
+                    while (fgets(linea, sizeof(linea)+1, aPuntuacion) && total < MAX_PUNTAJES) {
+                        strncpy(puntajes[total].nombre, linea + 6, 39);
+                        puntajes[total].nombre[39] = '\0';
+                        puntajes[total].puntos = atoi(linea);
+                        total++;
                     }
 
-                    guardado = 0;
+                    // Agregar el nuevo puntaje
+                    if(total == 20)
+                        total--; // Reemplaza el ultimo valor si ya hay max de puntajes
+                    strncpy(puntajes[total].nombre, juego->nombreJugador, 39);
+                    puntajes[total].nombre[39] = '\0';
+                    puntajes[total].puntos = juego->puntaje;
+                    total++;
+
+                    // Ordenar por tiempo
+                    for (int i = 0; i < total - 1; i++) {
+                        for (int j = i + 1; j < total; j++) {
+                            if (puntajes[i].puntos > puntajes[j].puntos) {
+                                Puntaje tmp = puntajes[i];
+                                puntajes[i] = puntajes[j];
+                                puntajes[j] = tmp;
+                            }
+                        }
+                    }
+                    // Guardar en temp
+                    for (int i = 0; i < total && i < MAX_PUNTAJES; i++) {
+                        fprintf(aPuntuacionTemp, "%05d %-40s\n", puntajes[i].puntos, puntajes[i].nombre);
+                    }
+
                     fclose(aPuntuacion);
                     fclose(aPuntuacionTemp);
                     *estado_actual = ESTADO_JUGANDO;
