@@ -52,6 +52,8 @@ typedef struct
     int dimMapa;
     char nombreJugador[40];
     bool finPartida;
+    Puntaje puntajes[MAX_PUNTAJES];
+    int totalPuntajes;
     time_t start_time;
     Casilla **mapa;
 } Juego;
