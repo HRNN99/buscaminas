@@ -8,7 +8,6 @@ int pad = 8;
 int altoC = 28;
 int anchoM = 144;
 int fontSize = 16;
-
 void dibujar_menu(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, const char *menu_items[], const int menu_count, int *seleccion)
 {
 
@@ -221,6 +220,7 @@ void interfaz(SDL_Renderer *renderer, TTF_Font *font, Juego *juego, Coord *pcord
     pcords->y += G;
 
     int fontSize = 16;
+    renderizarTexto(font, fontSize, "Tiempo:", GF, GS, renderer, pad * 3, pad + (altoC / 2));
     renderizarTexto(font, fontSize, "Minas:", GF, GS, renderer, (pad * 3) + anchoM + 22, pad + (altoC / 2));
     char bombasEnMapaTexto[21] = "";
     itoa(juego->cantMinasEnInterfaz, bombasEnMapaTexto, 10); // Armado de String a imprimir
@@ -232,23 +232,13 @@ void interfaz(SDL_Renderer *renderer, TTF_Font *font, Juego *juego, Coord *pcord
 void tiempoYbombas(SDL_Renderer *renderer, TTF_Font *font, Juego *juego, Coord *pcords, int dimensionM, Coord *rbutton)
 {
 
-    // Puntaje y bombas
-    //renderizarTexto(font, fontSize, "Tiempo:", GF, GS, renderer, pad * 3, pad + (altoC / 2));
-
-    //Creo la textura del texto
-    SDL_Surface *textSurface = TTF_RenderText_Solid(font, "Tiempo:", colores[GF]);
-    SDL_Texture *textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-
-    SDL_SetRenderDrawColor(renderer , colores[GF].r , colores[GS].g , colores[GS].b , colores[GS].a);
-
-    // Escribo el texto
-    SDL_Rect textRect = {renderer, pad * 3, pad + (altoC / 2), textSurface->w, textSurface->h};
-    SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
-    SDL_FreeSurface(textSurface);
-    SDL_DestroyTexture(textTexture);
-
+    // Renderizado de tiempo
     char puntaje[6] = "";
     itoa(juego->puntaje, puntaje, 10); // Armado de String a imprimir
+    // Creo un rectangulo por detras de las letras para evitar limpiar el render
+    SDL_Rect rectFondo = {pad * 3, pad + (altoC / 2) + fontSize + 4, 70, 16};
+    SDL_SetRenderDrawColor(renderer , colores[GS].r , colores[GS].g , colores[GS].b , colores[GS].a);
+    SDL_RenderFillRect(renderer , &rectFondo);
     renderizarTexto(font, fontSize, puntaje, GF, GS, renderer, pad * 3, pad + (altoC / 2) + fontSize + 4);
 
     // Aumento de puntaje por segundo

@@ -16,7 +16,6 @@ int main(int argc, char *argv[])
 {
 
     int filas = 0, columnas = 0, minasEnMapa = 0;
-    int senialRender = 1;
     char rutaFuente[100];
 
     // Creacion archivo log
@@ -87,6 +86,7 @@ int main(int argc, char *argv[])
     Juego juego;
     juego.mapa = mapa;
     juego.iniciado = false;
+    juego.senialRender = 1;
 
     // Leer archivo de puntajes
     leerPuntajes(&juego);
@@ -124,23 +124,18 @@ int main(int argc, char *argv[])
             switch (estado_actual)
             {
             case ESTADO_MENU:
-                senialRender=1;
+                juego.senialRender=1;
                 manejar_eventos_menu(&e, &estado_actual, &seleccion, menu_count);
                 break;
 
             case ESTADO_JUGANDO:
-                senialRender=1;
                 manejar_eventos_juego(&e, &estado_actual, &juego, &minasCoord, minasEnMapa, &picords, &rbutton);
                 break;
 
             case ESTADO_GANADO:
-
-                if (e.type == SDL_MOUSEBUTTONDOWN)
-                    printf("Hiciste click en el pixel (%i , %i)\n", e.button.x, e.button.y);
-                senialRender=1;
                 manejar_eventos_ganado(&e, &estado_actual, &juego);
                 break;
-
+                
             case ESTADO_SALIENDO:
                 corriendo = false;
                 printf("\nSaliendo...\n");
@@ -148,15 +143,15 @@ int main(int argc, char *argv[])
             }
         }
 
-        tiempoYbombas(renderer, font, &juego, &picords, filas, &rbutton);
-        
-        if(senialRender){
+        if(estado_actual==ESTADO_JUGANDO || estado_actual == ESTADO_GANADO)tiempoYbombas(renderer, font, &juego, &picords, filas, &rbutton);
+
+        if(juego.senialRender){
             switch (estado_actual)
             {
             case ESTADO_MENU:
 
                 dibujar_menu(renderer, ventana, font, menu_items, menu_count, &seleccion);
-                senialRender=0;
+                juego.senialRender=0;
                 break;
 
             case ESTADO_JUGANDO:
@@ -172,11 +167,11 @@ int main(int argc, char *argv[])
                 }
 
                 casillaColocacion(juego.mapa, renderer, filas, columnas, &picords);
-                senialRender=0;
+                juego.senialRender=0;
                 break;
             case ESTADO_GANADO:
                 interfazGanado(renderer, ventana, font, &juego, &picords, filas, &rbutton);
-                senialRender=0;
+                juego.senialRender=0;
                 break;
             }
         }
@@ -240,6 +235,7 @@ void manejar_eventos_ganado(SDL_Event *e , EstadoJuego *estado_actual, Juego* ju
 
     switch(e->type){
             case SDL_MOUSEBUTTONDOWN:
+                juego->senialRender=1;
                 if ((x <= e->button.x && e->button.x <= (x + 30)) &&
                     (y <= e->button.y && e->button.y <= (y + 30)) &&
                     (e->button.button == SDL_BUTTON_LEFT))
@@ -249,6 +245,7 @@ void manejar_eventos_ganado(SDL_Event *e , EstadoJuego *estado_actual, Juego* ju
     //         rectanguloLlenoAbsoluto(renderer, RR, (win_width / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12, pcords->y + 15 + 4, TAM_BOTON_CERRADO, TAM_BOTON_CERRADO);
                 break;
             case SDL_TEXTINPUT:
+                juego->senialRender=1;
                 // Actualizacion de nombreJugador al presionar una tecla
                 if (strlen(juego->nombreJugador) + strlen(e->text.text) <= 40)
                 {
@@ -256,6 +253,7 @@ void manejar_eventos_ganado(SDL_Event *e , EstadoJuego *estado_actual, Juego* ju
                 }
                 break;
             case SDL_KEYDOWN:
+                juego->senialRender=1;
                 // Borrado de letra al presionar borrar
                 if (e->key.keysym.sym == SDLK_BACKSPACE && strlen(juego->nombreJugador) > 0)
                     juego->nombreJugador[strlen(juego->nombreJugador) - 1] = '\0';
@@ -326,6 +324,7 @@ void manejar_eventos_juego(SDL_Event *e, EstadoJuego *estado_actual, Juego *jueg
 
     if (e->type == SDL_MOUSEBUTTONDOWN)
     {
+        juego->senialRender=1;
         int boton = e->button.button; // guardado del boton anterior antes de nuevo evento
         EventoClick handlerClick;
 

@@ -59,6 +59,7 @@ typedef struct
     Puntaje puntajes[MAX_PUNTAJES];
     int totalPuntajes;
     time_t start_time;
+    int senialRender;
     Casilla **mapa;
 } Juego;
 
