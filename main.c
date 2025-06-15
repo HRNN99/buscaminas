@@ -15,50 +15,46 @@ int escribirArchivoLog(FILE* archivoLog, Log* log);
 
 int main(int argc, char *argv[]){
 
-    int filas = 16, columnas = 16, minasEnMapa = 0;
-    char rutaFuente[100];
-
-    //Creacion archivo log
-
-    FILE* archivoLog = fopen("partida.log", "w");
-    if(!archivoLog)
-    {
-        puts("Error creando el archivo log");
-        return ERROR_ARCHIVO;
-    }
-    Log log;
-    setLog(&log, -1, -1, "Inicio del juego");
-    escribirArchivoLog(archivoLog, &log);
-
-    // Lectura del archivo de configuarcion
-    //leerConfiguracion(&filas, &columnas, &minasEnMapa, rutaFuente);
+    //////////////////////////////////////////////////////////////////////
 
     // Iniciar SDL con funcion Video
     SDL_Init(SDL_INIT_VIDEO);
-
-    // Inicio TTF y busco la fuente. Si no la encuentra imprime un error
-
-    TTF_Init();
-    TTF_Font *font = TTF_OpenFont("Fonts/digital-7.ttf", 32);
-    if (!font)
-    {
-        printf("Error cargando fuente: %s\n", TTF_GetError());
-        return ERROR_FUENTE;
-    }
-
-    char nombreJugador[100];
-    char nombreVentana[100];
-    // String formateado para el titulo de ventana
-    sprintf(nombreVentana, "Buscaminas %ix%i", filas, columnas);
     // Tamaño de ancho y altura de la ventana, utilizo 1 sola variable ya que sera cuadrada
-    int TAMX =  TAM_PIXEL * (columnas * PIXELES_X_LADO + 20);
-    int TAMY =  TAM_PIXEL * (filas * PIXELES_X_LADO + 4 + 3*8 + 28);
+    int TAMX =  TAM_PIXEL * (16 * PIXELES_X_LADO + 20);
+    int TAMY =  TAM_PIXEL * (16 * PIXELES_X_LADO + 4 + 3*8 + 28);
     // Funcion para crear ventana con posicion especifica, dimension y banderas.
-    SDL_Window *ventana = SDL_CreateWindow(nombreVentana, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, TAMX, TAMY, 2);
+    SDL_Window *ventana = SDL_CreateWindow("Buscaminas", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, TAMX, TAMY, 2);
     // Funcion para crear el renderizado en ventana acelerado por hardware
     SDL_Renderer *renderer = SDL_CreateRenderer(ventana, -1, SDL_RENDERER_ACCELERATED);
     // Funcion para establecer el modo de mezcla de colores para el renderizado, el modo blend nos permite utilizar transparencia
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+    //////////////////////////////////////////////////////////////////////
+
+    //Creacion archivo log
+    FILE* archivoLog = fopen("partida.log", "w");
+
+    if(!archivoLog){
+
+        puts("Error creando el archivo log");
+        return ERROR_ARCHIVO;
+    }
+
+    Log log;
+    setLog(&log, -1, -1, "Inicio del juego");
+    escribirArchivoLog(archivoLog, &log);
+
+    //////////////////////////////////////////////////////////////////////
+
+    // Inicio TTF y busco la fuente. Si no la encuentra imprime un error
+    TTF_Init();
+    TTF_Font *font = TTF_OpenFont("Fonts/digital-7.ttf", 32);
+
+    if (!font){
+
+        printf("Error cargando fuente: %s\n", TTF_GetError());
+        return ERROR_FUENTE;
+    }
 
     //////////////////////////////////////////////////////////////////////
 
@@ -84,34 +80,29 @@ int main(int argc, char *argv[]){
 
     //////////////////////////////////////////////////////////////////////
 
-    Coord picords = {0,0};
-    Coord rbutton = {0,0};
-
-    //////////////////////////////////////////////////////////////////////
-
-    //Creacion de matriz mapa
-    //Casilla **mapa = matrizCrear(filas, columnas, sizeof(Casilla));
-
-    //Vector de coordenadas para las minas
-    //Coord minasCoord[minasEnMapa];
-
     Juego juego;
     juego.mapa = NULL;
     juego.iniciado = false;
 
     //////////////////////////////////////////////////////////////////////
 
-    SDL_Event e; // Variable para registrar eventos
-    int corriendo = 1; // Variable flag true para mantener corriendo el programa
+    char nombreJugador[100];
+    Coord picords = {0,0};
+    Coord rbutton = {0,0};
 
-    int boton , xGrilla , yGrilla , renderizarGanado = 0 , fontSize = 16 , casillasLibresDeMinas = (filas * columnas) - minasEnMapa;
+    int renderizarGanado = 0 , fontSize = 16; // casillasLibresDeMinas = (filas * columnas) - minasEnMapa;
     time_t current_time;
 
-    //Variable para estados
-    EstadoJuego estado_actual = ESTADO_MENU;
+    int corriendo = true; // Variable flag true para mantener corriendo el programa
+    SDL_Event e; // Variable para registrar eventos
+    EstadoJuego estado_actual = ESTADO_MENU; //Variable para estados
+
+    //////////////////////////////////////////////////////////////////////
 
     // While para mantener el programa corriendo
     while (corriendo){
+
+        //////////////////////////////////////////////////////////////////////
 
         while(SDL_PollEvent(&e)){
             if(e.type == SDL_QUIT){
@@ -141,6 +132,8 @@ int main(int argc, char *argv[]){
             }
         }
 
+        //////////////////////////////////////////////////////////////////////
+
         //SDL_RenderClear(renderer);
 
         switch(estado_actual){
@@ -169,6 +162,8 @@ int main(int argc, char *argv[]){
                 casillaColocacion(renderer , juego.mapa , juego.dificultad.dimension , &picords);
                 break;
         }
+
+        //////////////////////////////////////////////////////////////////////
 
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
@@ -231,10 +226,6 @@ int main(int argc, char *argv[]){
             case SDL_QUIT:
                 setLog(&log, -1, -1, "Salida de SDL");
                 escribirArchivoLog(archivoLog, &log);
-                printf("Saliendo de SDL\n");
-                corriendo = 0;
-                             // Se libera la memoria de la matriz mapa
-                FinalizarSDL(ventana, renderer, font, EXIT_SUCCESS, archivoLog); // Funcion para la finalizacion de SDL y sus componentes
                 break;
             case SDL_WINDOWEVENT:
                 if (e.window.event == SDL_WINDOWEVENT_CLOSE)
@@ -247,12 +238,6 @@ int main(int argc, char *argv[]){
                 }
                 break;
             case SDL_MOUSEBUTTONDOWN:
-
-                boton = e.button.button; // Alias del boton presionado
-
-                // Se dividen los pixeles para obtener un valor de grilla
-                xGrilla = (e.button.x - (picords.x*TAM_PIXEL)) / ( PIXELES_X_LADO * TAM_PIXEL);
-                yGrilla = (e.button.y - (picords.y*TAM_PIXEL)) / ( PIXELES_X_LADO * TAM_PIXEL);
 
                 if (boton == SDL_BUTTON_LEFT)
                 { // Evento clik izquierdo del mouse
@@ -331,11 +316,16 @@ int main(int argc, char *argv[]){
         */
     }
 
+    //////////////////////////////////////////////////////////////////////
+
     if(!juego.mapa) matrizDestruir(juego.mapa , juego.dificultad.dimension);
 
     fclose(archivoLog);
+    FinalizarSDL(ventana, renderer, font, EXIT_SUCCESS, archivoLog); // Funcion para la finalizacion de SDL y sus componentes
     return EJECUCION_OK;
 }
+
+//////////////////////////////////////////////////////////////////////
 
 void manejar_eventos_menu(SDL_Event *e , EstadoJuego *estado_actual, int* seleccion , const int items_count){
 
@@ -464,61 +454,12 @@ void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* ju
 
 }
 
+//////////////////////////////////////////////////////////////////////
+
 bool linea_ignorable(const char* linea){
     while(isspace(*linea)) linea++;
     return (*linea == '\0' || *linea == '#');
 }
-
-/*
-int leerConfiguracion(int* filas, int* columnas, int* minasEnMapa, char* rutaFuente){
-
-    FILE* config = fopen("buscaminas.conf", "r");
-
-    if (!config)
-    {
-        puts("Error al abrir archivo de configuracion. Cerrando juego...");
-        return ERROR_ARCHIVO;
-    }
-
-    if (fscanf(config, "DIMENSION_MAPA = %d\n", filas) != 1) {
-        puts("Error al leer DIMENSION_MAPA.");
-        fclose(config);
-        return ERROR_ARCHIVO;
-    }
-
-    if(*filas < 8 || *filas > 32){
-        puts("Error de configuracion DIMENSION_MAPA valores validos entre 8 y 32.");
-        fclose(config);
-        return ERROR_CONFIGURACION;
-    }
-
-    *columnas = *filas; // Mapa cuadrado siempre
-
-    char minasTexto[5];
-    if (fscanf(config, "CANTIDAD_MINAS = %s\n", minasTexto) != 1) {
-        puts("Error al leer CANTIDAD_MINAS.");
-        fclose(config);
-        return ERROR_ARCHIVO;
-    }
-
-    char* porcentaje = strchr(minasTexto, '%');
-    *minasEnMapa = atoi(minasTexto);
-
-    // Lo convierto a un porcentual del mapa
-    if (porcentaje)
-        *minasEnMapa = round(((*filas)*(*columnas))*((float)*minasEnMapa/100));
-
-    if (fscanf(config, "RUTA_FUENTE = %s\n", rutaFuente) != 1) {
-        puts("Error al leer RUTA_FUENTE.");
-        fclose(config);
-        return ERROR_ARCHIVO;
-    }
-    //printf("%d, %d, %s", *filas, *minasEnMapa, rutaFuente);
-    fclose(config);
-
-    return 0;
-}
-*/
 
 int cargar_dificultades(const char* archivo , Dificultad* difs , int num_dif){
 
@@ -589,6 +530,8 @@ int cargar_dificultades(const char* archivo , Dificultad* difs , int num_dif){
     fclose(config);
     return 0;
 }
+
+//////////////////////////////////////////////////////////////////////
 
 int escribirArchivoLog(FILE* archivoLog, Log* log)
 {
