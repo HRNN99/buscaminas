@@ -74,7 +74,6 @@ typedef struct{
     Dificultad dificultad;
     Casilla** mapa;
     Coord* minasCoord;
-
     int cantCasillasPresionadas;
     int puntaje;
     char nombreJugador[40];
@@ -82,9 +81,26 @@ typedef struct{
     Puntaje puntajes[MAX_PUNTAJES];
     int totalPuntajes;
     time_t start_time;
+    int senialRender;
 } Juego;
 
-typedef struct{
+typedef struct
+{
+    Coord* piCord;
+    SDL_Renderer *renderer;
+    SDL_Window *ventana;
+    int tamXVentana;
+    int tamYVentana;
+    TTF_Font *font;
+    int G; // Grosor
+    int pad; // Padding
+    int altoC; // Alto boton reinicio
+    int anchoM; // Ancho mapa
+    int fontSize;
+} Graficos;
+
+typedef struct
+{
     char tipoEvento[20];
     struct tm fechaHora;
     int coordXY[2];
@@ -100,17 +116,19 @@ typedef void (*EventoClick)(Juego *juego, Sonido *sonidos, int x, int y, Coord *
 
 //Prototipos
 void manejar_eventos_menu(SDL_Event *e , EstadoJuego *estado_actual , int* seleccion , const int items_count , Sonido* sonidos);
-void manejar_eventos_dificultad(SDL_Event *e , EstadoJuego *estado_actual, int* seleccion , const int items_count , Juego* juego , Dificultad* difs , SDL_Window* ventana);
+void manejar_eventos_dificultad(Graficos *graficos, SDL_Event *e , EstadoJuego *estado_actual, int* seleccion , const int items_count , Juego* juego , Dificultad* difs , SDL_Window* ventana);
 void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* juego , Coord* picords , Coord* rbutton , Sonido *sonidos);
 void manejar_eventos_ganado(SDL_Event *e, EstadoJuego *estado_actual, Juego *juego);
 
-void dibujar_menu(SDL_Renderer* renderer , SDL_Window* ventana , TTF_Font* font , const char* menu_items[] , const int menu_count , int* seleccion);
-
 void fondoColor(SDL_Renderer* renderer);
-void interfaz(SDL_Renderer* renderer , TTF_Font* font , Juego* juego , Coord* pcords , Coord* rbutton);
-void interfazGanado(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, Juego *juego, Coord *pcords, int dimensionM, Coord *rbutton);
-void casillaColocacion(SDL_Renderer *renderer , Casilla **mapa , int dimension , Coord *picord);
+void casillaColocacion(SDL_Renderer *renderer, Casilla **mapa , int dimension , Coord *picord);
 void mapaReiniciar(SDL_Renderer *renderer , Coord *pcord , Juego *juego);
+
+void dibujar_menu(Graficos* graficos, const char *menu_items[], const int menu_count, int *seleccion);
+
+void interfaz(Graficos* graficos, Juego *juego, Coord *rbutton);
+void tiempoYbombas(Graficos* graficos, Juego *juego);
+void interfazGanado(Graficos* graficos, Juego *juego);
 
 void casillaEstado(Juego *juego , Sonido *sonidos , int gX, int gY, bool chordClick);
 void casillaBandera(Juego *juego, int gX, int gY);
