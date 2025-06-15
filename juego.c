@@ -237,7 +237,7 @@ void interfazGanado(Graficos *graficos, Juego *juego)
     // Ventana
     graficos->piCord->x = (graficos->tamXVentana / 2) - (TAMX_GANADO / 2);
     graficos->piCord->y = (graficos->tamYVentana / 2) - (TAMY_GANADO / 2);
-    
+
     rectanguloLlenoAbsoluto(graficos->renderer, GS, graficos->piCord->x, graficos->piCord->y, TAMX_GANADO, TAMY_GANADO);
     marcoInvertido(graficos->renderer, graficos->piCord->x, graficos->piCord->y, (TAMX_GANADO), (TAMY_GANADO), 4);
     // Boton cerrar ventana
@@ -280,7 +280,7 @@ void interfazGanado(Graficos *graficos, Juego *juego)
     juego->finPartida = true;
 }
 
-void mapaReiniciar(SDL_Renderer *renderer , Coord *pcord , Juego *juego){
+void mapaReiniciar(SDL_Renderer *renderer, Juego *juego){
 
     juego->iniciado = true;
     Casilla **mapa = juego->mapa;

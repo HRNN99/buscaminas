@@ -157,6 +157,7 @@ int main(int argc, char *argv[]){
     graficos.altoC = 28;
     graficos.tamXVentana = TAMX;
     graficos.tamYVentana = TAMY;
+
     // While para mantener el programa corriendo
     while (corriendo){
 
@@ -187,8 +188,6 @@ int main(int argc, char *argv[]){
                     break;
 
                 case ESTADO_GANADO:
-                    if (e.type == SDL_MOUSEBUTTONDOWN)
-                    printf("Hiciste click en el pixel (%i , %i)\n", e.button.x, e.button.y);
                     manejar_eventos_ganado(&e, &estado_actual, &juego);
                     break;
 
@@ -200,9 +199,8 @@ int main(int argc, char *argv[]){
             }
         }
 
-
         //////////////////////////////////////////////////////////////////////
-        if(estado_actual==ESTADO_JUGANDO || estado_actual == ESTADO_GANADO)
+        if(!(estado_actual == ESTADO_GANADO) && (estado_actual==ESTADO_JUGANDO))
             tiempoYbombas(&graficos, &juego);
 
         //SDL_RenderClear(renderer);
@@ -223,7 +221,7 @@ int main(int argc, char *argv[]){
 
                     if(!juego.iniciado){
 
-                        mapaReiniciar(renderer , &picords , &juego);
+                        mapaReiniciar(renderer, &juego);
                         system("cls");
                         graficos.anchoM = juego.dificultad.dimension * PIXELES_X_LADO + 4;
                         mapaImprimir(juego.mapa , juego.dificultad.dimension , juego.dificultad.dimension);
