@@ -500,13 +500,17 @@ void handlerClickIzquierdo(Juego *juego , Sonido *sonidos , int x , int y){
 
     printf("Hiciste click en la casilla (%i , %i)\n", x, y);
     casillaEstado(juego , sonidos , x , y , false);
-    juego->mapa[y][x].estado == -1 ? Mix_PlayChannel(-1, sonidos->sonidoMina, 0)
-    : juego->mapa[y][x].estadoBandera == 0 ? Mix_PlayChannel(-1, sonidos->sonidoClick, 0): NULL; // Reproduce sonido de mina si se presiona una mina
+    if(juego->mapa[y][x].estado == -1)
+         Mix_PlayChannel(-1, sonidos->sonidoMina, 0);
+    else if(juego->mapa[y][x].estadoBandera == 0){
+        Mix_PlayChannel(-1, sonidos->sonidoClick, 0); // Reproduce sonido de mina si se presiona una mina
+    }
 }
 
 void handlerClickDerecho(Juego *juego , Sonido *sonidos , int x , int y){
 
     printf("Hiciste click derecho en la casilla (%i , %i), colocando bandera\n", x, y);
     casillaBandera(juego , x , y);
-    juego->mapa[y][x].presionada == 0 ? Mix_PlayChannel(-1, sonidos->sonidoBandera, 0): NULL;
+    if(juego->mapa[y][x].presionada == 0)
+        Mix_PlayChannel(-1, sonidos->sonidoBandera, 0);
 }

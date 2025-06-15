@@ -112,7 +112,7 @@ typedef struct{
 } MenuItem;
 
 // punteros a funciones
-typedef void (*EventoClick)(Juego *juego, Sonido *sonidos, int x, int y, Coord *minasCoord, int minas);
+typedef void (*EventoClick)(Juego *juego, Sonido *sonidos, int x, int y);
 
 //Prototipos
 int manejar_eventos_menu(SDL_Event *e , EstadoJuego *estado_actual , int* seleccion , const int items_count , Sonido* sonidos);

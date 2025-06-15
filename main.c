@@ -393,7 +393,7 @@ int manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* jue
 
                     if (SDL_PollEvent(e) && e->type == SDL_MOUSEBUTTONDOWN && e->button.button != boton){
 
-                        handlerClick(juego , sonidos , xG , yG , juego->minasCoord , juego->dificultad.cantidad_minas);
+                        handlerClick(juego , sonidos , xG , yG);
                         continue;
                     }
 
@@ -404,7 +404,7 @@ int manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* jue
             else{
 
                 handlerClick = (boton == SDL_BUTTON_LEFT) ? handlerClickIzquierdo : handlerClickDerecho;
-                handlerClick(juego , sonidos , xG , yG , juego->minasCoord , juego->dificultad.cantidad_minas);
+                handlerClick(juego , sonidos , xG , yG);
 
                 if (juego->cantCasillasPresionadas == casillasLibresDeMinas){
 
