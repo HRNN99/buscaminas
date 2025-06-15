@@ -113,9 +113,8 @@ int main(int argc, char *argv[])
     graficos.ventana = ventana;
     graficos.renderer = renderer;
     graficos.font = font;
-    graficos.piX = 0;
-    graficos.piY = 0;
-    
+    graficos.piCord = &picords;
+
     // While para mantener el programa corriendo
     while (corriendo)
     {
@@ -150,7 +149,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if(estado_actual==ESTADO_JUGANDO || estado_actual == ESTADO_GANADO)tiempoYbombas(renderer, font, &juego, &picords, &rbutton);
+        if(estado_actual==ESTADO_JUGANDO || estado_actual == ESTADO_GANADO)tiempoYbombas(&graficos, &juego);
 
         if(juego.senialRender){
             switch (estado_actual)
@@ -171,12 +170,12 @@ int main(int argc, char *argv[])
                     mapaImprimir(juego.mapa, filas, columnas);
                 }
 
-                interfaz(renderer, font, &juego, &picords, &rbutton);
+                interfaz(&graficos, &juego, &rbutton);
                 casillaColocacion(juego.mapa, renderer, filas, columnas, &picords);
                 juego.senialRender=0;
                 break;
             case ESTADO_GANADO:
-                interfazGanado(renderer, ventana, font, &juego, &picords, &rbutton);
+                interfazGanado(&graficos, &juego);
                 juego.senialRender=0;
                 break;
             }

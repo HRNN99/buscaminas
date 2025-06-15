@@ -65,19 +65,18 @@ typedef struct
 
 typedef struct
 {
-    int piX;
-    int piY;
-    SDL_Renderer *renderer;
-    SDL_Window *ventana;
-    TTF_Font *font;
-    
-} Graficos;
-
-typedef struct
-{
     int y;
     int x;
 } Coord;
+
+typedef struct
+{
+    Coord* piCord;
+    SDL_Renderer *renderer;
+    SDL_Window *ventana;
+    TTF_Font *font;
+
+} Graficos;
 
 typedef struct
 {
@@ -103,9 +102,9 @@ void manejar_eventos_juego(SDL_Event *e, EstadoJuego *estado_actual, Juego *jueg
 void manejar_eventos_ganado(SDL_Event *e, EstadoJuego *estado_actual, Juego *juego);
 
 void fondoColor(SDL_Renderer *renderer);
-void interfaz(SDL_Renderer *renderer, TTF_Font *font, Juego *juego, Coord *pcords, Coord *rbutton);
-void tiempoYbombas(SDL_Renderer *renderer, TTF_Font *font, Juego *juego, Coord *pcords, Coord *rbutton);
-void interfazGanado(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, Juego *juego, Coord *pcords, Coord *rbutton);
+void interfaz(Graficos* graficos, Juego *juego, Coord *rbutton);
+void tiempoYbombas(Graficos* graficos, Juego *juego);
+void interfazGanado(Graficos* graficos, Juego *juego);
 
 void casillaColocacion(Casilla **mapa, SDL_Renderer *renderer, int fil, int col, Coord *picord);
 
