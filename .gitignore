@@ -1,5 +1,6 @@
 /SDL2-2.0.22/
 /SDL2_ttf-2.22.0/
+/SDL2_mixer-2.8.1/
 obj/Debug/main.o
 bin/Debug/Buscaminas.exe
 puntuacion.txt

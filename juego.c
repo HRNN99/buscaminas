@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "juego.h"
 #include "estados.h"
+#include "sonido.h"
 #include "time.h"
 
 void dibujar_menu(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, const char *menu_items[], const int menu_count, int *seleccion)
@@ -281,6 +282,7 @@ void mapaReiniciar(SDL_Renderer *renderer, Coord *pcord, Juego *juego, int filas
     juego->cantCasillasPresionadas = 0;
     juego->start_time = time(NULL); // Iniciar el contador cuando inicia el juego
     juego->nombreJugador[0] = '\0';
+    
 
     mapaVacio(mapa, filas, columnas);
     mapaLlenar(mapa, filas, columnas, minasCoord, minas);
@@ -335,7 +337,7 @@ void casillaColocacion(Casilla **mapa, SDL_Renderer *renderer, int fil, int col,
 }
 
 // Funcion que coloca estados en las casillas
-void casillaEstado(Juego *juego, Coord *minasCoord, int minas, int gX, int gY, bool chordClick)
+void casillaEstado(Juego *juego, Coord *minasCoord, Sonido *sonidos, int minas, int gX, int gY, bool chordClick)
 {
 
     if (gX < 0 || gX >= juego->dimMapa || gY < 0 || gY >= juego->dimMapa)
@@ -353,7 +355,7 @@ void casillaEstado(Juego *juego, Coord *minasCoord, int minas, int gX, int gY, b
             {
                 if (i == 0 && j == 0)
                     continue; // Evita repetirse a sí mismo
-                casillaEstado(juego, minasCoord, minas, gX + i, gY + j, false);
+                casillaEstado(juego, minasCoord, sonidos, minas, gX + i, gY + j, false);
             }
         }
     }
@@ -368,8 +370,11 @@ void casillaEstado(Juego *juego, Coord *minasCoord, int minas, int gX, int gY, b
 
     if (casillaSeleccionada->estado == -1)
     {
+        Mix_PauseMusic();
+        
         juego->finPartida = true;
-
+        
+        
         // Mostrar todas las bombas
         for (int i = 0; i < minas; i++)
         {
@@ -382,6 +387,9 @@ void casillaEstado(Juego *juego, Coord *minasCoord, int minas, int gX, int gY, b
             juego->mapa[mY][mX].presionada = true; // Presionar todas las minas
             juego->mapa[mY][mX].estado = 5;        // Estado de mina revelada
         }
+        Mix_PlayChannel(-1, sonidos->sonidoPerder, 0); // Sonido de mina
+        SDL_Delay(2000); // Espera para reproducir el sonido
+        Mix_PlayMusic(sonidos->musicaFondo, -1); // Musica de menu
         return;
     }
 
@@ -401,7 +409,7 @@ void casillaEstado(Juego *juego, Coord *minasCoord, int minas, int gX, int gY, b
         {
             if (i == 0 && j == 0)
                 continue; // Evita repetirse a sí mismo
-            casillaEstado(juego, minasCoord, minas, gX + i, gY + j, false);
+            casillaEstado(juego, minasCoord, sonidos, minas, gX + i, gY + j, false);
         }
     }
 }
@@ -453,7 +461,7 @@ FILE *abrirArchivo(const char *nombre, const char *modo)
     return archivo;
 }
 
-void clickDoble(Juego *juego, int gX, int gY, Coord *minasCoord, int minas)
+void clickDoble(Juego *juego, Sonido *sonidos, int gX, int gY, Coord *minasCoord, int minas)
 {
     Casilla **mapa = juego->mapa;
 
@@ -478,20 +486,23 @@ void clickDoble(Juego *juego, int gX, int gY, Coord *minasCoord, int minas)
     if (mapa[gY][gX].estado == cont)
     {
 
-        casillaEstado(juego, minasCoord, minas, gX, gY, true);
+        casillaEstado(juego, minasCoord, sonidos, minas, gX, gY, true);
     }
     return;
 }
 
 // clickHandlers
-void handlerClickIzquierdo(Juego *juego, int x, int y, Coord *minasCoord, int minas)
+void handlerClickIzquierdo(Juego *juego, Sonido *sonidos, int x, int y, Coord *minasCoord, int minas)
 {
     printf("Hiciste click en la casilla (%i , %i)\n", x, y);
-    casillaEstado(juego, minasCoord, minas, x, y, false);
+    casillaEstado(juego, minasCoord, sonidos, minas, x, y, false);
+    juego->mapa[y][x].estado == -1 ? Mix_PlayChannel(-1, sonidos->sonidoMina, 0) 
+    : juego->mapa[y][x].estadoBandera == 0 ? Mix_PlayChannel(-1, sonidos->sonidoClick, 0): NULL; // Reproduce sonido de mina si se presiona una mina
 }
 
-void handlerClickDerecho(Juego *juego, int x, int y, Coord *minasCoord, int minas)
+void handlerClickDerecho(Juego *juego, Sonido *sonidos, int x, int y, Coord *minasCoord, int minas)
 {
     printf("Hiciste click derecho en la casilla (%i , %i), colocando bandera\n", x, y);
     casillaBandera(juego, x, y);
+    juego->mapa[y][x].presionada == 0 ? Mix_PlayChannel(-1, sonidos->sonidoBandera, 0): NULL;
 }
