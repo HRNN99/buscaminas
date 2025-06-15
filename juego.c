@@ -240,14 +240,13 @@ void interfazGanado(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font,
     SDL_GetWindowSize(ventana, &win_width, &win_height);
 
     // Ventana
-    int TAMX_GANADO = 220, TAMY_GANADO = 276, TAM_BOTON = 30;
     pcords->x = (win_width / 2) - (TAMX_GANADO / 2);
     pcords->y = (win_height / 2) - (TAMY_GANADO / 2);
     rectanguloLlenoAbsoluto(renderer, GS, pcords->x, pcords->y, TAMX_GANADO, TAMY_GANADO);
     marcoInvertido(renderer, pcords->x, pcords->y, (TAMX_GANADO), (TAMY_GANADO), 4);
     // Boton cerrar ventana
-    rectanguloLlenoAbsoluto(renderer, RR, (win_width / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12, pcords->y + 15 + 4, TAM_BOTON, TAM_BOTON);
-    marcoInvertido(renderer, (win_width / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12, pcords->y + 15 + 4, TAM_BOTON, TAM_BOTON, 4);
+    rectanguloLlenoAbsoluto(renderer, RR, (win_width / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12, pcords->y + 15 + 4, TAM_BOTON_CERRADO, TAM_BOTON_CERRADO);
+    marcoInvertido(renderer, (win_width / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12, pcords->y + 15 + 4, TAM_BOTON_CERRADO, TAM_BOTON_CERRADO, 4);
     // Renderizar "Puntaje" y "Nombre:"
     char textoPuntaje[21] = "Tiempo: ";
     char puntajeChar[12];

@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
     time_t current_time;
 
     // Variable para estados
-    EstadoJuego estado_actual = ESTADO_GANADO;
+    EstadoJuego estado_actual = ESTADO_JUGANDO;
     int seleccion = 0;
 
     // While para mantener el programa corriendo
@@ -223,8 +223,23 @@ void manejar_eventos_menu(SDL_Event *e, EstadoJuego *estado_actual, int *selecci
 }
 
 void manejar_eventos_ganado(SDL_Event *e , EstadoJuego *estado_actual, Juego* juego){
+    int TAMX = TAM_PIXEL * (juego->dimMapa * PIXELES_X_LADO + 20);
+    int TAMY = TAM_PIXEL * (juego->dimMapa * PIXELES_X_LADO + 4 + 3 * 8 + 28);
+
+    // X e Y de boton cerrado
+    int x=(TAMX/2)+(TAMX_GANADO/2)- 15 - 20 - 12;
+    int y=(TAMY/2)-(TAMY_GANADO/2)+ 15 + 4;
 
     switch(e->type){
+            case SDL_MOUSEBUTTONDOWN:
+                if ((x <= e->button.x && e->button.x <= (x + 30)) &&
+                    (y <= e->button.y && e->button.y <= (y + 30)) &&
+                    (e->button.button == SDL_BUTTON_LEFT))
+                {
+                    *estado_actual=ESTADO_JUGANDO;
+                }
+    //         rectanguloLlenoAbsoluto(renderer, RR, (win_width / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12, pcords->y + 15 + 4, TAM_BOTON_CERRADO, TAM_BOTON_CERRADO);
+                break;
             case SDL_TEXTINPUT:
                 // Actualizacion de nombreJugador al presionar una tecla
                 if (strlen(juego->nombreJugador) + strlen(e->text.text) <= 40)
