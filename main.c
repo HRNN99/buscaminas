@@ -329,7 +329,7 @@ void manejar_eventos_ganado(SDL_Event *e , EstadoJuego *estado_actual, Juego* ju
                         puntajes[i].puntos = 0;
                     }
 
-                    // Guardo todos los valores en un array
+                    // Guardo los puntajes en array
                     while (fgets(linea, sizeof(linea)+1, aPuntuacion) && total < MAX_PUNTAJES) {
                         strncpy(puntajes[total].nombre, linea + 6, 39);
                         puntajes[total].nombre[39] = '\0';
@@ -337,25 +337,29 @@ void manejar_eventos_ganado(SDL_Event *e , EstadoJuego *estado_actual, Juego* ju
                         total++;
                     }
 
-                    // Agregar el nuevo puntaje
-                    if(total == 20)
-                        total--; // Reemplaza el ultimo valor si ya hay max de puntajes
-                    strncpy(puntajes[total].nombre, juego->nombreJugador, 39);
-                    puntajes[total].nombre[39] = '\0';
-                    puntajes[total].puntos = juego->puntaje;
-                    total++;
+                    // Preparar el nuevo puntaje
+                    Puntaje nuevo;
+                    strncpy(nuevo.nombre, juego->nombreJugador, 39);
+                    nuevo.nombre[39] = '\0';
+                    nuevo.puntos = juego->puntaje;
 
-                    // Ordenar por tiempo
-                    for (int i = 0; i < total - 1; i++) {
-                        for (int j = i + 1; j < total; j++) {
-                            if (puntajes[i].puntos > puntajes[j].puntos) {
-                                Puntaje tmp = puntajes[i];
-                                puntajes[i] = puntajes[j];
-                                puntajes[j] = tmp;
-                            }
-                        }
+                    int i = total - 1; // Para que la primera iteracion no se haga
+
+                    if(i + 1 == MAX_PUNTAJES)
+                        i--;
+
+                    // Si el tiempo nuevo es menor al ultimo registro itera hacia arriba desplazando los registros hacia abajo
+                    while (i >= 0 && puntajes[i].puntos > nuevo.puntos) {
+                        puntajes[i + 1] = puntajes[i];
+                        i--;
                     }
-                    // Guardar en temp
+
+                    // Insertar nuevo puntaje en posición
+                    puntajes[i + 1] = nuevo;
+                    if(total != MAX_PUNTAJES)
+                        total++;
+
+                    // Escribir los puntajes al archivo temporal
                     for (int i = 0; i < total && i < MAX_PUNTAJES; i++) {
                         fprintf(aPuntuacionTemp, "%05d %-40s\n", puntajes[i].puntos, puntajes[i].nombre);
                     }
