@@ -259,14 +259,19 @@ void interfazGanado(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font,
     rectanguloLlenoAbsoluto(renderer, BB, margenX, posYtexto += 40, 5, 2);                           // Linea antes del nombre
     renderizarTexto(font, 20, juego->nombreJugador, BB, GS, renderer, margenX + 15, posYtexto - 12); // Fix Y por como toma esa coordenada
     // Renderizar mejores posiciones
-    //dibujar(renderer, 1, restart_button, margenX, posYtexto += 30, 10, 10);
-    int anchoM = dimensionM * PIXELES_X_LADO + 4;
-    dibujarAbsoluto(renderer, 24, construirCoronaConColores(corona, GS, AD, DS), margenX, posYtexto+=30, 1);
-    renderizarTexto(font, 16, juego->puntajes[0].nombre, BB, GS, renderer, margenX + 35, posYtexto + 5);
-    dibujarAbsoluto(renderer, 24, construirCoronaConColores(corona, GS, BB, GA), margenX, posYtexto+=25, 1);
-    renderizarTexto(font, 16, juego->puntajes[1].nombre, BB, GS, renderer, margenX + 35, posYtexto + 5);
-    dibujarAbsoluto(renderer, 24, construirCoronaConColores(corona, GS, BR, BS), margenX, posYtexto+=25, 1);
-    renderizarTexto(font, 16, juego->puntajes[2].nombre, BB, GS, renderer, margenX + 35, posYtexto + 5);
+    if(juego->totalPuntajes >= 3){
+        char aux[17] = {0}; // Limito los caracteres por temas visuales
+        dibujarAbsoluto(renderer, 24, construirCoronaConColores(corona, GS, AD, DS), margenX, posYtexto+=30, 1);
+        snprintf(aux, sizeof(aux), "%05d %-s\n", juego->puntajes[0].puntos, juego->puntajes[0].nombre);
+        renderizarTexto(font, 16, aux, BB, GS, renderer, margenX + 35, posYtexto + 5);
+        dibujarAbsoluto(renderer, 24, construirCoronaConColores(corona, GS, BB, GA), margenX, posYtexto+=25, 1);
+        snprintf(aux, sizeof(aux), "%05d %-s\n", juego->puntajes[1].puntos, juego->puntajes[1].nombre);
+        renderizarTexto(font, 16, aux, BB, GS, renderer, margenX + 35, posYtexto + 5);
+        snprintf(aux, sizeof(aux), "%05d %-s\n", juego->puntajes[2].puntos, juego->puntajes[2].nombre);
+
+        dibujarAbsoluto(renderer, 24, construirCoronaConColores(corona, GS, BR, BS), margenX, posYtexto+=25, 1);
+        renderizarTexto(font, 16, aux, BB, GS, renderer, margenX + 35, posYtexto + 5);
+    }
     // Mostrar todo
     SDL_RenderPresent(renderer);
     juego->finPartida = true;
