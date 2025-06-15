@@ -6,19 +6,34 @@
 #include <math.h>
 #include <SDL2/SDL_ttf.h>
 
-#include "dibujos.h" //Header de estados
+#include "dibujos.h"
 #include "juego.h"
+#include "sonido.h" //Header de sonido
 
 bool linea_ignorable(const char* linea);
 int cargar_dificultades(const char* archivo , Dificultad* difs , int num_dif);
 int escribirArchivoLog(FILE* archivoLog, Log* log);
+int leerPuntajes(Juego* juego);
 
 int main(int argc, char *argv[]){
 
     //////////////////////////////////////////////////////////////////////
 
-    // Iniciar SDL con funcion Video
-    SDL_Init(SDL_INIT_VIDEO);
+    // Iniciar SDL con funcion Video y audio
+    if(SDL_Init(SDL_INIT_VIDEO) || SDL_Init(SDL_INIT_AUDIO))
+    {
+        puts("Error al iniciar SDL");
+        return ERROR_CONFIGURACION;
+    }
+
+    Sonido sonidos;
+    if(iniciarSonido(&sonidos))
+    {
+        return ERROR_CONFIGURACION;
+    }
+
+    //////////////////////////////////////////////////////////////////////
+
     // Tamaño de ancho y altura de la ventana, utilizo 1 sola variable ya que sera cuadrada
     int TAMX =  TAM_PIXEL * (16 * PIXELES_X_LADO + 20);
     int TAMY =  TAM_PIXEL * (16 * PIXELES_X_LADO + 4 + 3*8 + 28);
@@ -84,9 +99,39 @@ int main(int argc, char *argv[]){
     juego.mapa = NULL;
     juego.iniciado = false;
 
+    // Inicializar el juego
+    juego.puntaje = 0;
+    juego.cantCasillasPresionadas = 0;
+    //juego.cantMinasEnInterfaz = minasEnMapa;
+    //juego.dimMapa = filas;
+    juego.finPartida = false;
+    juego.start_time = time(NULL); // Iniciar el contador cuando inicia el juego
+    juego.nombreJugador[0] = '\0';
+
+    // Leer archivo de puntajes
+    leerPuntajes(&juego);
+
     //////////////////////////////////////////////////////////////////////
 
-    char nombreJugador[100];
+    if(cargarSonido("Sounds/sonidoMina.mp3", &sonidos.sonidoMina, 32)
+        || cargarSonido("Sounds/sonidoCat.mp3", &sonidos.sonidoCat, 128)
+        || cargarSonido("Sounds/sonidoClick.mp3", &sonidos.sonidoClick, 128)
+        || cargarSonido("Sounds/sonidoBandera.mp3", &sonidos.sonidoBandera, 64)
+        || cargarSonido("Sounds/sonidoPerdio.mp3", &sonidos.sonidoPerder, 32)
+        || cargarSonido("Sounds/sonidoFlecha.mp3", &sonidos.sonidoFlecha, 32)
+        || cargarSonido("Sounds/sonidoEnter.mp3", &sonidos.sonidoEnter, 32))
+    {
+        return ERROR_SONIDO;
+    }
+
+    if(cargarMusica("Sounds/musicaFondo.mp3", &sonidos.musicaFondo, 32)
+        || cargarMusica("Sounds/musicaMenu.mp3", &sonidos.musicaMenu, 32))
+    {
+        return ERROR_SONIDO;
+    }
+
+    //////////////////////////////////////////////////////////////////////
+
     Coord picords = {0,0};
     Coord rbutton = {0,0};
 
@@ -96,6 +141,7 @@ int main(int argc, char *argv[]){
     int corriendo = true; // Variable flag true para mantener corriendo el programa
     SDL_Event e; // Variable para registrar eventos
     EstadoJuego estado_actual = ESTADO_MENU; //Variable para estados
+    iniciarMusicaMenu(&sonidos.musicaMenu);
 
     //////////////////////////////////////////////////////////////////////
 
@@ -105,7 +151,9 @@ int main(int argc, char *argv[]){
         //////////////////////////////////////////////////////////////////////
 
         while(SDL_PollEvent(&e)){
+
             if(e.type == SDL_QUIT){
+
                 corriendo = false;
                 matrizDestruir(juego.mapa , juego.dificultad.dimension);
                 printf("\n---Cerrando Ventana---\n");
@@ -113,7 +161,7 @@ int main(int argc, char *argv[]){
 
             switch(estado_actual){
                 case ESTADO_MENU:
-                    manejar_eventos_menu(&e , &estado_actual , &seleccion_menu , menu_count);
+                    manejar_eventos_menu(&e , &estado_actual , &seleccion_menu , menu_count , &sonidos);
                     break;
 
                 case ESTADO_DIFICULTAD:
@@ -121,7 +169,13 @@ int main(int argc, char *argv[]){
                     break;
 
                 case ESTADO_JUGANDO:
-                    manejar_eventos_juego(&e , &estado_actual , &juego , &picords , &rbutton);
+                    manejar_eventos_juego(&e , &estado_actual , &juego , &picords , &rbutton , &sonidos);
+                    break;
+
+                case ESTADO_GANADO:
+                    if (e.type == SDL_MOUSEBUTTONDOWN)
+                    printf("Hiciste click en el pixel (%i , %i)\n", e.button.x, e.button.y);
+                    manejar_eventos_ganado(&e, &estado_actual, &juego);
                     break;
 
                 case ESTADO_SALIENDO:
@@ -137,6 +191,7 @@ int main(int argc, char *argv[]){
         //SDL_RenderClear(renderer);
 
         switch(estado_actual){
+
             case ESTADO_MENU:
 
                 dibujar_menu(renderer , ventana , font , menu_items , menu_count , &seleccion_menu);
@@ -149,7 +204,7 @@ int main(int argc, char *argv[]){
 
             case ESTADO_JUGANDO:
 
-                interfaz(renderer , &picords , juego.dificultad.dimension ,&rbutton);
+                interfaz(renderer , font , &juego , &picords , &rbutton);
 
                 if(!juego.iniciado){
 
@@ -161,159 +216,18 @@ int main(int argc, char *argv[]){
 
                 casillaColocacion(renderer , juego.mapa , juego.dificultad.dimension , &picords);
                 break;
+
+            case ESTADO_GANADO:
+
+                interfazGanado(renderer , ventana , font , &juego , &picords , juego.dificultad.dimension , &rbutton);
+                break;
+
         }
 
         //////////////////////////////////////////////////////////////////////
 
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
-
-        /*
-        SDL_Window *ventanaGanado;
-        SDL_Renderer *rendererGanado;
-        if(1){
-            int G=2;
-            int pad = G*4;
-
-            int anchoM = filas * PIXELES_X_LADO + 4;
-            int altoC = 28;
-            int anchoI = anchoM + 16;
-            int altoI = pad + altoC + pad + anchoM + pad;
-
-            //renderizarTexto(font, fontSize, "Minas:", GF, GS,renderer, (pad*3)+anchoM+22, pad+(altoC/2));
-            char bombasEnMapaTexto[21] = "";
-            itoa(juego.cantMinasEnInterfaz, bombasEnMapaTexto, 10); //Armado de String a imprimir
-            renderizarTexto(font, 46, bombasEnMapaTexto, RR, NN, renderer, picords.x+10 , rbutton.y+12);
-
-            //renderizarTexto(font, fontSize, "Puntaje:", GF, GS, renderer, pad*3, pad+(altoC/2));
-            char puntaje[21] = "";
-            itoa(juego.puntaje, puntaje, 10); //Armado de String a imprimir
-            renderizarTexto(font, fontSize, puntaje, GF, GS, renderer, (pad*3)+anchoM+22, pad+(altoC/2)+fontSize+2);
-
-            // Aumento de puntaje por segundo
-            if (!juego.finPartida){
-                current_time = time(NULL);
-                juego.puntaje = difftime(current_time, juego.start_time);
-            }
-        }
-
-        if (renderizarGanado)
-        {
-            //Inicio la lectura de teclado
-            SDL_StartTextInput();
-            // Limpia pantalla
-            SDL_SetRenderDrawColor(rendererGanado, 0, 0, 0, 255); // negro
-            SDL_RenderClear(rendererGanado);
-            // Renderizar "Puntaje" y "Nombre:"
-            char textoPuntaje[21] = "Puntaje: ";
-            char puntajeChar[12];
-            strcat(textoPuntaje, itoa(juego.puntaje, puntajeChar, 10)); //Armado de String a imprimir
-            renderizarTexto(font, 24, textoPuntaje, BB, GS,rendererGanado, 50, 50);
-            renderizarTexto(font, 24, "Ingrese su nombre:", BB, GS, rendererGanado, 50, 100);
-            renderizarTexto(font, 24, nombreJugador, BB, GS,rendererGanado, 50, 120);
-
-            // Mostrar todo
-            SDL_RenderPresent(rendererGanado);
-            renderizarGanado = 0;
-            juego.finPartida = true;
-        }
-
-        while (SDL_PollEvent(&e))
-        { // Registrando eventos
-
-            switch (e.type)
-            {
-            case SDL_QUIT:
-                setLog(&log, -1, -1, "Salida de SDL");
-                escribirArchivoLog(archivoLog, &log);
-                break;
-            case SDL_WINDOWEVENT:
-                if (e.window.event == SDL_WINDOWEVENT_CLOSE)
-                {
-                    setLog(&log, -1, -1, "Salida de pantalla de ganado");
-                    escribirArchivoLog(archivoLog, &log);
-                    printf("Saliendo de pantalla de ganado\n");
-                    renderizarGanado = 0;
-                    FinalizarVentanaSDL(ventanaGanado, rendererGanado); // Funcion para la finalizacion de SDL y sus componentes
-                }
-                break;
-            case SDL_MOUSEBUTTONDOWN:
-
-                if (boton == SDL_BUTTON_LEFT)
-                { // Evento clik izquierdo del mouse
-
-                    else if(!juego.finPartida){
-                        printf("Hiciste clic izquierdo en la casilla (%i,%i)\n", e.button.x, e.button.y);
-                        setLog(&log, xGrilla, yGrilla, "click izquierdo");
-                        escribirArchivoLog(archivoLog, &log);
-                        casillaEstado(renderer, ventana, &juego, &minasCoord, minasEnMapa, xGrilla , yGrilla , &picords);
-
-                        if (juego.cantCasillasPresionadas == casillasLibresDeMinas)
-                        {
-                            setLog(&log, -1, -1, "Juego ganado");
-                            escribirArchivoLog(archivoLog, &log);
-                            puts("Ganaste el juego!");
-                            renderizarGanado = 1;
-                            *nombreJugador = '\0'; // Limpieza por si se presionaron teclas al jugar
-                            // Funcion para crear ventana con posicion especifica, dimension y banderas.
-                            ventanaGanado = SDL_CreateWindow("Ganaste!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, TAMX - 100, TAMY - 100, 2);
-                            // Funcion para crear el renderizado en ventana acelerado por hardware
-                            rendererGanado = SDL_CreateRenderer(ventanaGanado, -1, SDL_RENDERER_ACCELERATED);
-                            // Funcion para establecer el modo de mezcla de colores para el renderizado, el modo blend nos permite utilizar transparencia
-                            SDL_SetRenderDrawBlendMode(rendererGanado, SDL_BLENDMODE_BLEND);
-                        }
-                    }
-                }
-
-                else if (boton == SDL_BUTTON_RIGHT && !juego.finPartida && !juego.mapa[yGrilla][xGrilla].presionada)
-                { // Evento click derecho del mouse
-                    printf("Hiciste clic derecho en la casilla (%i, %i) colocando bandera\n", xGrilla, yGrilla);
-                    setLog(&log, xGrilla, yGrilla, "click derecho");
-                    escribirArchivoLog(archivoLog, &log);
-                    casillaBandera(renderer, &juego, xGrilla , yGrilla , &picords, &juego.cantMinasEnInterfaz);
-                }
-
-                printf("Presionadas: %d\n", juego.cantCasillasPresionadas);
-                break;
-            case SDL_TEXTINPUT:
-                // Actualizacion de nombreJugador al presionar una tecla
-                if (strlen(nombreJugador) + strlen(e.text.text) < 100)
-                {
-                    strcat(nombreJugador, e.text.text);
-                    renderizarGanado = 1;
-                }
-                break;
-            case SDL_KEYDOWN:
-
-                // Borrado de letra al presionar borrar
-                if (e.key.keysym.sym == SDLK_BACKSPACE && strlen(nombreJugador) > 0)
-                {
-                    nombreJugador[strlen(nombreJugador) - 1] = '\0';
-                    renderizarGanado = 1;
-                }
-                // Guardado de puntaje al presionar Enter
-               if (e.key.keysym.sym == SDLK_RETURN && strlen(nombreJugador) > 0)
-               {
-                    SDL_StopTextInput(); //Cierro la lectura de teclado
-                    FILE* aPuntuacion = fopen("puntuacion.txt", "a");
-                    if(!aPuntuacion)
-                    {
-                        setLog(&log, -1, -1, "Error al abrir el archivo de puntuacion.");
-                        escribirArchivoLog(archivoLog, &log);
-                        puts("Error al abrir el archivo puntuacion.txt");
-                        fclose(archivoLog);
-                        return ERROR_ARCHIVO;
-                    }
-                    fprintf(aPuntuacion, "%05d | %s\n", juego.puntaje, nombreJugador);
-                    fclose(aPuntuacion);
-                    renderizarGanado = 0;
-                    FinalizarVentanaSDL(ventanaGanado, rendererGanado); // Funcion para la finalizacion de SDL y sus componentes
-
-               }
-                break;
-            }
-        }
-        */
     }
 
     //////////////////////////////////////////////////////////////////////
@@ -327,27 +241,31 @@ int main(int argc, char *argv[]){
 
 //////////////////////////////////////////////////////////////////////
 
-void manejar_eventos_menu(SDL_Event *e , EstadoJuego *estado_actual, int* seleccion , const int items_count){
+void manejar_eventos_menu(SDL_Event *e , EstadoJuego *estado_actual, int* seleccion , const int items_count , Sonido* sonidos){
 
-    switch(e->type){
+    switch (e->type){
 
         case SDL_KEYDOWN:
 
-            switch(e->key.keysym.sym){
+            switch (e->key.keysym.sym){
 
                 case SDLK_UP:
+                    Mix_PlayChannel(-1, sonidos->sonidoFlecha, 0);
                     *seleccion = (*seleccion - 1 + items_count) % items_count;
                     break;
 
                 case SDLK_DOWN:
+                    Mix_PlayChannel(-1, sonidos->sonidoFlecha, 0);
                     *seleccion = (*seleccion + 1) % items_count;
                     break;
 
                 case SDLK_RETURN:
-                    switch(*seleccion){
+                    Mix_PlayChannel(-1, sonidos->sonidoEnter, 0);
+                    switch (*seleccion){
 
                         case 0:
                             *estado_actual = ESTADO_DIFICULTAD;
+                            iniciarMusicaJuego(&sonidos->musicaFondo);
                             break;
 
                         case 1:
@@ -422,36 +340,146 @@ void manejar_eventos_dificultad(SDL_Event *e , EstadoJuego *estado_actual, int* 
     }
 }
 
-void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* juego , Coord* picords , Coord* rbutton){
+void manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* juego , Coord* picords , Coord* rbutton , Sonido* sonidos){
+
+    Casilla **mapa = juego->mapa;
 
     int xG = ((e->button.x - (picords->x * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
     int yG = ((e->button.y - (picords->y * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
+    int casillasLibresDeMinas = (juego->dificultad.dimension * juego->dificultad.dimension) - juego->dificultad.cantidad_minas;
+
+    if (e->type == SDL_MOUSEBUTTONDOWN){
+
+        int boton = e->button.button; // guardado del boton anterior antes de nuevo evento
+        EventoClick handlerClick;
+
+        if ((rbutton->x * TAM_PIXEL <= e->button.x && e->button.x <= (rbutton->x + 28) * TAM_PIXEL) &&
+            (rbutton->y * TAM_PIXEL <= e->button.y && e->button.y <= (rbutton->y + 28) * TAM_PIXEL) && (boton == SDL_BUTTON_LEFT))
+        {
+            Mix_PlayChannel(-1, sonidos->sonidoCat, 0);
+            juego->iniciado = false;
+        }
+
+        else{
+
+            if (mapa[yG][xG].presionada && mapa[yG][xG].estado > 0){
+
+                handlerClick = clickDoble;
+                Uint32 tiempoDeEspera = SDL_GetTicks() + 100;
+                while (SDL_GetTicks() < tiempoDeEspera){
+
+                    if (SDL_PollEvent(e) && e->type == SDL_MOUSEBUTTONDOWN && e->button.button != boton){
+
+                        handlerClick(juego , sonidos , xG , yG , juego->minasCoord , juego->dificultad.cantidad_minas);
+                        continue;
+                    }
+
+                    SDL_Delay(1);
+                }
+            }
+
+            else{
+
+                handlerClick = (boton == SDL_BUTTON_LEFT) ? handlerClickIzquierdo : handlerClickDerecho;
+                handlerClick(juego , sonidos , xG , yG , juego->minasCoord , juego->dificultad.cantidad_minas);
+
+                if (juego->cantCasillasPresionadas == casillasLibresDeMinas){
+
+                    puts("¡Ganaste el juego!");
+                    SDL_StartTextInput();
+                    juego->nombreJugador[0] = '\0';
+                    *estado_actual = ESTADO_GANADO;
+                }
+            }
+        }
+    }
+}
+
+void manejar_eventos_ganado(SDL_Event *e , EstadoJuego *estado_actual , Juego* juego){
+
+    int TAMX = TAM_PIXEL * (juego->dificultad.dimension * PIXELES_X_LADO + 20);
+    int TAMY = TAM_PIXEL * (juego->dificultad.dimension * PIXELES_X_LADO + 4 + 3 * 8 + 28);
+
+    // X e Y de boton cerrado
+    int x=(TAMX/2)+(TAMX_GANADO/2)- 15 - 20 - 12;
+    int y=(TAMY/2)-(TAMY_GANADO/2)+ 15 + 4;
 
     switch(e->type){
+            case SDL_MOUSEBUTTONDOWN:
+                if ((x <= e->button.x && e->button.x <= (x + 30)) &&
+                    (y <= e->button.y && e->button.y <= (y + 30)) &&
+                    (e->button.button == SDL_BUTTON_LEFT))
+                {
+                    *estado_actual=ESTADO_JUGANDO;
+                }
+                //rectanguloLlenoAbsoluto(renderer, RR, (win_width / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12, pcords->y + 15 + 4, TAM_BOTON_CERRADO, TAM_BOTON_CERRADO);
+                break;
+            case SDL_TEXTINPUT:
+                // Actualizacion de nombreJugador al presionar una tecla
+                if (strlen(juego->nombreJugador) + strlen(e->text.text) <= 40)
+                {
+                    strcat(juego->nombreJugador, e->text.text);
+                }
+                break;
+            case SDL_KEYDOWN:
+                // Borrado de letra al presionar borrar
+                if (e->key.keysym.sym == SDLK_BACKSPACE && strlen(juego->nombreJugador) > 0)
+                    juego->nombreJugador[strlen(juego->nombreJugador) - 1] = '\0';
+                // Guardado de puntaje al presionar Enter
+                if (e->key.keysym.sym == SDLK_RETURN && strlen(juego->nombreJugador) > 0)
+                {
+                    SDL_StopTextInput(); //Cierro la lectura de teclado
 
-        case SDL_MOUSEBUTTONDOWN:
+                    // Abrir archivo
+                    FILE* aPuntuacionTemp = abrirArchivo("puntuacion.temp", "wt");
+                    if (!aPuntuacionTemp) {
+                        //fclose(archivoLog);
+                        return ERROR_ARCHIVO;
+                    }
 
-            switch(e->button.button){
+                    // Preparar el nuevo puntaje
+                    Puntaje nuevo;
+                    strncpy(nuevo.nombre, juego->nombreJugador, 40);
+                    nuevo.puntos = juego->puntaje;
 
-                case SDL_BUTTON_LEFT:
+                    int i = juego->totalPuntajes - 1; // Para que la primera iteracion no se haga
 
-                    if((rbutton->x * TAM_PIXEL <= e->button.x && e->button.x <= (rbutton->x + 28) * TAM_PIXEL) &&
-                       (rbutton->y * TAM_PIXEL <= e->button.y && e->button.y <= (rbutton->y + 28) * TAM_PIXEL))
+                    if(i + 1 == MAX_PUNTAJES)
+                        i--;
 
-                        juego->iniciado = false;
+                    // Si el tiempo nuevo es menor al ultimo registro itera hacia arriba desplazando los registros hacia abajo
+                    while (i >= 0 && juego->puntajes[i].puntos > nuevo.puntos) {
+                        juego->puntajes[i + 1] = juego->puntajes[i];
+                        i--;
+                    }
+                    // Insertar nuevo puntaje en posición
+                    juego->puntajes[i + 1] = nuevo;
+                    if(juego->totalPuntajes != MAX_PUNTAJES)
+                        juego->totalPuntajes++;
 
-                    printf("Hiciste click en la casilla (%i , %i)\n",xG,yG);
-                    casillaEstado(juego , xG , yG);
-                    break;
+                    // Escribir los puntajes al archivo temporal
+                    for (int i = 0; i < juego->totalPuntajes && i < MAX_PUNTAJES; i++) {
+                        fprintf(aPuntuacionTemp, "%05d %-40s\n", juego->puntajes[i].puntos, juego->puntajes[i].nombre);
+                    }
 
-                case SDL_BUTTON_RIGHT:
-                    printf("Pusiste una bandera en la casilla (%i , %i)\n",xG,yG);
-                    casillaBandera(juego , xG , yG);
-                    break;
-            }
-            break;
+                    fclose(aPuntuacionTemp);
+                    *estado_actual = ESTADO_JUGANDO;
+
+                    // Elimino puntuacion
+                    if (remove("puntuacion.txt") != 0) {
+                        perror("Error al eliminar el archivo fuente");
+                        return ERROR_ELIMINACION_ARCHIVO;
+                    }
+                    // Renombro archivo temporal
+                    if (rename("puntuacion.temp", "puntuacion.txt") != 0)
+                    {
+                        perror("Error renombrando puntuacion.temp");
+                        printf("Error: %d\n", errno);
+                        return ERROR_RENOMBRE_ARCHIVO;
+                    }
+                }
+                break;
     }
-
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -533,19 +561,42 @@ int cargar_dificultades(const char* archivo , Dificultad* difs , int num_dif){
 
 //////////////////////////////////////////////////////////////////////
 
-int escribirArchivoLog(FILE* archivoLog, Log* log)
-{
-    if(log->coordXY[0] == -1 && log->coordXY[1] == -1)
+int escribirArchivoLog(FILE *archivoLog, Log *log){
+
+    if (log->coordXY[0] == -1 && log->coordXY[1] == -1)
     {
         fprintf(archivoLog, "[%d-%d-%d %02d:%02d:%02d] %-15s\n",
-            log->fechaHora.tm_year + 1900, log->fechaHora.tm_mon + 1, log->fechaHora.tm_mday,
-            log->fechaHora.tm_hour, log->fechaHora.tm_min, log->fechaHora.tm_sec, log->tipoEvento);
-    }else
+                log->fechaHora.tm_year + 1900, log->fechaHora.tm_mon + 1, log->fechaHora.tm_mday,
+                log->fechaHora.tm_hour, log->fechaHora.tm_min, log->fechaHora.tm_sec, log->tipoEvento);
+    }
+    else
     {
         fprintf(archivoLog, "[%d-%d-%d %02d:%02d:%02d] %-15s | coordenadas: (%d , %d)\n",
-            log->fechaHora.tm_year + 1900, log->fechaHora.tm_mon + 1, log->fechaHora.tm_mday,
-            log->fechaHora.tm_hour, log->fechaHora.tm_min, log->fechaHora.tm_sec, log->tipoEvento,
-            log->coordXY[0], log->coordXY[1]);
+                log->fechaHora.tm_year + 1900, log->fechaHora.tm_mon + 1, log->fechaHora.tm_mday,
+                log->fechaHora.tm_hour, log->fechaHora.tm_min, log->fechaHora.tm_sec, log->tipoEvento,
+                log->coordXY[0], log->coordXY[1]);
     }
+    return 0;
+}
+
+int leerPuntajes(Juego* juego){
+    // Abrir archivos
+    FILE* aPuntuacion = abrirArchivo("puntuacion.txt", "rt");
+    if (!aPuntuacion) {
+        //fclose(archivoLog);
+        return ERROR_ARCHIVO;
+    }
+    char linea[47];
+    int total = 0;
+    // Guardo los puntajes en array
+    while (fgets(linea, sizeof(linea)+1, aPuntuacion) && total < MAX_PUNTAJES) {
+        strncpy(juego->puntajes[total].nombre, linea + 6, 40); // +6 por el formato del archivo, 5 de tiempo y 1 de espacio
+        juego->puntajes[total].nombre[39] = '\0';
+        juego->puntajes[total].puntos = atoi(linea);
+        total++;
+    }
+    //*juego->puntajes = puntajes;
+    juego->totalPuntajes = total;
+    fclose(aPuntuacion);
     return 0;
 }
