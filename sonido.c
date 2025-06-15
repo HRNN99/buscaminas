@@ -3,7 +3,7 @@
 #include "sonido.h"
 #include "juego.h"
 
-int iniciarSonido() {
+int iniciarSonido(Sonido *sonido) {
 
     int mix_init = Mix_Init(MIX_INIT_MP3);
 
@@ -16,8 +16,16 @@ int iniciarSonido() {
         fprintf(stderr, "Error al abrir el audio: %s\n", Mix_GetError());
         return -1; // Error al abrir el audio
     }
-
-    return 0; // �xito
+    sonido->sonidoMina = NULL;
+    sonido->sonidoClick = NULL;
+    sonido->sonidoBandera = NULL;
+    sonido->sonidoCat = NULL;
+    sonido->sonidoPerder = NULL;
+    sonido->sonidoFlecha = NULL;
+    sonido->sonidoEnter = NULL;
+    sonido->musicaFondo = NULL;
+    sonido->musicaMenu = NULL;
+    return 0;
 
 }
 

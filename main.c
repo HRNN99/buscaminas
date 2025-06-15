@@ -39,8 +39,8 @@ int main(int argc, char *argv[])
         puts("Error al iniciar SDL");
         return ERROR_CONFIGURACION;
     }
-
-    if(iniciarSonido())
+    Sonido sonidos;
+    if(iniciarSonido(&sonidos))
     {
         return ERROR_CONFIGURACION;
     }
@@ -105,33 +105,25 @@ int main(int argc, char *argv[])
     juego.finPartida = false;
     juego.start_time = time(NULL); // Iniciar el contador cuando inicia el juego
     juego.nombreJugador[0] = '\0';
-    juego.sonidoMina = NULL;
-    juego.sonidoClick = NULL;
-    juego.sonidoBandera = NULL;
-    juego.sonidoCat = NULL;
-    juego.sonidoPerder = NULL;
-    juego.sonidoFlecha = NULL;
-    juego.sonidoEnter = NULL;
-    juego.musicaFondo = NULL;
-    juego.musicaMenu = NULL;
+
     
 
    //-----------------------------------------------------
 
 
-    if(cargarSonido("Sounds/sonidoMina.mp3", &juego.sonidoMina, 32)
-        || cargarSonido("Sounds/sonidoCat.mp3", &juego.sonidoCat, 128)
-        || cargarSonido("Sounds/sonidoClick.mp3", &juego.sonidoClick, 128)
-        || cargarSonido("Sounds/sonidoBandera.mp3", &juego.sonidoBandera, 64)
-        || cargarSonido("Sounds/sonidoPerdio.mp3", &juego.sonidoPerder, 32)
-        || cargarSonido("Sounds/sonidoFlecha.mp3", &juego.sonidoFlecha, 32)
-        || cargarSonido("Sounds/sonidoEnter.mp3", &juego.sonidoEnter, 32))
+    if(cargarSonido("Sounds/sonidoMina.mp3", &sonidos.sonidoMina, 32)
+        || cargarSonido("Sounds/sonidoCat.mp3", &sonidos.sonidoCat, 128)
+        || cargarSonido("Sounds/sonidoClick.mp3", &sonidos.sonidoClick, 128)
+        || cargarSonido("Sounds/sonidoBandera.mp3", &sonidos.sonidoBandera, 64)
+        || cargarSonido("Sounds/sonidoPerdio.mp3", &sonidos.sonidoPerder, 32)
+        || cargarSonido("Sounds/sonidoFlecha.mp3", &sonidos.sonidoFlecha, 32)
+        || cargarSonido("Sounds/sonidoEnter.mp3", &sonidos.sonidoEnter, 32))
     {
         return ERROR_SONIDO;
     }
 
-    if(cargarMusica("Sounds/musicaFondo.mp3", &juego.musicaFondo, 32)
-        || cargarMusica("Sounds/musicaMenu.mp3", &juego.musicaMenu, 32))
+    if(cargarMusica("Sounds/musicaFondo.mp3", &sonidos.musicaFondo, 32)
+        || cargarMusica("Sounds/musicaMenu.mp3", &sonidos.musicaMenu, 32))
     {
         return ERROR_SONIDO;
     }
@@ -148,7 +140,7 @@ int main(int argc, char *argv[])
     // Variable para estados
     EstadoJuego estado_actual = ESTADO_MENU;
     int seleccion = 0;
-    iniciarMusicaMenu(&juego.musicaMenu);
+    iniciarMusicaMenu(&sonidos.musicaMenu);
     
     // While para mantener el programa corriendo
     while (corriendo)
@@ -165,11 +157,11 @@ int main(int argc, char *argv[])
             switch (estado_actual)
             {
             case ESTADO_MENU:
-                manejar_eventos_menu(&e, &estado_actual, &juego, &seleccion, menu_count);
+                manejar_eventos_menu(&e, &estado_actual, &sonidos, &seleccion, menu_count);
                 break;
 
             case ESTADO_JUGANDO:
-                manejar_eventos_juego(&e, &estado_actual, &juego, &minasCoord, minasEnMapa, &picords, &rbutton);
+                manejar_eventos_juego(&e, &estado_actual, &juego, &minasCoord, minasEnMapa, &picords, &rbutton, &sonidos);
                 break;
 
             case ESTADO_GANADO:
@@ -222,7 +214,7 @@ int main(int argc, char *argv[])
     return EJECUCION_OK;
 }
 
-void manejar_eventos_menu(SDL_Event *e, EstadoJuego *estado_actual, Juego *juego, int *seleccion, const int menu_count)
+void manejar_eventos_menu(SDL_Event *e, EstadoJuego *estado_actual, Sonido *sonidos, int *seleccion, const int menu_count)
 {
     
     switch (e->type)
@@ -234,23 +226,23 @@ void manejar_eventos_menu(SDL_Event *e, EstadoJuego *estado_actual, Juego *juego
         {
 
         case SDLK_UP:
-            Mix_PlayChannel(-1, juego->sonidoFlecha, 0);
+            Mix_PlayChannel(-1, sonidos->sonidoFlecha, 0);
             *seleccion = (*seleccion - 1 + menu_count) % menu_count;
             break;
 
         case SDLK_DOWN:
-            Mix_PlayChannel(-1, juego->sonidoFlecha, 0);
+            Mix_PlayChannel(-1, sonidos->sonidoFlecha, 0);
             *seleccion = (*seleccion + 1) % menu_count;
             break;
 
         case SDLK_RETURN:
-            Mix_PlayChannel(-1, juego->sonidoEnter, 0);
+            Mix_PlayChannel(-1, sonidos->sonidoEnter, 0);
             switch (*seleccion)
             {
 
             case 0:
                 *estado_actual = ESTADO_JUGANDO;
-                iniciarMusicaJuego(&juego->musicaFondo);
+                iniciarMusicaJuego(&sonidos->musicaFondo);
                 break;
 
             case 1:
@@ -348,7 +340,7 @@ void manejar_eventos_ganado(SDL_Event *e, EstadoJuego *estado_actual, Juego *jue
     }
 }
 
-void manejar_eventos_juego(SDL_Event *e, EstadoJuego *estado_actual, Juego *juego, Coord *minasCoord, int minas, Coord *picords, Coord *rbutton)
+void manejar_eventos_juego(SDL_Event *e, EstadoJuego *estado_actual, Juego *juego, Coord *minasCoord, int minas, Coord *picords, Coord *rbutton, Sonido *sonidos)
 {
 
     Casilla **mapa = juego->mapa;
@@ -365,7 +357,7 @@ void manejar_eventos_juego(SDL_Event *e, EstadoJuego *estado_actual, Juego *jueg
         if ((rbutton->x * TAM_PIXEL <= e->button.x && e->button.x <= (rbutton->x + 28) * TAM_PIXEL) &&
             (rbutton->y * TAM_PIXEL <= e->button.y && e->button.y <= (rbutton->y + 28) * TAM_PIXEL) && (boton == SDL_BUTTON_LEFT))
         {
-            Mix_PlayChannel(-1, juego->sonidoCat, 0);
+            Mix_PlayChannel(-1, sonidos->sonidoCat, 0);
 
             juego->iniciado = false;
         }
