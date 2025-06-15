@@ -322,16 +322,10 @@ void manejar_eventos_ganado(SDL_Event *e , EstadoJuego *estado_actual, Juego* ju
                     char linea[47];
                     int total = 0;
                     Puntaje puntajes[MAX_PUNTAJES];
-                    // Limpio basura
-                    for (size_t i = 0; i < MAX_PUNTAJES; i++)
-                    {
-                        memset(puntajes[i].nombre, '\0', sizeof(puntajes->nombre));
-                        puntajes[i].puntos = 0;
-                    }
 
                     // Guardo los puntajes en array
                     while (fgets(linea, sizeof(linea)+1, aPuntuacion) && total < MAX_PUNTAJES) {
-                        strncpy(puntajes[total].nombre, linea + 6, 39);
+                        strncpy(puntajes[total].nombre, linea + 6, 40);
                         puntajes[total].nombre[39] = '\0';
                         puntajes[total].puntos = atoi(linea);
                         total++;
@@ -339,8 +333,7 @@ void manejar_eventos_ganado(SDL_Event *e , EstadoJuego *estado_actual, Juego* ju
 
                     // Preparar el nuevo puntaje
                     Puntaje nuevo;
-                    strncpy(nuevo.nombre, juego->nombreJugador, 39);
-                    nuevo.nombre[39] = '\0';
+                    strncpy(nuevo.nombre, juego->nombreJugador, 40);
                     nuevo.puntos = juego->puntaje;
 
                     int i = total - 1; // Para que la primera iteracion no se haga
