@@ -228,6 +228,7 @@ void interfaz(SDL_Renderer *renderer, TTF_Font *font, Juego *juego, Coord *pcord
 
 }
 
+// TODO: agilizar esta funcion. Se ejeccuta todo le juego
 void tiempoYbombas(SDL_Renderer *renderer, TTF_Font *font, Juego *juego, Coord *pcords, int dimensionM, Coord *rbutton)
 {
 
