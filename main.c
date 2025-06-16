@@ -415,6 +415,8 @@ int manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* jue
                     puts("¡Ganaste el juego!");
                     SDL_StartTextInput();
                     juego->nombreJugador[0] = '\0';
+                    juego->finPartida = true;
+                    juego->cantCasillasPresionadas++; // Para que no vuelva a entrar en la ventana de ganado
                     *estado_actual = ESTADO_GANADO;
                 }
             }

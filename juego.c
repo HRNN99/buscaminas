@@ -499,7 +499,8 @@ void clickDoble(Juego *juego , Sonido *sonidos , int gX , int gY){
 void handlerClickIzquierdo(Juego *juego , Sonido *sonidos , int x , int y){
 
     printf("Hiciste click en la casilla (%i , %i)\n", x, y);
-    casillaEstado(juego , sonidos , x , y , false);
+    if(!juego->finPartida)
+        casillaEstado(juego , sonidos , x , y , false);
     if(juego->mapa[y][x].estado == -1)
          Mix_PlayChannel(-1, sonidos->sonidoMina, 0);
     else if(juego->mapa[y][x].estadoBandera == 0){
