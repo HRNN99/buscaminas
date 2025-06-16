@@ -55,9 +55,9 @@ int main(int argc, char *argv[]){
         return ERROR_ARCHIVO;
     }
 
-    Log log;
-    setLog(&log, -1, -1, "Inicio del juego");
-    escribirArchivoLog(archivoLog, &log);
+    Log logStruct;
+    setLog(&logStruct, -1, -1, "Inicio del juego");
+    escribirArchivoLog(archivoLog, &logStruct);
 
     //////////////////////////////////////////////////////////////////////
 
@@ -595,20 +595,20 @@ int cargar_dificultades(const char* archivo , Dificultad* difs , int num_dif){
 
 //////////////////////////////////////////////////////////////////////
 
-int escribirArchivoLog(FILE *archivoLog, Log *log){
+int escribirArchivoLog(FILE *archivoLog, Log *logStruct){
 
-    if (log->coordXY[0] == -1 && log->coordXY[1] == -1)
+    if (logStruct->coordXY[0] == -1 && logStruct->coordXY[1] == -1)
     {
         fprintf(archivoLog, "[%d-%d-%d %02d:%02d:%02d] %-15s\n",
-                log->fechaHora.tm_year + 1900, log->fechaHora.tm_mon + 1, log->fechaHora.tm_mday,
-                log->fechaHora.tm_hour, log->fechaHora.tm_min, log->fechaHora.tm_sec, log->tipoEvento);
+                logStruct->fechaHora.tm_year + 1900, logStruct->fechaHora.tm_mon + 1, logStruct->fechaHora.tm_mday,
+                logStruct->fechaHora.tm_hour, logStruct->fechaHora.tm_min, logStruct->fechaHora.tm_sec, logStruct->tipoEvento);
     }
     else
     {
         fprintf(archivoLog, "[%d-%d-%d %02d:%02d:%02d] %-15s | coordenadas: (%d , %d)\n",
-                log->fechaHora.tm_year + 1900, log->fechaHora.tm_mon + 1, log->fechaHora.tm_mday,
-                log->fechaHora.tm_hour, log->fechaHora.tm_min, log->fechaHora.tm_sec, log->tipoEvento,
-                log->coordXY[0], log->coordXY[1]);
+                logStruct->fechaHora.tm_year + 1900, logStruct->fechaHora.tm_mon + 1, logStruct->fechaHora.tm_mday,
+                logStruct->fechaHora.tm_hour, logStruct->fechaHora.tm_min, logStruct->fechaHora.tm_sec, logStruct->tipoEvento,
+                logStruct->coordXY[0], logStruct->coordXY[1]);
     }
     return 0;
 }
