@@ -511,7 +511,8 @@ void handlerClickIzquierdo(Juego *juego , Sonido *sonidos , int x , int y){
 void handlerClickDerecho(Juego *juego , Sonido *sonidos , int x , int y){
 
     printf("Hiciste click derecho en la casilla (%i , %i), colocando bandera\n", x, y);
-    casillaBandera(juego , x , y);
+    if(!juego->finPartida)
+        casillaBandera(juego , x , y);
     if(juego->mapa[y][x].presionada == 0)
         Mix_PlayChannel(-1, sonidos->sonidoBandera, 0);
 }
