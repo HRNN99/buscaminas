@@ -1,3 +1,19 @@
+/**
+
+    Apellido: Ortega, Marco Antonio
+    DNI: 44108566
+    Entrega: Si
+
+    Apellido: Villalba, Hernan Agustin
+    DNI: 42057001
+    Entrega: Si
+
+    Apellido: Caputo, Franco Gustavo
+    DNI: 42949130
+    Entrega: Si
+
+**/
+
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
@@ -63,7 +79,7 @@ int main(int argc, char *argv[]){
 
     // Inicio TTF y busco la fuente. Si no la encuentra imprime un error
     TTF_Init();
-    TTF_Font *font = TTF_OpenFont("Fonts/digital-7.ttf", 32);
+    TTF_Font *font = TTF_OpenFont("fnt/digital-7.ttf", 32);
 
     if (!font){
 
@@ -114,19 +130,19 @@ int main(int argc, char *argv[]){
 
     //////////////////////////////////////////////////////////////////////
 
-    if(cargarSonido("Sounds/sonidoMina.mp3", &sonidos.sonidoMina, 32)
-        || cargarSonido("Sounds/sonidoCat.mp3", &sonidos.sonidoCat, 128)
-        || cargarSonido("Sounds/sonidoClick.mp3", &sonidos.sonidoClick, 128)
-        || cargarSonido("Sounds/sonidoBandera.mp3", &sonidos.sonidoBandera, 64)
-        || cargarSonido("Sounds/sonidoPerdio.mp3", &sonidos.sonidoPerder, 32)
-        || cargarSonido("Sounds/sonidoFlecha.mp3", &sonidos.sonidoFlecha, 32)
-        || cargarSonido("Sounds/sonidoEnter.mp3", &sonidos.sonidoEnter, 32))
+    if(cargarSonido("snd/sonidoMina.mp3", &sonidos.sonidoMina, 32)
+        || cargarSonido("snd/sonidoCat.mp3", &sonidos.sonidoCat, 128)
+        || cargarSonido("snd/sonidoClick.mp3", &sonidos.sonidoClick, 128)
+        || cargarSonido("snd/sonidoBandera.mp3", &sonidos.sonidoBandera, 64)
+        || cargarSonido("snd/sonidoPerdio.mp3", &sonidos.sonidoPerder, 32)
+        || cargarSonido("snd/sonidoFlecha.mp3", &sonidos.sonidoFlecha, 32)
+        || cargarSonido("snd/sonidoEnter.mp3", &sonidos.sonidoEnter, 32))
     {
         return ERROR_SONIDO;
     }
 
-    if(cargarMusica("Sounds/musicaFondo.mp3", &sonidos.musicaFondo, 32)
-        || cargarMusica("Sounds/musicaMenu.mp3", &sonidos.musicaMenu, 32))
+    if(cargarMusica("snd/musicaFondo.mp3", &sonidos.musicaFondo, 32)
+        || cargarMusica("snd/musicaMenu.mp3", &sonidos.musicaMenu, 32))
     {
         return ERROR_SONIDO;
     }
@@ -158,7 +174,7 @@ int main(int argc, char *argv[]){
 
     //////////////////////////////////////////////////////////////////////
 
-    SDL_Texture *fondo = cargarFondo(renderer , "fondo_menu.bmp");
+    SDL_Texture *fondo = cargarFondo(renderer , "img/fondo_menu.bmp");
 
     // While para mantener el programa corriendo
     while (corriendo){
