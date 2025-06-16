@@ -80,6 +80,7 @@ typedef struct{
     Casilla** mapa;
     Coord* minasCoord;
     int cantCasillasPresionadas;
+    int cantMinasEnMapa;
     int puntaje;
     char nombreJugador[40];
     bool finPartida;
