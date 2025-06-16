@@ -206,12 +206,11 @@ void interfaz(Graficos *graficos, Juego *juego, Coord *rbutton)
     renderizarTexto(graficos->font, fontSize, "Minas:", GF, GS, graficos->renderer, (graficos->pad * 3) + graficos->anchoM + 22, graficos->pad + (graficos->altoC / 2));
     char bombasEnMapaTexto[21] = "";
 
-    itoa(juego->dificultad.cantidad_minas, bombasEnMapaTexto, 10); // Armado de String a imprimir
+    itoa(juego->cantMinasEnMapa, bombasEnMapaTexto, 10); // Armado de String a imprimir
     renderizarTexto(graficos->font, fontSize, bombasEnMapaTexto, GF, GS, graficos->renderer, (graficos->pad * 3) + graficos->anchoM + 22, graficos->pad + (graficos->altoC / 2) + fontSize + 4);
 
 }
 
-// TODO: agilizar esta funcion. Se ejeccuta todo le juego
 void tiempoYbombas(Graficos *graficos, Juego *juego)
 {
 
@@ -290,8 +289,7 @@ void mapaReiniciar(SDL_Renderer *renderer, Juego *juego){
     juego->cantCasillasPresionadas = 0;
     juego->start_time = time(NULL); // Iniciar el contador cuando inicia el juego
     juego->nombreJugador[0] = '\0';
-
-
+    juego->cantMinasEnMapa = juego->dificultad.cantidad_minas;
     mapaVacio(mapa , juego->dificultad.dimension);
     mapaLlenar(mapa , juego->dificultad.dimension , juego->minasCoord , juego->dificultad.cantidad_minas);
 }
@@ -432,9 +430,9 @@ void casillaBandera(Juego *juego, int xG, int yG){
 
     // Suma y resta de bombas dependiendo el caso
     if (mapa[yG][xG].estadoBandera == 1)
-        (juego->dificultad.cantidad_minas)--;
+        (juego->cantMinasEnMapa)--;
     else if (mapa[yG][xG].estadoBandera == 2)
-        (juego->dificultad.cantidad_minas)++;
+        (juego->cantMinasEnMapa)++;
 
     // dibujar(renderer, PIXELES_X_LADO, eleccionBandera(mapa[gY][gX].estadoBandera), gX, gY, picord->x, picord->y);
     printf("Estado (%i , %i): %i\n", xG, yG, mapa[yG][xG].estadoBandera);
@@ -499,7 +497,8 @@ void clickDoble(Juego *juego , Sonido *sonidos , int gX , int gY){
 void handlerClickIzquierdo(Juego *juego , Sonido *sonidos , int x , int y){
 
     printf("Hiciste click en la casilla (%i , %i)\n", x, y);
-    casillaEstado(juego , sonidos , x , y , false);
+    if(!juego->finPartida)
+        casillaEstado(juego , sonidos , x , y , false);
     if(juego->mapa[y][x].estado == -1)
          Mix_PlayChannel(-1, sonidos->sonidoMina, 0);
     else if(juego->mapa[y][x].estadoBandera == 0){
@@ -510,7 +509,8 @@ void handlerClickIzquierdo(Juego *juego , Sonido *sonidos , int x , int y){
 void handlerClickDerecho(Juego *juego , Sonido *sonidos , int x , int y){
 
     printf("Hiciste click derecho en la casilla (%i , %i), colocando bandera\n", x, y);
-    casillaBandera(juego , x , y);
+    if(!juego->finPartida)
+        casillaBandera(juego , x , y);
     if(juego->mapa[y][x].presionada == 0)
         Mix_PlayChannel(-1, sonidos->sonidoBandera, 0);
 }
