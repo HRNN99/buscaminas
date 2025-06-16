@@ -1,7 +1,7 @@
 # Instalacion de librerias
-* Descargar la libreria SDL2_ttf desde
-[SDL2_ttf](https://github.com/libsdl-org/SDL_ttf/releases/download/release-2.22.0/SDL2_ttf-devel-2.22.0-mingw.tar.gz)
-[SDL2_ttf](https://github.com/libsdl-org/SDL_mixer/releases/download/release-2.8.1/SDL2_mixer-devel-2.8.1-mingw.zip)
+* Descargar la libreria SDL2_ttf y SDL2_mixer desde:  
+[SDL2_ttf](https://github.com/libsdl-org/SDL_ttf/releases/download/release-2.22.0/SDL2_ttf-devel-2.22.0-mingw.tar.gz)  
+[SDL2_mixer](https://github.com/libsdl-org/SDL_mixer/releases/download/release-2.8.1/SDL2_mixer-devel-2.8.1-mingw.zip)
 * Agregarlo a la carpeta del proyecto
 * Copiar el archivo SDL2_ttf.h y SDL2_mixer.h dentro de la carpeta de SDL2-2.0.22\x86_64-w64-mingw32\include\SDL2
 * Copiar el archivo SDL2_ttf.dll SDL2_mixer.dll dentro de la carpeta donde esta el .exe buscaminas\bin\Debug
