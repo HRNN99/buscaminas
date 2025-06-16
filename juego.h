@@ -129,7 +129,7 @@ void fondoColor(SDL_Renderer* renderer);
 void casillaColocacion(SDL_Renderer *renderer, Casilla **mapa , int dimension , Coord *picord);
 void mapaReiniciar(SDL_Renderer *renderer, Juego *juego);
 
-void dibujar_menu(Graficos* graficos, const char *menu_items[], const int menu_count, int *seleccion);
+void dibujar_menu(Graficos* graficos, const char *menu_items[], const int menu_count, int *seleccion , SDL_Texture* fondo);
 
 void interfaz(Graficos* graficos, Juego *juego, Coord *rbutton);
 void tiempoYbombas(Graficos* graficos, Juego *juego);

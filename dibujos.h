@@ -43,4 +43,7 @@ void FinalizarSDL(SDL_Window *ventana, SDL_Renderer *renderer, TTF_Font *font, i
 void FinalizarVentanaSDL(SDL_Window *ventana, SDL_Renderer *renderer);
 int (*construirCoronaConColores(const int destino[][24], int fondo, int principal, int sombra))[24];
 
+SDL_Texture* cargarFondo(SDL_Renderer* renderer , const char *path);
+void dibujarFondo(SDL_Renderer* renderer , SDL_Texture* fondo);
+
 #endif // DIBUJOS_H_INCLUDED

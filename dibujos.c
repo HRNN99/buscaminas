@@ -171,4 +171,26 @@ int renderizarTexto(TTF_Font *font, int size, const char *texto, int colorTexto,
     return 0;
 }
 
+SDL_Texture* cargarFondo(SDL_Renderer* renderer , const char *path){
+
+    SDL_Surface *imagenBMP = SDL_LoadBMP(path);
+
+    if(!imagenBMP){
+        printf("Error al cargar imagen BMP: %s\n", SDL_GetError());
+    }
+
+    SDL_Texture *fondo = SDL_CreateTextureFromSurface(renderer , imagenBMP);
+    SDL_FreeSurface(imagenBMP);
+
+    if(!fondo){
+        printf("Error al crear textura: %s\n", SDL_GetError());
+    }
+
+    return fondo;
+}
+
+void dibujarFondo(SDL_Renderer* renderer , SDL_Texture* fondo){
+    SDL_RenderCopy(renderer , fondo , NULL , NULL);
+}
+
 

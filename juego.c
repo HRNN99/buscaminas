@@ -5,10 +5,12 @@
 #include "time.h"
 
 
-void dibujar_menu(Graficos* graficos, const char *menu_items[], const int menu_count, int *seleccion)
+void dibujar_menu(Graficos* graficos, const char *menu_items[], const int menu_count, int *seleccion , SDL_Texture* fondo)
 {
     SDL_SetRenderDrawColor(graficos->renderer, 0, 0, 0, 255);
     SDL_RenderClear(graficos->renderer);
+
+    dibujarFondo(graficos->renderer , fondo);
 
     int base_y = 50;
     int espacio = 50;
@@ -24,10 +26,12 @@ void dibujar_menu(Graficos* graficos, const char *menu_items[], const int menu_c
         fondo.w = text_width;
         fondo.h = text_height;
 
-        // Establecemos un color para las letras del menu
-        SDL_Color colorTexto = {255, 255, 255, 255};
-        // Se establece un color de fondo, segun si el item esta seleccionado o no
-        SDL_Color colorFondo = (i == *seleccion) ? (SDL_Color){255, 100, 255, 255} : (SDL_Color){100, 100, 100, 255};
+        //Establecemos un color para las letras del menu
+        SDL_Color colorTexto = colores[NN];
+
+        SDL_Color colorFondo = {0,0,0,0}; //Color fondo default, transparente
+        if(i == *seleccion)
+            colorFondo = colores[RS]; //Color fondo seleccionado
 
         // Se crea una superficie de texto con el texto contenido en el menu[i]
         SDL_Surface *surface = TTF_RenderText_Solid(graficos->font, menu_items[i], colorTexto);
