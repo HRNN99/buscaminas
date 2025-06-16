@@ -366,10 +366,6 @@ int manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* jue
 
     Casilla **mapa = juego->mapa;
 
-    int xG = ((e->button.x - (graficos->piCord->x * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
-    int yG = ((e->button.y - (graficos->piCord->y * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
-    int casillasLibresDeMinas = (juego->dificultad.dimension * juego->dificultad.dimension) - juego->dificultad.cantidad_minas;
-
     if (e->type == SDL_MOUSEBUTTONDOWN){
         juego->senialRender=1;
 
@@ -381,9 +377,17 @@ int manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* jue
         {
             Mix_PlayChannel(-1, sonidos->sonidoCat, 0);
             juego->iniciado = false;
-        }
+        }else{
 
-        else{
+            // Control que no se toque fuera del mapa
+            if (e->button.x > (graficos->tamXVentana - graficos->pad - 6 * graficos->G) || e->button.x <= (graficos->pad + 6 * graficos->G) ||
+                e->button.y > (graficos->tamYVentana - graficos->pad - 6 * graficos->G) ||
+                e->button.y <= (graficos->pad*4 + graficos->altoC + 16 * graficos->G))
+                return;
+
+            int xG = ((e->button.x - (graficos->piCord->x * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
+            int yG = ((e->button.y - (graficos->piCord->y * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
+            int casillasLibresDeMinas = (juego->dificultad.dimension * juego->dificultad.dimension) - juego->dificultad.cantidad_minas;
 
             if (mapa[yG][xG].presionada && mapa[yG][xG].estado > 0){
 
