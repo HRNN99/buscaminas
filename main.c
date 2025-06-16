@@ -40,11 +40,7 @@ int main(int argc, char *argv[])
         guardarPartidas(partidas, ARCHIVO_PARTIDAS);
         printf("Archivo creado e inicializado.\n");
     }
-    else
-    {
-        cargarPartidas(partidas, ARCHIVO_PARTIDAS);
-        printf("Partidas cargadas exitosamente.\n");
-    }
+
 
     // Iniciar SDL con funcion Video y audio
     if (SDL_Init(SDL_INIT_VIDEO) || SDL_Init(SDL_INIT_AUDIO))
@@ -165,11 +161,6 @@ int main(int argc, char *argv[])
         {
             if (e.type == SDL_QUIT)
             {
-                if (estado_anterior == ESTADO_CARGAR)
-                {
-                    guardarPartidas(partidas, ARCHIVO_PARTIDAS);
-                    estado_anterior == ESTADO_MENU;
-                }
                 corriendo = false;
                 printf("\n---Cerrando Ventana---\n");
             }
@@ -177,12 +168,14 @@ int main(int argc, char *argv[])
             switch (estado_actual)
             {
             case ESTADO_MENU:
-                manejar_eventos_menu(&e, &estado_actual, &sonidos, &seleccion, menu_count, partidas, &juego);
+                manejar_eventos_menu(&e, &estado_actual, &sonidos, &seleccion, menu_count);
+                estado_anterior = ESTADO_MENU;
                 break;
 
             case ESTADO_JUGANDO:
 
                 manejar_eventos_juego(&sistemas, &e, &estado_actual, estado_anterior, &juego, minasCoord, minasEnMapa, &picords, &rbutton, &sonidos);
+                estado_anterior = ESTADO_JUGANDO;
                 break;
 
             case ESTADO_GANADO:
@@ -190,6 +183,7 @@ int main(int argc, char *argv[])
                 if (e.type == SDL_MOUSEBUTTONDOWN)
                     printf("Hiciste click en el pixel (%i , %i)\n", e.button.x, e.button.y);
                 manejar_eventos_ganado(&e, &estado_actual, &juego);
+                estado_anterior = ESTADO_GANADO;
                 break;
 
             case ESTADO_SALIENDO:
@@ -198,13 +192,17 @@ int main(int argc, char *argv[])
                 break;
             case ESTADO_CARGAR:
                 // estado_anterior = ESTADO_CARGAR; borrar
-                manejar_eventos_menu(&e, &estado_actual, &sonidos, &seleccion, menu_count, partidas, &juego);
+                manejar_eventos_slots(&e, &estado_actual, &sonidos, &seleccion, menu_count, &juego);
+                estado_anterior = ESTADO_CARGAR;
                 break;
             case ESTADO_PAUSA:
                 manejar_eventos_pausa(&e, &estado_actual, &juego, &seleccion, &sonidos, menu_count, partidas);
+                estado_anterior = ESTADO_PAUSA;
                 break;
             case ESTADO_GUARDAR:
-                manejar_eventos_menu(&e, &estado_actual, &sonidos, &seleccion, menu_count, partidas, &juego);
+                manejar_eventos_slots(&e, &estado_actual, &sonidos, &seleccion, menu_count, &juego);
+                estado_anterior = ESTADO_GUARDAR;
+                break;
             }
         }
 
@@ -251,7 +249,53 @@ int main(int argc, char *argv[])
     return EJECUCION_OK;
 }
 
-void manejar_eventos_menu(SDL_Event *e, EstadoJuego *estado_actual, Sonido *sonidos, int *seleccion, const int menu_count, Juego partidas[3], Juego *juego)
+void manejar_eventos_menu(SDL_Event *e, EstadoJuego *estado_actual, Sonido *sonidos, int *seleccion, const int menu_count)
+{
+    switch (e->type)
+    {
+
+    case SDL_KEYDOWN:
+
+        switch (e->key.keysym.sym)
+        {
+
+        case SDLK_UP:
+            Mix_PlayChannel(-1, sonidos->sonidoFlecha, 0);
+            *seleccion = (*seleccion - 1 + menu_count) % menu_count;
+            break;
+
+        case SDLK_DOWN:
+            Mix_PlayChannel(-1, sonidos->sonidoFlecha, 0);
+            *seleccion = (*seleccion + 1) % menu_count;
+            break;
+
+        case SDLK_RETURN:
+            Mix_PlayChannel(-1, sonidos->sonidoEnter, 0);
+
+                switch (*seleccion)
+                {
+
+                case 0:
+                    *estado_actual = ESTADO_JUGANDO;
+                    iniciarMusica(&sonidos->musicaFondo);
+                    break;
+
+                case 1:
+                    *seleccion = 0;
+                    *estado_actual = ESTADO_CARGAR;
+                    break;
+
+                case 2:
+                    *estado_actual = ESTADO_SALIENDO;
+                    break;
+                }
+                break;
+
+        }
+    }
+}
+
+void manejar_eventos_slots(SDL_Event *e, EstadoJuego *estado_actual, Sonido *sonidos, int *seleccion, const int menu_count, Juego *juego)
 {
     switch (e->type)
     {
@@ -275,26 +319,6 @@ void manejar_eventos_menu(SDL_Event *e, EstadoJuego *estado_actual, Sonido *soni
             Mix_PlayChannel(-1, sonidos->sonidoEnter, 0);
             switch (*estado_actual)
             {
-            case ESTADO_MENU:
-
-                switch (*seleccion)
-                {
-
-                case 0:
-                    *estado_actual = ESTADO_JUGANDO;
-                    iniciarMusica(&sonidos->musicaFondo);
-                    break;
-
-                case 1:
-                    *seleccion = 0;
-                    *estado_actual = ESTADO_CARGAR;
-                    break;
-
-                case 2:
-                    *estado_actual = ESTADO_SALIENDO;
-                    break;
-                }
-                break;
             case ESTADO_CARGAR:
 
                 cargarDesdeSlot(juego, *seleccion);
@@ -473,6 +497,8 @@ void manejar_eventos_pausa(SDL_Event *e, EstadoJuego *estado_actual, Juego *jueg
 
 void manejar_eventos_juego(Sistema *sistemas, SDL_Event *e, EstadoJuego *estado_actual, EstadoJuego estado_anterior, Juego *juego, Coord *minasCoord, int minas, Coord *picords, Coord *rbutton, Sonido *sonidos)
 {
+    if(estado_anterior == ESTADO_MENU)
+        mapaReiniciar(sistemas->renderer, picords, juego, juego->dimMapa, juego->dimMapa, minasCoord, minas);
 
     Casilla **mapa = juego->mapa;
 

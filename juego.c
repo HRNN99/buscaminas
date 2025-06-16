@@ -633,66 +633,47 @@ void clickDoble(Juego *juego, Sonido *sonidos, int gX, int gY, Coord *minasCoord
 
 //CARGADO DE PARTIDAS
 
-void convertirAJuegoGuardado(Juego *orig, JuegoGuardado *dest) {
-    dest->iniciado = orig->iniciado;
-    dest->cantCasillasPresionadas = orig->cantCasillasPresionadas;
-    dest->puntaje = orig->puntaje;
-    dest->cantMinasEnInterfaz = orig->cantMinasEnInterfaz;
-    dest->dimMapa = orig->dimMapa;
-    strncpy(dest->nombreJugador, orig->nombreJugador, 40);
-    dest->finPartida = orig->finPartida;
-    dest->totalPuntajes = orig->totalPuntajes;
-    dest->start_time = orig->start_time;
-    memcpy(dest->puntajes, orig->puntajes, sizeof(Puntaje) * MAX_PUNTAJES);
+void convertirAJuegoGuardado(Juego *origen, JuegoGuardado *destino) {
+    destino->iniciado = origen->iniciado;
+    destino->cantCasillasPresionadas = origen->cantCasillasPresionadas;
+    destino->puntaje = origen->puntaje;
+    destino->cantMinasEnInterfaz = origen->cantMinasEnInterfaz;
+    destino->dimMapa = origen->dimMapa;
+    strncpy(destino->nombreJugador, origen->nombreJugador, 40);
+    destino->finPartida = origen->finPartida;
+    destino->totalPuntajes = origen->totalPuntajes;
+    destino->start_time = origen->start_time;
+    memcpy(destino->puntajes, origen->puntajes, sizeof(Puntaje) * MAX_PUNTAJES);
 
-    int dim = orig->dimMapa;
+    int dim = origen->dimMapa;
     for (int i = 0; i < dim; ++i)
         for (int j = 0; j < dim; ++j)
-            dest->mapa[i * dim + j] = orig->mapa[i][j];
+            destino->mapa[i * dim + j] = origen->mapa[i][j];
 }
 
-void convertirAJuego(JuegoGuardado *src, Juego *dest) {
-    dest->iniciado = src->iniciado;
-    dest->cantCasillasPresionadas = src->cantCasillasPresionadas;
-    dest->puntaje = src->puntaje;
-    dest->cantMinasEnInterfaz = src->cantMinasEnInterfaz;
-    dest->dimMapa = src->dimMapa;
-    strncpy(dest->nombreJugador, src->nombreJugador, 40);
-    dest->finPartida = src->finPartida;
-    dest->totalPuntajes = src->totalPuntajes;
-    dest->start_time = src->start_time;
-    memcpy(dest->puntajes, src->puntajes, sizeof(Puntaje) * MAX_PUNTAJES);
+void convertirAJuego(JuegoGuardado *origen, Juego *destino) {
+    destino->iniciado = origen->iniciado;
+    destino->cantCasillasPresionadas = origen->cantCasillasPresionadas;
+    destino->puntaje = origen->puntaje;
+    destino->cantMinasEnInterfaz = origen->cantMinasEnInterfaz;
+    destino->dimMapa = origen->dimMapa;
+    strncpy(destino->nombreJugador, origen->nombreJugador, 40);
+    destino->finPartida = origen->finPartida;
+    destino->totalPuntajes = origen->totalPuntajes;
+    destino->start_time = origen->start_time;
+    memcpy(destino->puntajes, origen->puntajes, sizeof(Puntaje) * MAX_PUNTAJES);
 
-    int dim = src->dimMapa;
-    dest->mapa = malloc(dim * sizeof(Casilla *));
+    int dim = origen->dimMapa;
+    destino->mapa = malloc(dim * sizeof(Casilla *));
     for (int i = 0; i < dim; ++i) {
-        dest->mapa[i] = malloc(dim * sizeof(Casilla));
+        destino->mapa[i] = malloc(dim * sizeof(Casilla));
         for (int j = 0; j < dim; ++j)
-            dest->mapa[i][j] = src->mapa[i * dim + j];
+            destino->mapa[i][j] = origen->mapa[i * dim + j];
     }
 }
 
 
 
-void guardarPartidas(Juego partidas[3], const char *filename) {
-    FILE *f = fopen(filename, "wb");
-    if (!f) return;
-    JuegoGuardado aux[3];
-    for (int i = 0; i < 3; ++i)
-        convertirAJuegoGuardado(&partidas[i], &aux[i]);
-    fwrite(aux, sizeof(JuegoGuardado), 3, f);
-    fclose(f);
-}
-
-void cargarPartidas(Juego partidas[3], const char *filename) {
-    FILE *f = fopen(filename, "rb");
-    if (!f) return;
-    JuegoGuardado aux[3];
-    fread(aux, sizeof(JuegoGuardado), 3, f);
-    for (int i = 0; i < 3; ++i)
-        convertirAJuego(&aux[i], &partidas[i]);
-    fclose(f);
-}
 
 
 bool archivoExiste(const char *filename) {
@@ -731,7 +712,8 @@ void inicializarPartidas(Juego partidas[3]) {
 
 
 void guardarEnSlot(Juego *juego, int slot) {
-    if (slot < 0 || slot >= MAX_SLOTS) return;
+    if (slot < 0 || slot >= MAX_SLOTS) 
+        return;
 
     Juego juegoAux[3];
     cargarPartidas(juegoAux, ARCHIVO_PARTIDAS); // cargar todos los slots actuales
@@ -762,7 +744,8 @@ void guardarEnSlot(Juego *juego, int slot) {
 }
 
 void cargarDesdeSlot(Juego *juego, int slot) {
-    if (slot < 0 || slot >= MAX_SLOTS) return;
+    if (slot < 0 || slot >= MAX_SLOTS) 
+        return;
 
     Juego juegoAux[3];
     cargarPartidas(juegoAux, ARCHIVO_PARTIDAS);
@@ -793,4 +776,24 @@ void cargarDesdeSlot(Juego *juego, int slot) {
             juego->mapa[i][j] = juegoAux[slot].mapa[i][j];
         }
     }
+}
+
+void guardarPartidas(Juego partidas[3], const char *filename) {
+    FILE *f = fopen(filename, "wb");
+    if (!f) return;
+    JuegoGuardado aux[3];
+    for (int i = 0; i < 3; ++i)
+        convertirAJuegoGuardado(&partidas[i], &aux[i]);
+    fwrite(aux, sizeof(JuegoGuardado), 3, f);
+    fclose(f);
+}
+
+void cargarPartidas(Juego partidas[3], const char *filename) {
+    FILE *f = fopen(filename, "rb");
+    if (!f) return;
+    JuegoGuardado aux[3];
+    fread(aux, sizeof(JuegoGuardado), 3, f);
+    for (int i = 0; i < 3; ++i)
+        convertirAJuego(&aux[i], &partidas[i]);
+    fclose(f);
 }

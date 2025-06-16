@@ -118,12 +118,13 @@ typedef struct {
 typedef void (*EventoClick)(Juego *juego, Sonido *sonidos, int x, int y, Coord *minasCoord, int minas);
 
 // Prototipos
-void manejar_eventos_menu(SDL_Event *e, EstadoJuego *estado_actual, Sonido *sonidos, int *seleccion, const int menu_count, Juego partidas[3], Juego *juego);
+void manejar_eventos_menu(SDL_Event *e, EstadoJuego *estado_actual, Sonido *sonidos, int *seleccion, const int menu_count);
 void dibujar_menu(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, const char *menu_items[], const int menu_count, int *seleccion);
 
 void manejar_eventos_juego(Sistema *sistemas, SDL_Event *e, EstadoJuego *estado_actual, EstadoJuego estado_anterior, Juego *juego, Coord *minasCoord, int minas, Coord *picords, Coord *rbutton, Sonido *sonidos);
 void manejar_eventos_pausa(SDL_Event *e, EstadoJuego *estado_actual, Juego *juego, int *seleccion, Sonido *sonidos, const int menu_count, Juego partidas[3]);
 void manejar_eventos_ganado(SDL_Event *e, EstadoJuego *estado_actual, Juego *juego);
+void manejar_eventos_slots(SDL_Event *e, EstadoJuego *estado_actual, Sonido *sonidos, int *seleccion, const int menu_count, Juego *juego);
 
 void fondoColor(SDL_Renderer *renderer);
 void interfaz(SDL_Renderer *renderer, TTF_Font *font, Juego *juego, Coord *pcords, int dimensionM, Coord *rbutton);
