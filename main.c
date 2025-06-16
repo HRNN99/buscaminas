@@ -156,6 +156,10 @@ int main(int argc, char *argv[]){
     graficos.tamXVentana = TAMX;
     graficos.tamYVentana = TAMY;
 
+    //////////////////////////////////////////////////////////////////////
+
+    SDL_Texture *fondo = cargarFondo(renderer , "fondo_menu.bmp");
+
     // While para mantener el programa corriendo
     while (corriendo){
 
@@ -207,12 +211,13 @@ int main(int argc, char *argv[]){
             switch(estado_actual){
 
                 case ESTADO_MENU:
-                    dibujar_menu(&graficos, menu_items, menu_count, &seleccion_menu);
+                    //dibujarFondo(renderer , fondo);
+                    dibujar_menu(&graficos, menu_items, menu_count, &seleccion_menu , fondo);
                     juego.senialRender=0;
                     break;
 
                 case ESTADO_DIFICULTAD:
-                    dibujar_menu(&graficos, dificultad_items , dificultad_count , &seleccion_dificultad);
+                    dibujar_menu(&graficos, dificultad_items , dificultad_count , &seleccion_dificultad , fondo);
                     juego.senialRender=0;
                     break;
 
@@ -250,6 +255,9 @@ int main(int argc, char *argv[]){
 
     fclose(archivoLog);
     FinalizarSDL(ventana, renderer, font, EXIT_SUCCESS, archivoLog); // Funcion para la finalizacion de SDL y sus componentes
+
+    SDL_DestroyTexture(fondo);
+
     return EJECUCION_OK;
 }
 

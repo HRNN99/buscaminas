@@ -28,8 +28,9 @@
 #define PP 15//Purpura
 #define RO 16//Rojo obscuro
 #define CI 17//Cian
+#define RF 18//Rosa Fuerte
 
-SDL_Color colores[18];
+SDL_Color colores[20];
 
 void dibujar(SDL_Renderer *renderer , int pixeles , const int dibujo[][pixeles] , int gX , int gY , int pXi , int pYi);
 void dibujarAbsoluto(SDL_Renderer *renderer , int pixeles , const int dibujo[][pixeles] , int gX , int gY , int escala);
@@ -42,5 +43,8 @@ int renderizarTexto(TTF_Font *font, int size, const char *texto, int colorTexto,
 void FinalizarSDL(SDL_Window *ventana, SDL_Renderer *renderer, TTF_Font *font, int estadoExit, FILE* archivoLog);
 void FinalizarVentanaSDL(SDL_Window *ventana, SDL_Renderer *renderer);
 int (*construirCoronaConColores(const int destino[][24], int fondo, int principal, int sombra))[24];
+
+SDL_Texture* cargarFondo(SDL_Renderer* renderer , const char *path);
+void dibujarFondo(SDL_Renderer* renderer , SDL_Texture* fondo);
 
 #endif // DIBUJOS_H_INCLUDED

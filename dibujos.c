@@ -22,7 +22,8 @@ SDL_Color colores[] =
 
     {34,20,99,255}, //Purpura
     {120,2,40,255}, //Rojo obscuro
-    {11,150,181,255}//Cian
+    {11,150,181,255},//Cian
+    {194,47,194,255}//Rosa Fuerte
 };
 
 //Funcion que  dibuja pixel por pixel
@@ -169,6 +170,28 @@ int renderizarTexto(TTF_Font *font, int size, const char *texto, int colorTexto,
     SDL_DestroyTexture(textTexture);
 
     return 0;
+}
+
+SDL_Texture* cargarFondo(SDL_Renderer* renderer , const char *path){
+
+    SDL_Surface *imagenBMP = SDL_LoadBMP(path);
+
+    if(!imagenBMP){
+        printf("Error al cargar imagen BMP: %s\n", SDL_GetError());
+    }
+
+    SDL_Texture *fondo = SDL_CreateTextureFromSurface(renderer , imagenBMP);
+    SDL_FreeSurface(imagenBMP);
+
+    if(!fondo){
+        printf("Error al crear textura: %s\n", SDL_GetError());
+    }
+
+    return fondo;
+}
+
+void dibujarFondo(SDL_Renderer* renderer , SDL_Texture* fondo){
+    SDL_RenderCopy(renderer , fondo , NULL , NULL);
 }
 
 
