@@ -33,6 +33,8 @@
 #define TAMX_GANADO 220
 #define TAMY_GANADO 276
 #define TAM_BOTON_CERRADO 30
+#define MAX_SLOTS 3
+#define ARCHIVO_PARTIDAS "partidas.dat"
 
 //ESTADOS
 typedef enum{
@@ -41,7 +43,9 @@ typedef enum{
     ESTADO_CARGAR,
     ESTADO_JUGANDO,
     ESTADO_GANADO,
-    ESTADO_SALIENDO
+    ESTADO_SALIENDO,
+    ESTADO_PAUSA,
+    ESTADO_GUARDAR
 
 } EstadoJuego;
 
@@ -51,9 +55,12 @@ typedef struct {
 } Coord;
 
 // sistemas
+// sistemas
 typedef struct
 {
-
+    SDL_Window *ventana;
+    SDL_Renderer *renderer;
+    TTF_Font *font;
 
 } Sistema;
 
@@ -89,6 +96,20 @@ typedef struct{
     int senialRender;
 } Juego;
 
+typedef struct{
+    bool iniciado;
+    Dificultad dificultad;
+    int cantCasillasPresionadas;
+    int puntaje;
+    char nombreJugador[40];
+    bool finPartida;
+    Puntaje puntajes[MAX_PUNTAJES];
+    int totalPuntajes;
+    time_t start_time;
+    int senialRender;
+    Casilla mapa[20 * 20];
+} JuegoGuardado;
+
 typedef struct
 {
     Coord* piCord;
@@ -122,8 +143,11 @@ typedef void (*EventoClick)(Juego *juego, Sonido *sonidos, int x, int y);
 //Prototipos
 int manejar_eventos_menu(SDL_Event *e , EstadoJuego *estado_actual , int* seleccion , const int items_count , Sonido* sonidos);
 int manejar_eventos_dificultad(Graficos *graficos, SDL_Event *e , EstadoJuego *estado_actual, int* seleccion , const int items_count , Juego* juego , Dificultad* difs , SDL_Window* ventana);
-int manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* juego , Coord* picords , Coord* rbutton , Sonido *sonidos);
+int manejar_eventos_juego(Graficos *graficos,SDL_Event *e, EstadoJuego *estado_actual, EstadoJuego *estado_anterior, Juego *juego, Coord *picords, Coord *rbutton, Sonido *sonidos);
 int manejar_eventos_ganado(SDL_Event *e, EstadoJuego *estado_actual, Juego *juego);
+void manejar_eventos_slots(SDL_Event *e, EstadoJuego *estado_actual, Sonido *sonidos, int *seleccion, const int menu_count, Juego *juego);
+void manejar_eventos_pausa(SDL_Event *e, EstadoJuego *estado_actual, Juego *juego, int *seleccion, Sonido *sonidos, const int menu_count, Juego partidas[3]);
+
 
 void fondoColor(SDL_Renderer* renderer);
 void casillaColocacion(SDL_Renderer *renderer, Casilla **mapa , int dimension , Coord *picord);
@@ -134,6 +158,7 @@ void dibujar_menu(Graficos* graficos, const char *menu_items[], const int menu_c
 void interfaz(Graficos* graficos, Juego *juego, Coord *rbutton);
 void tiempoYbombas(Graficos* graficos, Juego *juego);
 void interfazGanado(Graficos* graficos, Juego *juego);
+void interfazPausa(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, Juego *juego, Coord *pcords, int dimensionM, Coord *rbutton, int *eleccion, bool musicaActiva, const char *menu_items[], int menu_count);
 
 void casillaEstado(Juego *juego , Sonido *sonidos , int gX, int gY, bool chordClick);
 void casillaBandera(Juego *juego, int gX, int gY);
@@ -152,5 +177,16 @@ void handlerClickDerecho(Juego *juego, Sonido *sonidos, int x, int y);
 void clickDoble(Juego *juego , Sonido *sonidos ,  int gX , int gY);
 // Log
 void setLog(Log *log, int coordX, int coordY, char tipoEvento[80]);
+
+//carga de partidas
+
+void convertirAJuegoGuardado(Juego *orig, JuegoGuardado *dest);
+void convertirAJuego(JuegoGuardado *src, Juego *dest);
+void guardarPartidas(Juego partidas[3], const char *filename);
+void cargarPartidas(Juego partidas[3], const char *filename);
+bool archivoExiste(const char *filename);
+void inicializarPartidas(Juego partidas[3]);
+void guardarEnSlot(Juego *juego, int slot);
+void cargarDesdeSlot(Juego *juego, int slot);
 
 #endif // JUEGO_H

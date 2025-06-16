@@ -514,3 +514,235 @@ void handlerClickDerecho(Juego *juego , Sonido *sonidos , int x , int y){
     if(juego->mapa[y][x].presionada == 0)
         Mix_PlayChannel(-1, sonidos->sonidoBandera, 0);
 }
+
+
+void interfazPausa(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, Juego *juego, Coord *pcords, int dimensionM, Coord *rbutton, int *eleccion, bool musicaActiva, const char *menu_items[], int menu_count)
+{
+
+
+    int win_width, win_height;
+    SDL_GetWindowSize(ventana, &win_width, &win_height);
+
+
+    pcords->x = (win_width / 2) - (TAMX_GANADO / 2);
+    pcords->y = (win_height / 2) - (TAMY_GANADO / 2);
+    rectanguloLlenoAbsoluto(renderer, GS, pcords->x, pcords->y, TAMX_GANADO, TAMY_GANADO);
+    marcoInvertido(renderer, pcords->x, pcords->y, TAMX_GANADO, TAMY_GANADO, 4);
+
+    // Boton de pausar musica
+    dibujarAbsoluto(renderer, 20, 
+                    musicaActiva ? music_button : music_button_pausa,
+                    (win_width / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12 + 5, pcords->y + 15 + 4 + 5, 1);
+
+    marcoInvertido(renderer, (win_width / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12, pcords->y + 15 + 4, TAM_BOTON_CERRADO, TAM_BOTON_CERRADO, 4);
+    marcoInvertido(renderer, (win_width / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12, pcords->y + 15 + 4, TAM_BOTON_CERRADO, TAM_BOTON_CERRADO, 4);
+
+    // Texto principal y puntaje
+    char textoPuntaje[21] = "Tiempo: ";
+    char puntajeChar[12];
+    strcat(textoPuntaje, itoa(juego->puntaje, puntajeChar, 10));
+    int posYtexto = pcords->y + 20;
+    int margenX = pcords->x + 20;
+
+    renderizarTexto(font, 30, "Pausa", BB, GS, renderer, margenX, posYtexto);
+    renderizarTexto(font, 24, textoPuntaje, BB, GS, renderer, margenX, posYtexto += 45);
+
+    // Menú de opciones
+    int espacio = 45;
+    posYtexto += 35;
+
+    for (int i = 0; i < menu_count; i++) {
+        SDL_Color colorTexto = {255, 255, 255, 255};
+        SDL_Color colorFondo = (i == *eleccion) ? (SDL_Color){255, 100, 255, 255} : (SDL_Color){100, 100, 100, 255};
+
+        SDL_Surface *surface = TTF_RenderText_Solid(font, menu_items[i], colorTexto);
+        SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+        int text_width, text_height;
+        TTF_SizeText(font, menu_items[i], &text_width, &text_height);
+        SDL_Rect fondo = {margenX, posYtexto, TAMX_GANADO - 40, text_height + 10};
+
+        SDL_SetRenderDrawColor(renderer, colorFondo.r, colorFondo.g, colorFondo.b, colorFondo.a);
+        SDL_RenderFillRect(renderer, &fondo);
+
+        SDL_Rect textRect = {
+            fondo.x + (fondo.w - text_width) / 2,
+            fondo.y + (fondo.h - text_height) / 2,
+            text_width,
+            text_height
+        };
+        SDL_RenderCopy(renderer, texture, NULL, &textRect);
+
+        SDL_FreeSurface(surface);
+        SDL_DestroyTexture(texture);
+
+        posYtexto += espacio;
+    }
+
+
+}
+
+
+//CARGADO DE PARTIDAS
+
+void convertirAJuegoGuardado(Juego *origen, JuegoGuardado *destino) {
+    destino->iniciado = origen->iniciado;
+    destino->cantCasillasPresionadas = origen->cantCasillasPresionadas;
+    destino->puntaje = origen->puntaje;
+    destino->dificultad.cantidad_minas = origen->dificultad.cantidad_minas;
+    destino->dificultad.dimension = origen->dificultad.dimension;
+    strncpy(destino->nombreJugador, origen->nombreJugador, 40);
+    destino->finPartida = origen->finPartida;
+    destino->totalPuntajes = origen->totalPuntajes;
+    destino->start_time = origen->start_time;
+    memcpy(destino->puntajes, origen->puntajes, sizeof(Puntaje) * MAX_PUNTAJES);
+
+    int dim = origen->dificultad.dimension;
+    for (int i = 0; i < dim; ++i)
+        for (int j = 0; j < dim; ++j)
+            destino->mapa[i * dim + j] = origen->mapa[i][j];
+}
+
+void convertirAJuego(JuegoGuardado *origen, Juego *destino) {
+    destino->iniciado = origen->iniciado;
+    destino->cantCasillasPresionadas = origen->cantCasillasPresionadas;
+    destino->puntaje = origen->puntaje;
+    destino->dificultad.cantidad_minas = origen->dificultad.cantidad_minas;
+    destino->dificultad.dimension = origen->dificultad.dimension;
+    strncpy(destino->nombreJugador, origen->nombreJugador, 40);
+    destino->finPartida = origen->finPartida;
+    destino->totalPuntajes = origen->totalPuntajes;
+    destino->start_time = origen->start_time;
+    memcpy(destino->puntajes, origen->puntajes, sizeof(Puntaje) * MAX_PUNTAJES);
+
+    int dim = origen->dificultad.nombre;
+    destino->mapa = malloc(dim * sizeof(Casilla *));
+    for (int i = 0; i < dim; ++i) {
+        destino->mapa[i] = malloc(dim * sizeof(Casilla));
+        for (int j = 0; j < dim; ++j)
+            destino->mapa[i][j] = origen->mapa[i * dim + j];
+    }
+}
+
+
+bool archivoExiste(const char *filename) {
+    FILE *file = fopen(filename, "rb");
+    if (file) {
+        fclose(file);
+        return true;
+    }
+    return false;
+}
+
+void inicializarPartidas(Juego partidas[3]) {
+    for (int i = 0; i < 3; ++i) {
+        partidas[i].iniciado = false;
+        partidas[i].finPartida = false;
+        partidas[i].cantCasillasPresionadas = 0;
+        partidas[i].puntaje = 0;
+        partidas[i].dificultad.dimension = 10;
+        partidas[i].dificultad.dimension = 10;
+        strcpy(partidas[i].nombreJugador, "Sin nombre");
+        partidas[i].totalPuntajes = 0;
+        partidas[i].start_time = time(NULL);
+
+        int dim = partidas[i].dificultad.dimension;
+        partidas[i].mapa = malloc(dim * sizeof(Casilla *));
+        for (int j = 0; j < dim; ++j) {
+            partidas[i].mapa[j] = malloc(dim * sizeof(Casilla));
+            for (int k = 0; k < dim; ++k) {
+                partidas[i].mapa[j][k].estado = 0;
+                partidas[i].mapa[j][k].presionada = false;
+                partidas[i].mapa[j][k].estadoBandera = 0;
+            }
+        }
+    }
+}
+
+
+void guardarEnSlot(Juego *juego, int slot) {
+    if (slot < 0 || slot >= MAX_SLOTS) 
+        return;
+
+    Juego juegoAux[3];
+    cargarPartidas(juegoAux, ARCHIVO_PARTIDAS); // cargar todos los slots actuales
+
+    // Copiar campos base manualmente
+    juegoAux[slot].iniciado = juego->iniciado;
+    juegoAux[slot].cantCasillasPresionadas = juego->cantCasillasPresionadas;
+    juegoAux[slot].puntaje = juego->puntaje;
+    juegoAux[slot].dificultad.dimension = juego->dificultad.dimension;
+    juegoAux[slot].dificultad.dimension = juego->dificultad.dimension;
+    juegoAux[slot].finPartida = juego->finPartida;
+    juegoAux[slot].start_time = juego->start_time;
+    juegoAux[slot].totalPuntajes = juego->totalPuntajes;
+    memcpy(juegoAux[slot].nombreJugador, juego->nombreJugador, sizeof(juego->nombreJugador));
+    memcpy(juegoAux[slot].puntajes, juego->puntajes, sizeof(juego->puntajes));
+
+    // deep copy de mapa
+    int dim = juego->dificultad.dimension;
+    juegoAux[slot].mapa = malloc(dim * sizeof(Casilla *));
+    for (int i = 0; i < dim; i++) {
+        juegoAux[slot].mapa[i] = malloc(dim * sizeof(Casilla));
+        for (int j = 0; j < dim; j++) {
+            juegoAux[slot].mapa[i][j] = juego->mapa[i][j];
+        }
+    }
+
+    guardarPartidas(juegoAux, ARCHIVO_PARTIDAS);
+}
+
+void cargarDesdeSlot(Juego *juego, int slot) {
+    if (slot < 0 || slot >= MAX_SLOTS) 
+        return;
+
+    Juego juegoAux[3];
+    cargarPartidas(juegoAux, ARCHIVO_PARTIDAS);
+
+    // Liberar mapa previo si existe
+    if (juego->mapa != NULL) {
+        matrizDestruir(juego->mapa, juego->dificultad.dimension);
+    }
+
+    // Copiar campos base manualmente
+    juego->iniciado = juegoAux[slot].iniciado;
+    juego->cantCasillasPresionadas = juegoAux[slot].cantCasillasPresionadas;
+    juego->puntaje = juegoAux[slot].puntaje;
+    juego->dificultad.dimension = juegoAux[slot].dificultad.dimension;
+    juego->dificultad.dimension = juegoAux[slot].dificultad.dimension;
+    juego->finPartida = juegoAux[slot].finPartida;
+    juego->start_time = juegoAux[slot].start_time;
+    juego->totalPuntajes = juegoAux[slot].totalPuntajes;
+    memcpy(juego->nombreJugador, juegoAux[slot].nombreJugador, sizeof(juego->nombreJugador));
+    memcpy(juego->puntajes, juegoAux[slot].puntajes, sizeof(juego->puntajes));
+
+    // deep copy de mapa
+    int dim = juegoAux[slot].dificultad.dimension;
+    juego->mapa = malloc(dim * sizeof(Casilla *));
+    for (int i = 0; i < dim; i++) {
+        juego->mapa[i] = malloc(dim * sizeof(Casilla));
+        for (int j = 0; j < dim; j++) {
+            juego->mapa[i][j] = juegoAux[slot].mapa[i][j];
+        }
+    }
+}
+
+void guardarPartidas(Juego partidas[3], const char *filename) {
+    FILE *f = fopen(filename, "wb");
+    if (!f) return;
+    JuegoGuardado aux[3];
+    for (int i = 0; i < 3; ++i)
+        convertirAJuegoGuardado(&partidas[i], &aux[i]);
+    fwrite(aux, sizeof(JuegoGuardado), 3, f);
+    fclose(f);
+}
+
+void cargarPartidas(Juego partidas[3], const char *filename) {
+    FILE *f = fopen(filename, "rb");
+    if (!f) return;
+    JuegoGuardado aux[3];
+    fread(aux, sizeof(JuegoGuardado), 3, f);
+    for (int i = 0; i < 3; ++i)
+        convertirAJuego(&aux[i], &partidas[i]);
+    fclose(f);
+}

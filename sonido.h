@@ -23,8 +23,7 @@ typedef struct {
 int iniciarSonido(Sonido *sonido);
 int cargarSonido(const char *ruta, Mix_Chunk **sonido, int volumen);
 int cargarMusica(const char *ruta, Mix_Music **musica, int volumen);
-void iniciarMusicaMenu(Mix_Music **musica);
-void iniciarMusicaJuego(Mix_Music **musica);
+void iniciarMusica(Mix_Music **musica);
 
 void detenerMusica(void);
 #endif // SONIDO_H
