@@ -182,7 +182,7 @@ int main(int argc, char *argv[]){
                     break;
 
                 case ESTADO_JUGANDO:
-                    manejar_eventos_juego(&e , &estado_actual , &juego , &picords , &rbutton , &sonidos);
+                    manejar_eventos_juego(&e , &estado_actual , &juego , &graficos , &rbutton , &sonidos);
                     break;
 
                 case ESTADO_GANADO:
@@ -334,7 +334,7 @@ int manejar_eventos_dificultad(Graficos *graficos, SDL_Event *e , EstadoJuego *e
                             juego->dificultad.dimension = difs[1].dimension;
                             juego->dificultad.cantidad_minas = difs[1].cantidad_minas;
 
-                            juego->mapa = (Casilla**)matrizCrear(juego->dificultad.dimension , juego->dificultad.dimension , sizeof(Casilla*));
+                            juego->mapa = (Casilla**)matrizCrear(juego->dificultad.dimension , juego->dificultad.dimension , sizeof(Casilla));
                             juego->minasCoord = (Coord *)matrizCrear(juego->dificultad.cantidad_minas , 0 , sizeof(Coord));
                             *estado_actual = ESTADO_JUGANDO;
                             graficos->tamXVentana = TAM_PIXEL * (difs[1].dimension * PIXELES_X_LADO + 20);
@@ -362,12 +362,12 @@ int manejar_eventos_dificultad(Graficos *graficos, SDL_Event *e , EstadoJuego *e
     return 0;
 }
 
-int manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* juego , Coord* picords , Coord* rbutton , Sonido* sonidos){
+int manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* juego , Graficos *graficos , Coord* rbutton , Sonido* sonidos){
 
     Casilla **mapa = juego->mapa;
 
-    int xG = ((e->button.x - (picords->x * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
-    int yG = ((e->button.y - (picords->y * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
+    int xG = ((e->button.x - (graficos->piCord->x * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
+    int yG = ((e->button.y - (graficos->piCord->y * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
     int casillasLibresDeMinas = (juego->dificultad.dimension * juego->dificultad.dimension) - juego->dificultad.cantidad_minas;
 
     if (e->type == SDL_MOUSEBUTTONDOWN){

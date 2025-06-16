@@ -389,7 +389,7 @@ void casillaEstado(Juego *juego , Sonido *sonidos , int gX, int gY, bool chordCl
             if (gX == mX && gY == mY)
                 continue;
             juego->mapa[mY][mX].presionada = true; // Presionar todas las minas
-            juego->mapa[mY][mX].estado = 5;        // Estado de mina revelada
+            juego->mapa[mY][mX].estado = -2;        // Estado de mina revelada
         }
 
         Mix_PlayChannel(-1, sonidos->sonidoPerder, 0); // Sonido de mina
