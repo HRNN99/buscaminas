@@ -128,7 +128,7 @@ int main(int argc, char *argv[]){
     juego.mapa = NULL;
     juego.iniciado = false;
     juego.senialRender = 1;
-
+    juego.log = archivoLog;
     // Inicializar el juego
     juego.puntaje = 0;
     juego.cantCasillasPresionadas = 0;
@@ -577,7 +577,19 @@ int manejar_eventos_juego(Graficos *graficos,SDL_Event *e, EstadoJuego *estado_a
                 handlerClick = (boton == SDL_BUTTON_LEFT) ? handlerClickIzquierdo : handlerClickDerecho;
                 handlerClick(juego, sonidos, xG, yG);
 
-                
+                if (juego->cantCasillasPresionadas == casillasLibresDeMinas){
+                    puts("¡Ganaste el juego!");
+                    char* textoGanado[36];
+                    sprintf(textoGanado, "Ganaste el juego! puntuacion: %d", juego->puntaje);
+                    Log log;
+                    setLog(&log, -1, -1, textoGanado);
+                    escribirArchivoLog(juego->log, &log);
+                    SDL_StartTextInput();
+                    juego->nombreJugador[0] = '\0';
+                    juego->finPartida = true;
+                    juego->cantCasillasPresionadas++; // Para que no vuelva a entrar en la ventana de ganado
+                    *estado_actual = ESTADO_GANADO;
+                }
             }
             break;
         }

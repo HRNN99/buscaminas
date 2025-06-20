@@ -92,6 +92,7 @@ typedef struct{
     int totalPuntajes;
     time_t start_time;
     int senialRender;
+    FILE *log;
 } Juego;
 
 
