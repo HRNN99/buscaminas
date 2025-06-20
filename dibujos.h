@@ -30,7 +30,7 @@
 #define CI 17//Cian
 #define RF 18//Rosa Fuerte
 
-SDL_Color colores[20];
+extern SDL_Color colores[20];
 
 void dibujar(SDL_Renderer *renderer , int pixeles , const int dibujo[][pixeles] , int gX , int gY , int pXi , int pYi);
 void dibujarAbsoluto(SDL_Renderer *renderer , int pixeles , const int dibujo[][pixeles] , int gX , int gY , int escala);
