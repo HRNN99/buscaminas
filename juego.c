@@ -476,6 +476,8 @@ void clickDoble(Juego *juego , Sonido *sonidos , int gX , int gY){
     {
         for (int j = -1; j < 2; j++)
         {
+            if (gX+i < 0 || gX+i >= juego->dificultad.dimension || gY+j < 0 || gY+j >= juego->dificultad.dimension)
+                continue;
             if (mapa[gY + j][gX + i].estadoBandera == 1)
             {
 
