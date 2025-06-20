@@ -34,6 +34,8 @@ int main(int argc, char *argv[]){
 
     //////////////////////////////////////////////////////////////////////
 
+    Juego partidas[3];
+
     // Tamaño de ancho y altura de la ventana, utilizo 1 sola variable ya que sera cuadrada
     int TAMX =  TAM_PIXEL * (16 * PIXELES_X_LADO + 20);
     int TAMY =  TAM_PIXEL * (16 * PIXELES_X_LADO + 4 + 3*8 + 28);
@@ -72,23 +74,34 @@ int main(int argc, char *argv[]){
     }
 
     //////////////////////////////////////////////////////////////////////
-
-    const char* menu_items[] = {
+   const char *menu_items[] = {
         "Nueva Partida",
         "Cargar Partida",
-        "Salir"
-    };
+        "Salir"};
     int menu_count = sizeof(menu_items) / sizeof(menu_items[0]);
     int seleccion_menu = 0;
 
-    const char* dificultad_items[] = {
+    const char *dificultad_items[] = {
         "Facil",
         "Intermedio",
-        "Dificil"
-    };
+        "Dificil"};
     int dificultad_count = sizeof(dificultad_items) / sizeof(dificultad_items[0]);
     int seleccion_dificultad = 0;
 
+    const char *cargar_items[] = {
+        "Slot 1",
+        "Slot 2",
+        "Slot 3"};
+    int cargar_count = sizeof(cargar_items) / sizeof(cargar_items[0]);
+    int seleccion_cargar = 0;
+    int seleccion_guardar = 0;
+
+    const char *pausa_items[] = {
+        "Continuar",
+        "Guardar",
+        "Salir"};
+    int pausa_count = sizeof(pausa_items) / sizeof(pausa_items[0]);
+    int seleccion_pausa = 0;
     Dificultad dificultades[dificultad_count];
 
     cargar_dificultades("buscaminas.conf" , dificultades , dificultad_count);
@@ -139,7 +152,8 @@ int main(int argc, char *argv[]){
     int corriendo = true; // Variable flag true para mantener corriendo el programa
     SDL_Event e; // Variable para registrar eventos
     EstadoJuego estado_actual = ESTADO_MENU; //Variable para estados
-    iniciarMusicaMenu(&sonidos.musicaMenu);
+    EstadoJuego estado_anterior;
+    iniciarMusica(&sonidos.musicaMenu);
 
     //////////////////////////////////////////////////////////////////////
 
@@ -177,29 +191,52 @@ int main(int argc, char *argv[]){
             switch(estado_actual){
                 case ESTADO_MENU:
                     juego.senialRender=1;
+                    estado_anterior = estado_actual;
                     manejar_eventos_menu(&e , &estado_actual , &seleccion_menu , menu_count , &sonidos);
                     break;
 
                 case ESTADO_DIFICULTAD:
                     juego.senialRender=1;
+                    estado_anterior = estado_actual;
                     manejar_eventos_dificultad(&graficos, &e , &estado_actual , &seleccion_dificultad , dificultad_count , &juego , dificultades , ventana);
                     break;
 
                 case ESTADO_JUGANDO:
-                    manejar_eventos_juego(&e , &estado_actual , &juego , &graficos , &rbutton , &sonidos);
+                    juego.senialRender = 1;
+                    estado_anterior = estado_actual;
+                    manejar_eventos_juego(&graficos, &e , &estado_actual , &estado_anterior, &juego , &picords , &rbutton , &sonidos);
                     break;
 
                 case ESTADO_GANADO:
+                    estado_anterior = estado_actual;
                     manejar_eventos_ganado(&e, &estado_actual, &juego);
                     break;
 
                 case ESTADO_SALIENDO:
+                    estado_anterior = estado_actual;
                     corriendo = false;
-                    matrizDestruir(juego.mapa , juego.dificultad.dimension);
+                    matrizDestruir(juego.mapa, juego.dificultad.dimension);
                     printf("\nSaliendo...\n");
                     break;
-                default: break;
-            }
+                case ESTADO_CARGAR:
+                    // estado_anterior = ESTADO_CARGAR; borrar
+                    juego.senialRender = 1;
+                    manejar_eventos_slots(&graficos, &e, &estado_actual, &sonidos, &seleccion_cargar, menu_count, &juego);
+                    estado_anterior = ESTADO_CARGAR;
+                    break;
+                case ESTADO_PAUSA:
+                    juego.senialRender = 1;
+                    manejar_eventos_pausa(&e, &estado_actual, &juego, &seleccion_pausa, &sonidos, menu_count, partidas);
+                    estado_anterior = ESTADO_PAUSA;
+                    break;
+                case ESTADO_GUARDAR:
+                    juego.senialRender = 1;
+                    manejar_eventos_slots(&graficos, &e, &estado_actual, &sonidos, &seleccion_guardar, menu_count, &juego);
+                    estado_anterior = ESTADO_GUARDAR;
+                    break;
+                default:
+                    break;
+                }
         }
 
         //////////////////////////////////////////////////////////////////////
@@ -233,15 +270,28 @@ int main(int argc, char *argv[]){
                     }
                     interfaz(&graficos, &juego, &rbutton);
                     casillaColocacion(renderer, juego.mapa , juego.dificultad.dimension , &picords);
-                    juego.senialRender=0;
+                    juego.senialRender = 0;
                     break;
 
                 case ESTADO_GANADO:
                     interfazGanado(&graficos, &juego);
+                    juego.senialRender = 0;
+                    break;
+                case ESTADO_CARGAR:
+                    dibujar_menu(&graficos, cargar_items, cargar_count, &seleccion_cargar, fondo);
                     juego.senialRender=0;
                     break;
-                default: break;
-            }
+                case ESTADO_PAUSA:
+                    interfazPausa(graficos.renderer, graficos.ventana, graficos.font, &juego, &picords, juego.dificultad.dimension, &rbutton, &seleccion_pausa, Mix_PlayingMusic(), pausa_items, pausa_count);
+                    juego.senialRender=0;
+                    break;
+                case ESTADO_GUARDAR:
+                    interfazPausa(graficos.renderer, graficos.ventana, graficos.font, &juego, &picords, juego.dificultad.dimension, &rbutton, &seleccion_guardar, Mix_PlayingMusic(), cargar_items, cargar_count);
+                    juego.senialRender=0;
+                    break;
+                default:
+                    break;
+                }
         }
         //////////////////////////////////////////////////////////////////////
 
@@ -262,6 +312,103 @@ int main(int argc, char *argv[]){
 }
 
 //////////////////////////////////////////////////////////////////////
+
+
+void manejar_eventos_slots(Graficos *graficos,SDL_Event *e, EstadoJuego *estado_actual, Sonido *sonidos, int *seleccion, const int menu_count, Juego *juego)
+{
+    switch (e->type)
+    {
+
+    case SDL_KEYDOWN:
+
+        switch (e->key.keysym.sym)
+        {
+
+        case SDLK_UP:
+            Mix_PlayChannel(-1, sonidos->sonidoFlecha, 0);
+            *seleccion = (*seleccion - 1 + menu_count) % menu_count;
+            break;
+
+        case SDLK_DOWN:
+            Mix_PlayChannel(-1, sonidos->sonidoFlecha, 0);
+            *seleccion = (*seleccion + 1) % menu_count;
+            break;
+
+        case SDLK_RETURN:
+            Mix_PlayChannel(-1, sonidos->sonidoEnter, 0);
+            switch (*estado_actual)
+            {
+            case ESTADO_CARGAR:
+
+                cargarDesdeSlot(juego, *seleccion);
+                *estado_actual = ESTADO_JUGANDO;
+                graficos->tamXVentana = TAM_PIXEL * (juego->dificultad.dimension * PIXELES_X_LADO + 20);
+                graficos->tamYVentana = TAM_PIXEL * (juego->dificultad.dimension * PIXELES_X_LADO + 4 + 3*8 + 28);
+                iniciarMusica(&sonidos->musicaFondo);
+                break;
+            case ESTADO_GUARDAR:
+                guardarEnSlot(juego, *seleccion);
+                *estado_actual = ESTADO_PAUSA;
+                break;
+            }
+            
+        default: break;
+        }
+    }
+}
+
+void manejar_eventos_pausa(SDL_Event *e, EstadoJuego *estado_actual, Juego *juego, int *seleccion, Sonido *sonidos, const int menu_count, Juego partidas[3])
+{
+    int TAMX = TAM_PIXEL * (juego->dificultad.dimension * PIXELES_X_LADO + 20);
+    int TAMY = TAM_PIXEL * (juego->dificultad.dimension * PIXELES_X_LADO + 4 + 3 * 8 + 28);
+
+    int x = (TAMX / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12;
+    int y = (TAMY / 2) - (TAMY_GANADO / 2) + 15 + 4;
+
+    switch (e->type)
+    {
+    case SDL_MOUSEBUTTONDOWN:
+        if ((x <= e->button.x && e->button.x <= (x + 30)) &&
+            (y <= e->button.y && e->button.y <= (y + 30)) &&
+            (e->button.button == SDL_BUTTON_LEFT))
+        {
+            Mix_PlayingMusic() ? Mix_HaltMusic() : Mix_ResumeMusic();
+        }
+        break;
+    case SDL_KEYDOWN:
+        switch (e->key.keysym.sym)
+        {
+        case SDLK_UP:
+            Mix_PlayChannel(-1, sonidos->sonidoFlecha, 0);
+            *seleccion = (*seleccion - 1 + menu_count) % menu_count;
+            break;
+        case SDLK_DOWN:
+            Mix_PlayChannel(-1, sonidos->sonidoFlecha, 0);
+            *seleccion = (*seleccion + 1) % menu_count;
+            break;
+        case SDLK_RETURN:
+            Mix_PlayChannel(-1, sonidos->sonidoEnter, 0);
+            switch (*seleccion)
+            {
+            case 0:
+                *estado_actual = ESTADO_JUGANDO;
+                break;
+            case 1:
+                *seleccion = 0;
+                *estado_actual = ESTADO_GUARDAR;
+                break;
+            case 2:
+                *seleccion = 0;
+                *estado_actual = ESTADO_MENU;
+                iniciarMusica(&sonidos->musicaMenu);
+                juego->finPartida = true;
+                break;
+            }
+            break;
+        }
+        break;
+    }
+}
 
 int manejar_eventos_menu(SDL_Event *e , EstadoJuego *estado_actual, int* seleccion , const int items_count , Sonido* sonidos){
 
@@ -287,7 +434,7 @@ int manejar_eventos_menu(SDL_Event *e , EstadoJuego *estado_actual, int* selecci
 
                         case 0:
                             *estado_actual = ESTADO_DIFICULTAD;
-                            iniciarMusicaJuego(&sonidos->musicaFondo);
+                            iniciarMusica(&sonidos->musicaFondo);
                             break;
 
                         case 1:
@@ -370,14 +517,26 @@ int manejar_eventos_dificultad(Graficos *graficos, SDL_Event *e , EstadoJuego *e
     return 0;
 }
 
-int manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* juego , Graficos *graficos , Coord* rbutton , Sonido* sonidos){
+int manejar_eventos_juego(Graficos *graficos,SDL_Event *e, EstadoJuego *estado_actual, EstadoJuego *estado_anterior, Juego *juego, Coord *picords, Coord *rbutton, Sonido *sonidos)
+{
 
+    if (estado_anterior == ESTADO_DIFICULTAD)
+    {
+        
+        mapaReiniciar(graficos->renderer ,juego);
+    }
     Casilla **mapa = juego->mapa;
 
-    if (e->type == SDL_MOUSEBUTTONDOWN){
-        juego->senialRender=1;
-
-        int boton = e->button.button; // guardado del boton anterior antes de nuevo evento
+    int xG = ((e->button.x - (picords->x * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
+    int yG = ((e->button.y - (picords->y * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
+    int casillasLibresDeMinas = (juego->dificultad.dimension * juego->dificultad.dimension) - juego->dificultad.cantidad_minas;
+    // guardado del boton anterior antes de nuevo evento
+    int boton = e->button.button;
+    int tecla = e->key.keysym.sym;
+    switch(e->type)
+    {
+        case SDL_MOUSEBUTTONDOWN:
+        juego->senialRender = 1;
         EventoClick handlerClick;
 
         if ((rbutton->x * TAM_PIXEL <= e->button.x && e->button.x <= (rbutton->x + 28) * TAM_PIXEL) &&
@@ -385,51 +544,37 @@ int manejar_eventos_juego(SDL_Event *e , EstadoJuego *estado_actual , Juego* jue
         {
             Mix_PlayChannel(-1, sonidos->sonidoCat, 0);
             juego->iniciado = false;
-        }else{
+        }
 
-            // Control que no se toque fuera del mapa
-            if (e->button.x > (graficos->tamXVentana - graficos->pad - 6 * graficos->G) || e->button.x <= (graficos->pad + 6 * graficos->G) ||
-                e->button.y > (graficos->tamYVentana - graficos->pad - 6 * graficos->G) ||
-                e->button.y <= (graficos->pad*4 + graficos->altoC + 16 * graficos->G))
-                return;
+        else
+        {
 
-            int xG = ((e->button.x - (graficos->piCord->x * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
-            int yG = ((e->button.y - (graficos->piCord->y * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
-            int casillasLibresDeMinas = (juego->dificultad.dimension * juego->dificultad.dimension) - juego->dificultad.cantidad_minas;
-
-            if (mapa[yG][xG].presionada && mapa[yG][xG].estado > 0){
-
+            if (mapa[yG][xG].presionada && mapa[yG][xG].estado > 0)
+            {
                 handlerClick = clickDoble;
-                Uint32 tiempoDeEspera = SDL_GetTicks() + 100;
-                while (SDL_GetTicks() < tiempoDeEspera){
-
-                    if (SDL_PollEvent(e) && e->type == SDL_MOUSEBUTTONDOWN && e->button.button != boton){
-
-                        handlerClick(juego , sonidos , xG , yG);
-                        continue;
-                    }
-
-                    SDL_Delay(1);
-                }
+                handlerClick(juego, sonidos, xG, yG); 
             }
 
-            else{
+            else
+            {
 
                 handlerClick = (boton == SDL_BUTTON_LEFT) ? handlerClickIzquierdo : handlerClickDerecho;
-                handlerClick(juego , sonidos , xG , yG);
+                handlerClick(juego, sonidos, xG, yG);
 
-                if (juego->cantCasillasPresionadas == casillasLibresDeMinas){
-
-                    puts("¡Ganaste el juego!");
-                    SDL_StartTextInput();
-                    juego->nombreJugador[0] = '\0';
-                    juego->finPartida = true;
-                    juego->cantCasillasPresionadas++; // Para que no vuelva a entrar en la ventana de ganado
-                    *estado_actual = ESTADO_GANADO;
-                }
+                
             }
+            break;
         }
+        case SDL_KEYDOWN:
+            if (tecla == SDLK_p)
+            {
+
+                *estado_actual = ESTADO_PAUSA;
+            }
+            break;
+        default: break;
     }
+
     return 0;
 }
 
