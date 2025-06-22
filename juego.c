@@ -521,14 +521,16 @@ void setLog(Log *log, int coordX, int coordY, char tipoEvento[80]){
 }
 
 // Función para abrir un archivo y manejar errores
-FILE *abrirArchivo(const char *nombre, const char *modo){
+FILE *abrirArchivo(const char *nombre, const char *modo, Juego* juego){
 
     FILE *archivo = fopen(nombre, modo);
     if (!archivo)
     {
-        // setLog(&log, -1, -1, "Error al abrir el archivo.");
-        // escribirArchivoLog(archivoLog, &log);
-        puts("Error al abrir el archivo.");
+        char* textoClick[50];
+        sprintf(textoClick, "Error al abrir el archivo %s.\n", nombre);
+        Log log;
+        setLog(&log, -1, -1, textoClick);
+        escribirArchivoLog(juego->log, &log);
         return NULL;
     }
     return archivo;

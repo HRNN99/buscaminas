@@ -645,7 +645,7 @@ int manejar_eventos_ganado(SDL_Event *e , EstadoJuego *estado_actual , Juego* ju
                     SDL_StopTextInput(); //Cierro la lectura de teclado
 
                     // Abrir archivo
-                    FILE* aPuntuacionTemp = abrirArchivo("puntuacion.temp", "wt");
+                    FILE* aPuntuacionTemp = abrirArchivo("puntuacion.temp", "wt", juego);
                     if (!aPuntuacionTemp) {
                         //fclose(archivoLog);
                         return ERROR_ARCHIVO;
@@ -796,11 +796,22 @@ int escribirArchivoLog(FILE *archivoLog, Log *log){
 
 int leerPuntajes(Juego* juego){
     // Abrir archivos
-    FILE* aPuntuacion = abrirArchivo("puntuacion.txt", "rt");
+    FILE* aPuntuacion = abrirArchivo("puntuacion.txt", "rt", juego);
     if (!aPuntuacion) {
-        //fclose(archivoLog);
-        return ERROR_ARCHIVO;
+        // Si no existe lo creo
+        FILE* aPuntuacion = abrirArchivo("puntuacion.txt", "wt", juego);
+        if (!aPuntuacion) {
+            return ERROR_ARCHIVO;
+        }
+        fclose(aPuntuacion); // Cierro el modo wt
     }
+
+    // Dejo puntajes vacio para primera ejecucion
+    if(!aPuntuacion){
+        juego->totalPuntajes = 0;
+        return 0;
+    }
+
     char linea[47];
     int total = 0;
     // Guardo los puntajes en array

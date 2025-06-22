@@ -169,7 +169,7 @@ void mapaLlenar(Casilla **mapa , int dimension , Coord *minasCoord , int minas);
 void mapaImprimir(Casilla** mapa, int filas, int columnas);
 void matrizDestruir(Casilla** mapa , size_t filas);
 
-FILE *abrirArchivo(const char *nombre, const char *modo);
+FILE *abrirArchivo(const char *nombre, const char *modo, Juego* juego);
 
 void handlerClickIzquierdo(Juego *juego, Sonido *sonidos, int x, int y);
 void handlerClickDerecho(Juego *juego, Sonido *sonidos, int x, int y);
