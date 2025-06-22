@@ -563,6 +563,11 @@ int manejar_eventos_juego(Graficos *graficos,SDL_Event *e, EstadoJuego *estado_a
 
         else
         {
+            // Control que no se toque fuera del mapa
+            if (e->button.x > (graficos->tamXVentana - graficos->pad - 6 * graficos->G) || e->button.x <= (graficos->pad + 6 * graficos->G) ||
+                e->button.y > (graficos->tamYVentana - graficos->pad - 6 * graficos->G) ||
+                e->button.y <= (graficos->pad*4 + graficos->altoC + 16 * graficos->G))
+                return;
 
             if (mapa[yG][xG].presionada && mapa[yG][xG].estado > 0)
             {

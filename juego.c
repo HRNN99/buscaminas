@@ -299,7 +299,7 @@ void interfazPausa(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, 
     marcoInvertido(renderer, pcords->x, pcords->y, TAMX_GANADO, TAMY_GANADO, 4);
 
     // Boton de pausar musica
-    dibujarAbsoluto(renderer, 20, 
+    dibujarAbsoluto(renderer, 20,
                     musicaActiva ? music_button : music_button_pausa,
                     (win_width / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12 + 5, pcords->y + 15 + 4 + 5, 1);
 
@@ -667,7 +667,7 @@ void inicializarPartidas(Juego partidas[3]) {
 
 
 void guardarEnSlot(Juego *juego, int slot) {
-    if (slot < 0 || slot >= MAX_SLOTS) 
+    if (slot < 0 || slot >= MAX_SLOTS)
         return;
 
     Juego juegoAux[3];
@@ -699,7 +699,7 @@ void guardarEnSlot(Juego *juego, int slot) {
 }
 
 int cargarDesdeSlot(Graficos *graficos,Juego *juego, int slot) {
-    if (slot < 0 || slot >= MAX_SLOTS) 
+    if (slot < 0 || slot >= MAX_SLOTS)
         return 1;
 
     Juego juegoAux[3];
@@ -730,7 +730,7 @@ int cargarDesdeSlot(Graficos *graficos,Juego *juego, int slot) {
         }
     }
     return 0;
-    
+
 }
 
 void guardarPartidas(Juego partidas[3], const char *filename) {
