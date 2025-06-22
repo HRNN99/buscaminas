@@ -319,7 +319,6 @@ int main(int argc, char *argv[]){
 
     if(!juego.mapa) matrizDestruir(juego.mapa , juego.dificultad.dimension);
 
-    fclose(archivoLog);
     FinalizarSDL(ventana, renderer, font, EXIT_SUCCESS, archivoLog); // Funcion para la finalizacion de SDL y sus componentes
 
     SDL_DestroyTexture(fondo);
