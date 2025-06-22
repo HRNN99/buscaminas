@@ -571,7 +571,12 @@ void clickDoble(Juego *juego , Sonido *sonidos , int gX , int gY){
 // clickHandlers
 void handlerClickIzquierdo(Juego *juego , Sonido *sonidos , int x , int y){
 
-    printf("Hiciste click en la casilla (%i , %i)\n", x, y);
+    char* textoClick[50];
+    sprintf(textoClick, "Hiciste click en la casilla (%2i , %2i)\n", x, y);
+    Log log;
+    setLog(&log, -1, -1, textoClick);
+    escribirArchivoLog(juego->log, &log);
+    
     if(!juego->finPartida)
         casillaEstado(juego , sonidos , x , y , false);
     if(juego->mapa[y][x].estado == -1)
@@ -583,7 +588,12 @@ void handlerClickIzquierdo(Juego *juego , Sonido *sonidos , int x , int y){
 
 void handlerClickDerecho(Juego *juego , Sonido *sonidos , int x , int y){
 
-    printf("Hiciste click derecho en la casilla (%i , %i), colocando bandera\n", x, y);
+    char* textoClick[50];
+    sprintf(textoClick, "Hiciste click derecho en la casilla (%i , %i), colocando bandera\n", x, y);
+    Log log;
+    setLog(&log, -1, -1, textoClick);
+    escribirArchivoLog(juego->log, &log);
+
     if(!juego->finPartida)
         casillaBandera(juego , x , y);
     if(juego->mapa[y][x].presionada == 0)
