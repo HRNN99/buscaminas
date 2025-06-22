@@ -340,16 +340,19 @@ void manejar_eventos_slots(Graficos *graficos,SDL_Event *e, EstadoJuego *estado_
             {
             case ESTADO_CARGAR:
 
-                cargarDesdeSlot(juego, *seleccion);
+                cargarDesdeSlot(graficos, juego, *seleccion);
                 *estado_actual = ESTADO_JUGANDO;
                 graficos->tamXVentana = TAM_PIXEL * (juego->dificultad.dimension * PIXELES_X_LADO + 20);
-                graficos->tamYVentana = TAM_PIXEL * (juego->dificultad.dimension * PIXELES_X_LADO + 4 + 3*8 + 28);
+                graficos->tamYVentana = TAM_PIXEL * (juego->dificultad.dimension * PIXELES_X_LADO + 4 + 3 * 8 + 28);
+                SDL_SetWindowSize(graficos->ventana, graficos->tamXVentana, graficos->tamYVentana);
+
                 iniciarMusica(&sonidos->musicaFondo);
                 break;
             case ESTADO_GUARDAR:
                 guardarEnSlot(juego, *seleccion);
                 *estado_actual = ESTADO_PAUSA;
                 break;
+            default: break;
             }
             
         default: break;
@@ -474,10 +477,10 @@ int manejar_eventos_dificultad(Graficos *graficos, SDL_Event *e , EstadoJuego *e
                         case 0:
                             //juego->dificultad.nombre = difs[0].nombre;
                             juego->dificultad.dimension = difs[0].dimension;
-                            juego->dificultad.cantidad_minas = difs[0].cantidad_minas;
-
-                            juego->mapa = (Casilla**)matrizCrear(juego->dificultad.dimension , juego->dificultad.dimension , sizeof(Casilla)); //Mover a otro lado despues
+                            juego->dificultad.cantidad_minas = difs[0].cantidad_minas; 
+                            juego->mapa = (Casilla**)matrizCrear(juego->dificultad.dimension , juego->dificultad.dimension , sizeof(Casilla)); //Mover a otro lado despues 
                             juego->minasCoord = (Coord *)matrizCrear(juego->dificultad.cantidad_minas , 0 , sizeof(Coord));
+                            mapaReiniciar(graficos->renderer, juego);
                             *estado_actual = ESTADO_JUGANDO;
                             graficos->tamXVentana = TAM_PIXEL * (difs[0].dimension * PIXELES_X_LADO + 20);
                             graficos->tamYVentana = TAM_PIXEL * (difs[0].dimension * PIXELES_X_LADO + 4 + 3*8 + 28);
@@ -488,9 +491,9 @@ int manejar_eventos_dificultad(Graficos *graficos, SDL_Event *e , EstadoJuego *e
                             //juego->dificultad.nombre = difs[1].nombre;
                             juego->dificultad.dimension = difs[1].dimension;
                             juego->dificultad.cantidad_minas = difs[1].cantidad_minas;
-
                             juego->mapa = (Casilla**)matrizCrear(juego->dificultad.dimension , juego->dificultad.dimension , sizeof(Casilla));
                             juego->minasCoord = (Coord *)matrizCrear(juego->dificultad.cantidad_minas , 0 , sizeof(Coord));
+                            mapaReiniciar(graficos->renderer, juego);
                             *estado_actual = ESTADO_JUGANDO;
                             graficos->tamXVentana = TAM_PIXEL * (difs[1].dimension * PIXELES_X_LADO + 20);
                             graficos->tamYVentana = TAM_PIXEL * (difs[1].dimension * PIXELES_X_LADO + 4 + 3*8 + 28);
@@ -501,9 +504,9 @@ int manejar_eventos_dificultad(Graficos *graficos, SDL_Event *e , EstadoJuego *e
                             //juego->dificultad.nombre = difs[2].nombre;
                             juego->dificultad.dimension = difs[2].dimension;
                             juego->dificultad.cantidad_minas = difs[2].cantidad_minas;
-
                             juego->mapa = (Casilla**)matrizCrear(juego->dificultad.dimension , juego->dificultad.dimension , sizeof(Casilla));
                             juego->minasCoord = (Coord *)matrizCrear(juego->dificultad.cantidad_minas , 0 , sizeof(Coord));
+                            mapaReiniciar(graficos->renderer, juego);
                             *estado_actual = ESTADO_JUGANDO;
                             graficos->tamXVentana = TAM_PIXEL * (difs[2].dimension * PIXELES_X_LADO + 20);
                             graficos->tamYVentana = TAM_PIXEL * (difs[2].dimension * PIXELES_X_LADO + 4 + 3*8 + 28);

@@ -7,6 +7,7 @@
 
 void dibujar_menu(Graficos* graficos, const char *menu_items[], const int menu_count, int *seleccion , SDL_Texture* fondo)
 {
+    SDL_SetWindowSize(graficos->ventana, TAM_PIXEL * (16 * PIXELES_X_LADO + 20),  TAM_PIXEL * (16 * PIXELES_X_LADO + 20));
     SDL_SetRenderDrawColor(graficos->renderer, 0, 0, 0, 255);
     SDL_RenderClear(graficos->renderer);
 
@@ -21,7 +22,7 @@ void dibujar_menu(Graficos* graficos, const char *menu_items[], const int menu_c
         TTF_SizeText(graficos->font, menu_items[i], &text_width, &text_height);
 
         SDL_Rect fondo;
-        fondo.x = (graficos->tamXVentana - text_width) / 2;
+        fondo.x = (TAM_PIXEL * (16 * PIXELES_X_LADO + 20),  TAM_PIXEL * (16 * PIXELES_X_LADO + 20) - text_width) / 2;
         fondo.y = base_y + i * espacio;
         fondo.w = text_width;
         fondo.h = text_height;
@@ -697,7 +698,7 @@ void guardarEnSlot(Juego *juego, int slot) {
     guardarPartidas(juegoAux, ARCHIVO_PARTIDAS);
 }
 
-void cargarDesdeSlot(Juego *juego, int slot) {
+void cargarDesdeSlot(Graficos *graficos,Juego *juego, int slot) {
     if (slot < 0 || slot >= MAX_SLOTS) 
         return;
 
