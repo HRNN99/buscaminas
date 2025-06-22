@@ -106,7 +106,7 @@ typedef struct{
     int totalPuntajes;
     time_t start_time;
     int senialRender;
-    Casilla mapa[20 * 20];
+    Casilla mapa[100 * 100];
 } JuegoGuardado;
 
 typedef struct
@@ -151,7 +151,7 @@ void interfazPausa(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, 
 
 void fondoColor(SDL_Renderer* renderer);
 void casillaColocacion(SDL_Renderer *renderer, Casilla **mapa , int dimension , Coord *picord);
-void mapaReiniciar(SDL_Renderer *renderer, Juego *juego);
+void mapaReiniciar(Juego *juego);
 
 void dibujar_menu(Graficos* graficos, const char *menu_items[], const int menu_count, int *seleccion , SDL_Texture* fondo);
 
@@ -183,10 +183,10 @@ void setLog(Log *log, int coordX, int coordY, char tipoEvento[80]);
 void convertirAJuegoGuardado(Juego *orig, JuegoGuardado *dest);
 void convertirAJuego(JuegoGuardado *src, Juego *dest);
 void guardarPartidas(Juego partidas[3], const char *filename);
-void cargarPartidas(Juego partidas[3], const char *filename);
+int cargarPartidas(Juego partidas[3], const char *filename);
 bool archivoExiste(const char *filename);
 void inicializarPartidas(Juego partidas[3]);
 void guardarEnSlot(Juego *juego, int slot);
-void cargarDesdeSlot(Graficos *graficos, Juego *juego, int slot);
+int cargarDesdeSlot(Graficos *graficos, Juego *juego, int slot);
 
 #endif // JUEGO_H

@@ -262,11 +262,10 @@ int main(int argc, char *argv[]){
 
                     if(!juego.iniciado){
 
-                        mapaReiniciar(renderer, &juego);
+                        mapaReiniciar(&juego);
                         system("cls");
-                        graficos.anchoM = juego.dificultad.dimension * PIXELES_X_LADO + 4;
-                        mapaImprimir(juego.mapa , juego.dificultad.dimension , juego.dificultad.dimension);
-
+                        
+                        mapaImprimir(juego.mapa, juego.dificultad.dimension, juego.dificultad.dimension);
                     }
                     interfaz(&graficos, &juego, &rbutton);
                     casillaColocacion(renderer, juego.mapa , juego.dificultad.dimension , &picords);
@@ -340,13 +339,20 @@ void manejar_eventos_slots(Graficos *graficos,SDL_Event *e, EstadoJuego *estado_
             {
             case ESTADO_CARGAR:
 
-                cargarDesdeSlot(graficos, juego, *seleccion);
-                *estado_actual = ESTADO_JUGANDO;
-                graficos->tamXVentana = TAM_PIXEL * (juego->dificultad.dimension * PIXELES_X_LADO + 20);
-                graficos->tamYVentana = TAM_PIXEL * (juego->dificultad.dimension * PIXELES_X_LADO + 4 + 3 * 8 + 28);
-                SDL_SetWindowSize(graficos->ventana, graficos->tamXVentana, graficos->tamYVentana);
-
-                iniciarMusica(&sonidos->musicaFondo);
+                if(!cargarDesdeSlot(graficos, juego, *seleccion))
+                {
+                    graficos->anchoM = juego->dificultad.dimension * PIXELES_X_LADO + 4;
+                    graficos->tamXVentana = TAM_PIXEL * (juego->dificultad.dimension * PIXELES_X_LADO + 20);
+                    graficos->tamYVentana = TAM_PIXEL * (juego->dificultad.dimension * PIXELES_X_LADO + 4 + 3 * 8 + 28);
+                    SDL_SetWindowSize(graficos->ventana, graficos->tamXVentana, graficos->tamYVentana);
+                    iniciarMusica(&sonidos->musicaFondo);
+                    *estado_actual = ESTADO_JUGANDO;
+                }else
+                {
+                    
+                    *estado_actual = ESTADO_MENU;
+                }
+                
                 break;
             case ESTADO_GUARDAR:
                 guardarEnSlot(juego, *seleccion);
@@ -480,11 +486,13 @@ int manejar_eventos_dificultad(Graficos *graficos, SDL_Event *e , EstadoJuego *e
                             juego->dificultad.cantidad_minas = difs[0].cantidad_minas; 
                             juego->mapa = (Casilla**)matrizCrear(juego->dificultad.dimension , juego->dificultad.dimension , sizeof(Casilla)); //Mover a otro lado despues 
                             juego->minasCoord = (Coord *)matrizCrear(juego->dificultad.cantidad_minas , 0 , sizeof(Coord));
-                            mapaReiniciar(graficos->renderer, juego);
+                         
                             *estado_actual = ESTADO_JUGANDO;
                             graficos->tamXVentana = TAM_PIXEL * (difs[0].dimension * PIXELES_X_LADO + 20);
                             graficos->tamYVentana = TAM_PIXEL * (difs[0].dimension * PIXELES_X_LADO + 4 + 3*8 + 28);
+                            graficos->anchoM = juego->dificultad.dimension * PIXELES_X_LADO + 4;
                             SDL_SetWindowSize(ventana, graficos->tamXVentana, graficos->tamYVentana);
+                            mapaReiniciar(juego);
                             break;
 
                         case 1:
@@ -493,11 +501,13 @@ int manejar_eventos_dificultad(Graficos *graficos, SDL_Event *e , EstadoJuego *e
                             juego->dificultad.cantidad_minas = difs[1].cantidad_minas;
                             juego->mapa = (Casilla**)matrizCrear(juego->dificultad.dimension , juego->dificultad.dimension , sizeof(Casilla));
                             juego->minasCoord = (Coord *)matrizCrear(juego->dificultad.cantidad_minas , 0 , sizeof(Coord));
-                            mapaReiniciar(graficos->renderer, juego);
+                          
                             *estado_actual = ESTADO_JUGANDO;
                             graficos->tamXVentana = TAM_PIXEL * (difs[1].dimension * PIXELES_X_LADO + 20);
                             graficos->tamYVentana = TAM_PIXEL * (difs[1].dimension * PIXELES_X_LADO + 4 + 3*8 + 28);
+                            graficos->anchoM = juego->dificultad.dimension * PIXELES_X_LADO + 4;
                             SDL_SetWindowSize(ventana, graficos->tamXVentana, graficos->tamYVentana);
+                            mapaReiniciar(juego);
                             break;
 
                         case 2:
@@ -506,11 +516,13 @@ int manejar_eventos_dificultad(Graficos *graficos, SDL_Event *e , EstadoJuego *e
                             juego->dificultad.cantidad_minas = difs[2].cantidad_minas;
                             juego->mapa = (Casilla**)matrizCrear(juego->dificultad.dimension , juego->dificultad.dimension , sizeof(Casilla));
                             juego->minasCoord = (Coord *)matrizCrear(juego->dificultad.cantidad_minas , 0 , sizeof(Coord));
-                            mapaReiniciar(graficos->renderer, juego);
+                            
                             *estado_actual = ESTADO_JUGANDO;
                             graficos->tamXVentana = TAM_PIXEL * (difs[2].dimension * PIXELES_X_LADO + 20);
                             graficos->tamYVentana = TAM_PIXEL * (difs[2].dimension * PIXELES_X_LADO + 4 + 3*8 + 28);
+                            graficos->anchoM = juego->dificultad.dimension * PIXELES_X_LADO + 4;
                             SDL_SetWindowSize(ventana, graficos->tamXVentana, graficos->tamYVentana);
+                            mapaReiniciar(juego);
                             break;
                     }
                     break;
@@ -526,7 +538,7 @@ int manejar_eventos_juego(Graficos *graficos,SDL_Event *e, EstadoJuego *estado_a
     if (estado_anterior == ESTADO_DIFICULTAD)
     {
         
-        mapaReiniciar(graficos->renderer ,juego);
+        mapaReiniciar(juego);
     }
     Casilla **mapa = juego->mapa;
 
