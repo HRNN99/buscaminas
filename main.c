@@ -218,7 +218,6 @@ int main(int argc, char *argv[])
                 break;
 
             case ESTADO_JUGANDO:
-                juego.senialRender = 1;
                 estado_anterior = estado_actual;
                 manejar_eventos_juego(&graficos, &e, &estado_actual, &estado_anterior, &juego, &picords, &rbutton, &sonidos);
                 break;
@@ -644,13 +643,14 @@ int manejar_eventos_ganado(SDL_Event *e, EstadoJuego *estado_actual, Juego *jueg
     {
     case SDL_MOUSEBUTTONDOWN:
         juego->senialRender = 1;
+
+        // Boton de cerrado ventana ganado
         if ((x <= e->button.x && e->button.x <= (x + 30)) &&
             (y <= e->button.y && e->button.y <= (y + 30)) &&
             (e->button.button == SDL_BUTTON_LEFT))
         {
             *estado_actual = ESTADO_JUGANDO;
         }
-        // rectanguloLlenoAbsoluto(renderer, RR, (win_width / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12, pcords->y + 15 + 4, TAM_BOTON_CERRADO, TAM_BOTON_CERRADO);
         break;
     case SDL_TEXTINPUT:
         juego->senialRender = 1;
@@ -826,13 +826,13 @@ int escribirArchivoLog(FILE *archivoLog, Log *log)
 {
     if (log->coordXY[0] == -1 && log->coordXY[1] == -1)
     {
-        fprintf(archivoLog, "[%d-%d-%d %02d:%02d:%02d] %-.*s\n",
+        fprintf(archivoLog, "[%d-%d-%d %02d:%02d:%02d] %-s\n",
                 log->fechaHora.tm_year + 1900, log->fechaHora.tm_mon + 1, log->fechaHora.tm_mday,
                 log->fechaHora.tm_hour, log->fechaHora.tm_min, log->fechaHora.tm_sec, log->tipoEvento);
     }
     else
     {
-        fprintf(archivoLog, "[%d-%d-%d %02d:%02d:%02d] %-.*s | coordenadas: (%d , %d)\n",
+        fprintf(archivoLog, "[%d-%d-%d %02d:%02d:%02d] %-s | coordenadas: (%d , %d)\n",
                 log->fechaHora.tm_year + 1900, log->fechaHora.tm_mon + 1, log->fechaHora.tm_mday,
                 log->fechaHora.tm_hour, log->fechaHora.tm_min, log->fechaHora.tm_sec, log->tipoEvento,
                 log->coordXY[0], log->coordXY[1]);
