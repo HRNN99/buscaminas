@@ -235,7 +235,6 @@ int main(int argc, char *argv[])
                 printf("\nSaliendo...\n");
                 break;
             case ESTADO_CARGAR:
-                // estado_anterior = ESTADO_CARGAR; borrar
                 juego.senialRender = 1;
                 manejar_eventos_slots(&graficos, &e, &estado_actual, &sonidos, &seleccion_cargar, menu_count, &juego);
                 estado_anterior = ESTADO_CARGAR;
@@ -356,7 +355,7 @@ void manejar_eventos_slots(Graficos *graficos, SDL_Event *e, EstadoJuego *estado
             switch (*estado_actual)
             {
             case ESTADO_CARGAR:
-                if (!cargarDesdeSlot(graficos, juego, *seleccion))
+                if (cargarDesdeSlot(graficos, juego, *seleccion))
                 {
                     graficos->anchoM = juego->dificultad.dimension * PIXELES_X_LADO + 4;
                     graficos->tamXVentana = TAM_PIXEL * (juego->dificultad.dimension * PIXELES_X_LADO + 20);

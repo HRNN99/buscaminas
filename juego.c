@@ -683,7 +683,9 @@ void guardarEnSlot(Juego *juego, int slot) {
         return;
 
     Juego juegoAux[3];
-    cargarPartidas(juegoAux, ARCHIVO_PARTIDAS); // cargar todos los slots actuales
+    if(!cargarPartidas(juegoAux, ARCHIVO_PARTIDAS)){ // cargar todos los slots actuales
+        inicializarPartidas(juegoAux);
+    }
 
     // Copiar campos base
     juegoAux[slot].iniciado = juego->iniciado;
@@ -697,7 +699,6 @@ void guardarEnSlot(Juego *juego, int slot) {
     memcpy(juegoAux[slot].nombreJugador, juego->nombreJugador, sizeof(juego->nombreJugador));
     memcpy(juegoAux[slot].puntajes, juego->puntajes, sizeof(juego->puntajes));
 
-
     int dim = juego->dificultad.dimension;
     juegoAux[slot].mapa = malloc(dim * sizeof(Casilla *));
     for (int i = 0; i < dim; i++) {
@@ -706,16 +707,15 @@ void guardarEnSlot(Juego *juego, int slot) {
             juegoAux[slot].mapa[i][j] = juego->mapa[i][j];
         }
     }
-
     guardarPartidas(juegoAux, ARCHIVO_PARTIDAS);
 }
 
 int cargarDesdeSlot(Graficos *graficos,Juego *juego, int slot) {
     if (slot < 0 || slot >= MAX_SLOTS)
-        return 1;
+        return 0;
 
     Juego juegoAux[3];
-    if(cargarPartidas(juegoAux, ARCHIVO_PARTIDAS)) return 1;
+    if(!cargarPartidas(juegoAux, ARCHIVO_PARTIDAS)) return 0;
 
     // Liberar mapa previo si existe
     if (juego->mapa != NULL) {
@@ -741,8 +741,7 @@ int cargarDesdeSlot(Graficos *graficos,Juego *juego, int slot) {
             juego->mapa[i][j] = juegoAux[slot].mapa[i][j];
         }
     }
-    return 0;
-
+    return 1;
 }
 
 void guardarPartidas(Juego partidas[3], const char *filename) {
@@ -757,11 +756,11 @@ void guardarPartidas(Juego partidas[3], const char *filename) {
 
 int cargarPartidas(Juego partidas[3], const char *filename) {
     FILE *file = fopen(filename, "rb");
-    if (!file) return 1;
+    if (!file) return 0;
     JuegoGuardado aux[3];
     fread(aux, sizeof(JuegoGuardado), 3, file);
     for (int i = 0; i < 3; ++i)
         convertirAJuego(&aux[i], &partidas[i]);
     fclose(file);
-    return 0;
+    return 1;
 }
