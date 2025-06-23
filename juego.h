@@ -127,7 +127,7 @@ typedef struct
 
 typedef struct
 {
-    char tipoEvento[20];
+    char tipoEvento[50];
     struct tm fechaHora;
     int coordXY[2];
 } Log;
