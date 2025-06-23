@@ -282,6 +282,7 @@ int main(int argc, char *argv[])
 
                     mapaReiniciar(renderer, &juego);
                     system("cls");
+                    // Modifico el ancho del Mapa para manejo de interfaz
                     graficos.anchoM = juego.dificultad.dimension * PIXELES_X_LADO + 4;
                     mapaImprimir(juego.mapa, juego.dificultad.dimension, juego.dificultad.dimension);
                 }
@@ -580,6 +581,9 @@ int manejar_eventos_juego(Graficos *graficos, SDL_Event *e, EstadoJuego *estado_
         {
             Mix_PlayChannel(-1, sonidos->sonidoCat, 0);
             juego->iniciado = false;
+            Log log;
+            setLog(&log, -1, -1, "-Reinicio de juego-.");
+            escribirArchivoLog(juego->log, &log);
         }
         else
         {
