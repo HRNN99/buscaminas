@@ -23,7 +23,9 @@ SDL_Color colores[] =
     {34,20,99,255}, //Purpura
     {120,2,40,255}, //Rojo obscuro
     {11,150,181,255},//Cian
-    {194,47,194,255}//Rosa Fuerte
+    {194,47,194,255},//Rosa Fuerte
+    {126,38,19,255} //Marron
+
 };
 
 //Funcion que  dibuja pixel por pixel

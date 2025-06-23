@@ -299,11 +299,11 @@ int main(int argc, char *argv[])
                 juego.senialRender = 0;
                 break;
             case ESTADO_PAUSA:
-                interfazPausa(graficos.renderer, graficos.ventana, graficos.font, &juego, &picords, juego.dificultad.dimension, &rbutton, &seleccion_pausa, Mix_PlayingMusic(), pausa_items, pausa_count);
+                interfazPausa(graficos.renderer, graficos.ventana, graficos.font, &juego, &picords, juego.dificultad.dimension, &rbutton, &seleccion_pausa, !Mix_PausedMusic(), pausa_items, pausa_count);
                 juego.senialRender = 0;
                 break;
             case ESTADO_GUARDAR:
-                interfazPausa(graficos.renderer, graficos.ventana, graficos.font, &juego, &picords, juego.dificultad.dimension, &rbutton, &seleccion_guardar, Mix_PlayingMusic(), cargar_items, cargar_count);
+                interfazPausa(graficos.renderer, graficos.ventana, graficos.font, &juego, &picords, juego.dificultad.dimension, &rbutton, &seleccion_guardar, !Mix_PausedMusic(), cargar_items, cargar_count);
                 juego.senialRender = 0;
                 break;
             default:
@@ -399,7 +399,13 @@ void manejar_eventos_pausa(SDL_Event *e, EstadoJuego *estado_actual, Juego *jueg
             (y <= e->button.y && e->button.y <= (y + 30)) &&
             (e->button.button == SDL_BUTTON_LEFT))
         {
-            Mix_PlayingMusic() ? Mix_HaltMusic() : Mix_ResumeMusic();
+            if (Mix_PlayingMusic())
+            {
+                if (Mix_PausedMusic())
+                    Mix_ResumeMusic();
+                else
+                    Mix_PauseMusic();
+            }
         }
         break;
     case SDL_KEYDOWN:

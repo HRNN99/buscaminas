@@ -29,6 +29,7 @@
 #define RO 16//Rojo obscuro
 #define CI 17//Cian
 #define RF 18//Rosa Fuerte
+#define MR 19 //Marron
 
 extern SDL_Color colores[20];
 
