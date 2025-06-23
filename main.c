@@ -278,11 +278,10 @@ int main(int argc, char *argv[]){
 
                     if(!juego.iniciado){
 
-                        mapaReiniciar(renderer, &juego);
+                        mapaReiniciar(&juego);
                         system("cls");
-                        graficos.anchoM = juego.dificultad.dimension * PIXELES_X_LADO + 4;
-                        mapaImprimir(juego.mapa , juego.dificultad.dimension , juego.dificultad.dimension);
-
+                        
+                        mapaImprimir(juego.mapa, juego.dificultad.dimension, juego.dificultad.dimension);
                     }
                     interfaz(&graficos, &juego, &rbutton);
                     casillaColocacion(renderer, juego.mapa , juego.dificultad.dimension , &picords);
@@ -356,16 +355,26 @@ void manejar_eventos_slots(Graficos *graficos,SDL_Event *e, EstadoJuego *estado_
             {
             case ESTADO_CARGAR:
 
-                cargarDesdeSlot(juego, *seleccion);
-                *estado_actual = ESTADO_JUGANDO;
-                graficos->tamXVentana = TAM_PIXEL * (juego->dificultad.dimension * PIXELES_X_LADO + 20);
-                graficos->tamYVentana = TAM_PIXEL * (juego->dificultad.dimension * PIXELES_X_LADO + 4 + 3*8 + 28);
-                iniciarMusica(&sonidos->musicaFondo);
+                if(!cargarDesdeSlot(graficos, juego, *seleccion))
+                {
+                    graficos->anchoM = juego->dificultad.dimension * PIXELES_X_LADO + 4;
+                    graficos->tamXVentana = TAM_PIXEL * (juego->dificultad.dimension * PIXELES_X_LADO + 20);
+                    graficos->tamYVentana = TAM_PIXEL * (juego->dificultad.dimension * PIXELES_X_LADO + 4 + 3 * 8 + 28);
+                    SDL_SetWindowSize(graficos->ventana, graficos->tamXVentana, graficos->tamYVentana);
+                    iniciarMusica(&sonidos->musicaFondo);
+                    *estado_actual = ESTADO_JUGANDO;
+                }else
+                {
+                    
+                    *estado_actual = ESTADO_MENU;
+                }
+                
                 break;
             case ESTADO_GUARDAR:
                 guardarEnSlot(juego, *seleccion);
                 *estado_actual = ESTADO_PAUSA;
                 break;
+            default: break;
             }
             
         default: break;
@@ -490,40 +499,46 @@ int manejar_eventos_dificultad(Graficos *graficos, SDL_Event *e , EstadoJuego *e
                         case 0:
                             //juego->dificultad.nombre = difs[0].nombre;
                             juego->dificultad.dimension = difs[0].dimension;
-                            juego->dificultad.cantidad_minas = difs[0].cantidad_minas;
-
-                            juego->mapa = (Casilla**)matrizCrear(juego->dificultad.dimension , juego->dificultad.dimension , sizeof(Casilla)); //Mover a otro lado despues
+                            juego->dificultad.cantidad_minas = difs[0].cantidad_minas; 
+                            juego->mapa = (Casilla**)matrizCrear(juego->dificultad.dimension , juego->dificultad.dimension , sizeof(Casilla)); //Mover a otro lado despues 
                             juego->minasCoord = (Coord *)matrizCrear(juego->dificultad.cantidad_minas , 0 , sizeof(Coord));
+                         
                             *estado_actual = ESTADO_JUGANDO;
                             graficos->tamXVentana = TAM_PIXEL * (difs[0].dimension * PIXELES_X_LADO + 20);
                             graficos->tamYVentana = TAM_PIXEL * (difs[0].dimension * PIXELES_X_LADO + 4 + 3*8 + 28);
+                            graficos->anchoM = juego->dificultad.dimension * PIXELES_X_LADO + 4;
                             SDL_SetWindowSize(ventana, graficos->tamXVentana, graficos->tamYVentana);
+                            mapaReiniciar(juego);
                             break;
 
                         case 1:
                             //juego->dificultad.nombre = difs[1].nombre;
                             juego->dificultad.dimension = difs[1].dimension;
                             juego->dificultad.cantidad_minas = difs[1].cantidad_minas;
-
                             juego->mapa = (Casilla**)matrizCrear(juego->dificultad.dimension , juego->dificultad.dimension , sizeof(Casilla));
                             juego->minasCoord = (Coord *)matrizCrear(juego->dificultad.cantidad_minas , 0 , sizeof(Coord));
+                          
                             *estado_actual = ESTADO_JUGANDO;
                             graficos->tamXVentana = TAM_PIXEL * (difs[1].dimension * PIXELES_X_LADO + 20);
                             graficos->tamYVentana = TAM_PIXEL * (difs[1].dimension * PIXELES_X_LADO + 4 + 3*8 + 28);
+                            graficos->anchoM = juego->dificultad.dimension * PIXELES_X_LADO + 4;
                             SDL_SetWindowSize(ventana, graficos->tamXVentana, graficos->tamYVentana);
+                            mapaReiniciar(juego);
                             break;
 
                         case 2:
                             //juego->dificultad.nombre = difs[2].nombre;
                             juego->dificultad.dimension = difs[2].dimension;
                             juego->dificultad.cantidad_minas = difs[2].cantidad_minas;
-
                             juego->mapa = (Casilla**)matrizCrear(juego->dificultad.dimension , juego->dificultad.dimension , sizeof(Casilla));
                             juego->minasCoord = (Coord *)matrizCrear(juego->dificultad.cantidad_minas , 0 , sizeof(Coord));
+                            
                             *estado_actual = ESTADO_JUGANDO;
                             graficos->tamXVentana = TAM_PIXEL * (difs[2].dimension * PIXELES_X_LADO + 20);
                             graficos->tamYVentana = TAM_PIXEL * (difs[2].dimension * PIXELES_X_LADO + 4 + 3*8 + 28);
+                            graficos->anchoM = juego->dificultad.dimension * PIXELES_X_LADO + 4;
                             SDL_SetWindowSize(ventana, graficos->tamXVentana, graficos->tamYVentana);
+                            mapaReiniciar(juego);
                             break;
                     }
                     break;
@@ -539,7 +554,7 @@ int manejar_eventos_juego(Graficos *graficos,SDL_Event *e, EstadoJuego *estado_a
     if (estado_anterior == ESTADO_DIFICULTAD)
     {
         
-        mapaReiniciar(graficos->renderer ,juego);
+        mapaReiniciar(juego);
     }
     Casilla **mapa = juego->mapa;
 
@@ -564,6 +579,11 @@ int manejar_eventos_juego(Graficos *graficos,SDL_Event *e, EstadoJuego *estado_a
 
         else
         {
+            // Control que no se toque fuera del mapa
+            if (e->button.x > (graficos->tamXVentana - graficos->pad - 6 * graficos->G) || e->button.x <= (graficos->pad + 6 * graficos->G) ||
+                e->button.y > (graficos->tamYVentana - graficos->pad - 6 * graficos->G) ||
+                e->button.y <= (graficos->pad*4 + graficos->altoC + 16 * graficos->G))
+                return;
 
             if (mapa[yG][xG].presionada && mapa[yG][xG].estado > 0)
             {

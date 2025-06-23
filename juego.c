@@ -7,6 +7,7 @@
 
 void dibujar_menu(Graficos* graficos, const char *menu_items[], const int menu_count, int *seleccion , SDL_Texture* fondo)
 {
+    SDL_SetWindowSize(graficos->ventana, TAM_PIXEL * (16 * PIXELES_X_LADO + 20),  TAM_PIXEL * (16 * PIXELES_X_LADO + 20));
     SDL_SetRenderDrawColor(graficos->renderer, 0, 0, 0, 255);
     SDL_RenderClear(graficos->renderer);
 
@@ -21,7 +22,7 @@ void dibujar_menu(Graficos* graficos, const char *menu_items[], const int menu_c
         TTF_SizeText(graficos->font, menu_items[i], &text_width, &text_height);
 
         SDL_Rect fondo;
-        fondo.x = (graficos->tamXVentana - text_width) / 2;
+        fondo.x = (TAM_PIXEL * (16 * PIXELES_X_LADO + 20),  TAM_PIXEL * (16 * PIXELES_X_LADO + 20) - text_width) / 2;
         fondo.y = base_y + i * espacio;
         fondo.w = text_width;
         fondo.h = text_height;
@@ -298,7 +299,7 @@ void interfazPausa(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, 
     marcoInvertido(renderer, pcords->x, pcords->y, TAMX_GANADO, TAMY_GANADO, 4);
 
     // Boton de pausar musica
-    dibujarAbsoluto(renderer, 20, 
+    dibujarAbsoluto(renderer, 20,
                     musicaActiva ? music_button : music_button_pausa,
                     (win_width / 2) + (TAMX_GANADO / 2) - 15 - 20 - 12 + 5, pcords->y + 15 + 4 + 5, 1);
 
@@ -350,7 +351,7 @@ void interfazPausa(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, 
 
 }
 
-void mapaReiniciar(SDL_Renderer *renderer, Juego *juego){
+void mapaReiniciar(Juego *juego){
 
     juego->iniciado = true;
     Casilla **mapa = juego->mapa;
@@ -668,13 +669,13 @@ void inicializarPartidas(Juego partidas[3]) {
 
 
 void guardarEnSlot(Juego *juego, int slot) {
-    if (slot < 0 || slot >= MAX_SLOTS) 
+    if (slot < 0 || slot >= MAX_SLOTS)
         return;
 
     Juego juegoAux[3];
     cargarPartidas(juegoAux, ARCHIVO_PARTIDAS); // cargar todos los slots actuales
 
-    // Copiar campos base manualmente
+    // Copiar campos base
     juegoAux[slot].iniciado = juego->iniciado;
     juegoAux[slot].cantCasillasPresionadas = juego->cantCasillasPresionadas;
     juegoAux[slot].puntaje = juego->puntaje;
@@ -686,7 +687,7 @@ void guardarEnSlot(Juego *juego, int slot) {
     memcpy(juegoAux[slot].nombreJugador, juego->nombreJugador, sizeof(juego->nombreJugador));
     memcpy(juegoAux[slot].puntajes, juego->puntajes, sizeof(juego->puntajes));
 
-    // deep copy de mapa
+
     int dim = juego->dificultad.dimension;
     juegoAux[slot].mapa = malloc(dim * sizeof(Casilla *));
     for (int i = 0; i < dim; i++) {
@@ -699,19 +700,19 @@ void guardarEnSlot(Juego *juego, int slot) {
     guardarPartidas(juegoAux, ARCHIVO_PARTIDAS);
 }
 
-void cargarDesdeSlot(Juego *juego, int slot) {
-    if (slot < 0 || slot >= MAX_SLOTS) 
-        return;
+int cargarDesdeSlot(Graficos *graficos,Juego *juego, int slot) {
+    if (slot < 0 || slot >= MAX_SLOTS)
+        return 1;
 
     Juego juegoAux[3];
-    cargarPartidas(juegoAux, ARCHIVO_PARTIDAS);
+    if(cargarPartidas(juegoAux, ARCHIVO_PARTIDAS)) return 1;
 
     // Liberar mapa previo si existe
     if (juego->mapa != NULL) {
         matrizDestruir(juego->mapa, juego->dificultad.dimension);
     }
 
-    // Copiar campos base manualmente
+    // Copiar campos base
     juego->iniciado = juegoAux[slot].iniciado;
     juego->cantCasillasPresionadas = juegoAux[slot].cantCasillasPresionadas;
     juego->puntaje = juegoAux[slot].puntaje;
@@ -722,7 +723,6 @@ void cargarDesdeSlot(Juego *juego, int slot) {
     memcpy(juego->nombreJugador, juegoAux[slot].nombreJugador, sizeof(juego->nombreJugador));
     memcpy(juego->puntajes, juegoAux[slot].puntajes, sizeof(juego->puntajes));
 
-    // deep copy de mapa
     int dim = juegoAux[slot].dificultad.dimension;
     juego->mapa = malloc(dim * sizeof(Casilla *));
     for (int i = 0; i < dim; i++) {
@@ -731,25 +731,27 @@ void cargarDesdeSlot(Juego *juego, int slot) {
             juego->mapa[i][j] = juegoAux[slot].mapa[i][j];
         }
     }
-    
+    return 0;
+
 }
 
 void guardarPartidas(Juego partidas[3], const char *filename) {
-    FILE *f = fopen(filename, "wb");
-    if (!f) return;
+    FILE *file = fopen(filename, "wb");
+    if (!file) return;
     JuegoGuardado aux[3];
     for (int i = 0; i < 3; ++i)
         convertirAJuegoGuardado(&partidas[i], &aux[i]);
-    fwrite(aux, sizeof(JuegoGuardado), 3, f);
-    fclose(f);
+    fwrite(aux, sizeof(JuegoGuardado), 3, file);
+    fclose(file);
 }
 
-void cargarPartidas(Juego partidas[3], const char *filename) {
-    FILE *f = fopen(filename, "rb");
-    if (!f) return;
+int cargarPartidas(Juego partidas[3], const char *filename) {
+    FILE *file = fopen(filename, "rb");
+    if (!file) return 1;
     JuegoGuardado aux[3];
-    fread(aux, sizeof(JuegoGuardado), 3, f);
+    fread(aux, sizeof(JuegoGuardado), 3, file);
     for (int i = 0; i < 3; ++i)
         convertirAJuego(&aux[i], &partidas[i]);
-    fclose(f);
+    fclose(file);
+    return 0;
 }
