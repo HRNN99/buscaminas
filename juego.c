@@ -527,7 +527,7 @@ FILE *abrirArchivo(const char *nombre, const char *modo, Juego* juego){
     if (!archivo)
     {
         char* textoClick[50];
-        sprintf(textoClick, "Error al abrir el archivo %s.\n", nombre);
+        sprintf(textoClick, "Error al abrir el archivo %s.", nombre);
         Log log;
         setLog(&log, -1, -1, textoClick);
         escribirArchivoLog(juego->log, &log);
@@ -574,7 +574,7 @@ void clickDoble(Juego *juego , Sonido *sonidos , int gX , int gY){
 void handlerClickIzquierdo(Juego *juego , Sonido *sonidos , int x , int y){
 
     char* textoClick[50];
-    sprintf(textoClick, "Hiciste click en casilla\n", x, y);
+    sprintf(textoClick, "Hiciste click en casilla", x, y);
     Log log;
     setLog(&log, x, y, textoClick);
     escribirArchivoLog(juego->log, &log);
@@ -590,10 +590,8 @@ void handlerClickIzquierdo(Juego *juego , Sonido *sonidos , int x , int y){
 
 void handlerClickDerecho(Juego *juego , Sonido *sonidos , int x , int y){
 
-    char* textoClick[50];
-    sprintf(textoClick, "Hiciste click derecho en la casilla, colocando bandera\n", x, y);
     Log log;
-    setLog(&log, x, y, textoClick);
+    setLog(&log, x, y, "Hiciste click derecho en la casilla.");
     escribirArchivoLog(juego->log, &log);
 
     if(!juego->finPartida)

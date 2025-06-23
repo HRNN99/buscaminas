@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
     Dificultad dificultades[dificultad_count];
 
     cargar_dificultades("buscaminas.conf", dificultades, dificultad_count);
-    
+
     //////////////////////////////////////////////////////////////////////
 
     Juego juego;
@@ -496,7 +496,7 @@ int manejar_eventos_dificultad(Graficos *graficos, SDL_Event *e, EstadoJuego *es
         case SDLK_RETURN:
             switch (*seleccion)
             {
-
+            Log log;
             case 0:
                 // juego->dificultad.nombre = difs[0].nombre;
                 juego->dificultad.dimension = difs[0].dimension;
@@ -509,8 +509,7 @@ int manejar_eventos_dificultad(Graficos *graficos, SDL_Event *e, EstadoJuego *es
                 graficos->tamYVentana = TAM_PIXEL * (difs[0].dimension * PIXELES_X_LADO + 4 + 3 * 8 + 28);
                 SDL_SetWindowSize(ventana, graficos->tamXVentana, graficos->tamYVentana);
                 // Logeo de seleccion
-                Log log;
-                setLog(&log, -1, -1, "Dificultad cargada: Facil.\n");
+                setLog(&log, -1, -1, "Dificultad cargada: Facil.");
                 escribirArchivoLog(juego->log, &log);
                 break;
 
@@ -526,8 +525,7 @@ int manejar_eventos_dificultad(Graficos *graficos, SDL_Event *e, EstadoJuego *es
                 graficos->tamYVentana = TAM_PIXEL * (difs[1].dimension * PIXELES_X_LADO + 4 + 3 * 8 + 28);
                 SDL_SetWindowSize(ventana, graficos->tamXVentana, graficos->tamYVentana);
                 // Logeo de seleccion
-                Log log;
-                setLog(&log, -1, -1, "Dificultad cargada: Intermedio.\n");
+                setLog(&log, -1, -1, "Dificultad cargada: Intermedio.");
                 escribirArchivoLog(juego->log, &log);
                 break;
 
@@ -543,8 +541,7 @@ int manejar_eventos_dificultad(Graficos *graficos, SDL_Event *e, EstadoJuego *es
                 graficos->tamYVentana = TAM_PIXEL * (difs[2].dimension * PIXELES_X_LADO + 4 + 3 * 8 + 28);
                 SDL_SetWindowSize(ventana, graficos->tamXVentana, graficos->tamYVentana);
                 // Logeo de seleccion
-                Log log;
-                setLog(&log, -1, -1, "Dificultad cargada: Dificil.\n");
+                setLog(&log, -1, -1, "Dificultad cargada: Dificil.");
                 escribirArchivoLog(juego->log, &log);
                 break;
             }
@@ -571,74 +568,64 @@ int manejar_eventos_juego(Graficos *graficos, SDL_Event *e, EstadoJuego *estado_
     // guardado del boton anterior antes de nuevo evento
     int boton = e->button.button;
     int tecla = e->key.keysym.sym;
-    switch (e->type)
+
+    if (e->type == SDL_MOUSEBUTTONDOWN)
     {
-    case SDL_MOUSEBUTTONDOWN:
         juego->senialRender = 1;
-        if (e->type == SDL_MOUSEBUTTONDOWN)
+
+        int boton = e->button.button; // guardado del boton anterior antes de nuevo evento
+        EventoClick handlerClick;
+
+        if ((rbutton->x * TAM_PIXEL <= e->button.x && e->button.x <= (rbutton->x + 28) * TAM_PIXEL) &&
+            (rbutton->y * TAM_PIXEL <= e->button.y && e->button.y <= (rbutton->y + 28) * TAM_PIXEL) && (boton == SDL_BUTTON_LEFT))
         {
-            juego->senialRender = 1;
+            Mix_PlayChannel(-1, sonidos->sonidoCat, 0);
+            juego->iniciado = false;
+        }
+        else
+        {
+            // Control que no se toque fuera del mapa
+            if (e->button.x > (graficos->tamXVentana - graficos->pad - 6 * graficos->G) || e->button.x <= (graficos->pad + 6 * graficos->G) ||
+                e->button.y > (graficos->tamYVentana - graficos->pad - 6 * graficos->G) ||
+                e->button.y <= (graficos->pad * 4 + graficos->altoC + 16 * graficos->G))
+                return;
 
-            int boton = e->button.button; // guardado del boton anterior antes de nuevo evento
-            EventoClick handlerClick;
+            int xG = ((e->button.x - (graficos->piCord->x * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
+            int yG = ((e->button.y - (graficos->piCord->y * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
+            int casillasLibresDeMinas = (juego->dificultad.dimension * juego->dificultad.dimension) - juego->dificultad.cantidad_minas;
 
-            if ((rbutton->x * TAM_PIXEL <= e->button.x && e->button.x <= (rbutton->x + 28) * TAM_PIXEL) &&
-                (rbutton->y * TAM_PIXEL <= e->button.y && e->button.y <= (rbutton->y + 28) * TAM_PIXEL) && (boton == SDL_BUTTON_LEFT))
+            if (mapa[yG][xG].presionada && mapa[yG][xG].estado > 0)
             {
-                Mix_PlayChannel(-1, sonidos->sonidoCat, 0);
-                juego->iniciado = false;
+                handlerClick = clickDoble;
+                handlerClick(juego, sonidos, xG, yG);
             }
+
             else
             {
-                // Control que no se toque fuera del mapa
-                if (e->button.x > (graficos->tamXVentana - graficos->pad - 6 * graficos->G) || e->button.x <= (graficos->pad + 6 * graficos->G) ||
-                    e->button.y > (graficos->tamYVentana - graficos->pad - 6 * graficos->G) ||
-                    e->button.y <= (graficos->pad * 4 + graficos->altoC + 16 * graficos->G))
-                    return;
 
-                int xG = ((e->button.x - (graficos->piCord->x * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
-                int yG = ((e->button.y - (graficos->piCord->y * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
-                int casillasLibresDeMinas = (juego->dificultad.dimension * juego->dificultad.dimension) - juego->dificultad.cantidad_minas;
+                handlerClick = (boton == SDL_BUTTON_LEFT) ? handlerClickIzquierdo : handlerClickDerecho;
+                handlerClick(juego, sonidos, xG, yG);
 
-                if (mapa[yG][xG].presionada && mapa[yG][xG].estado > 0)
+                if (juego->cantCasillasPresionadas == casillasLibresDeMinas)
                 {
-                    handlerClick = clickDoble;
-                    handlerClick(juego, sonidos, xG, yG);
+                    puts("¡Ganaste el juego!");
+                    char *textoGanado[36];
+                    sprintf(textoGanado, "Ganaste el juego! puntuacion: %d", juego->puntaje);
+                    Log log;
+                    setLog(&log, -1, -1, textoGanado);
+                    escribirArchivoLog(juego->log, &log);
+                    SDL_StartTextInput();
+                    juego->nombreJugador[0] = '\0';
+                    juego->finPartida = true;
+                    juego->cantCasillasPresionadas++; // Para que no vuelva a entrar en la ventana de ganado
+                    *estado_actual = ESTADO_GANADO;
                 }
-
-                else
-                {
-
-                    handlerClick = (boton == SDL_BUTTON_LEFT) ? handlerClickIzquierdo : handlerClickDerecho;
-                    handlerClick(juego, sonidos, xG, yG);
-
-                    if (juego->cantCasillasPresionadas == casillasLibresDeMinas)
-                    {
-                        puts("¡Ganaste el juego!");
-                        char *textoGanado[36];
-                        sprintf(textoGanado, "Ganaste el juego! puntuacion: %d", juego->puntaje);
-                        Log log;
-                        setLog(&log, -1, -1, textoGanado);
-                        escribirArchivoLog(juego->log, &log);
-                        SDL_StartTextInput();
-                        juego->nombreJugador[0] = '\0';
-                        juego->finPartida = true;
-                        juego->cantCasillasPresionadas++; // Para que no vuelva a entrar en la ventana de ganado
-                        *estado_actual = ESTADO_GANADO;
-                    }
-                }
-                break;
             }
-        case SDL_KEYDOWN:
-            if (tecla == SDLK_p)
-            {
-
-                *estado_actual = ESTADO_PAUSA;
-            }
-            break;
-        default:
-            break;
         }
+    }
+    else if (e->type == SDL_KEYDOWN && tecla == SDLK_p)
+    {
+        *estado_actual = ESTADO_PAUSA;
     }
     return 0;
 }
@@ -837,16 +824,15 @@ int cargar_dificultades(const char *archivo, Dificultad *difs, int num_dif)
 
 int escribirArchivoLog(FILE *archivoLog, Log *log)
 {
-
     if (log->coordXY[0] == -1 && log->coordXY[1] == -1)
     {
-        fprintf(archivoLog, "[%d-%d-%d %02d:%02d:%02d] %-15s\n",
+        fprintf(archivoLog, "[%d-%d-%d %02d:%02d:%02d] %-.*s\n",
                 log->fechaHora.tm_year + 1900, log->fechaHora.tm_mon + 1, log->fechaHora.tm_mday,
                 log->fechaHora.tm_hour, log->fechaHora.tm_min, log->fechaHora.tm_sec, log->tipoEvento);
     }
     else
     {
-        fprintf(archivoLog, "[%d-%d-%d %02d:%02d:%02d] %-15s | coordenadas: (%d , %d)\n",
+        fprintf(archivoLog, "[%d-%d-%d %02d:%02d:%02d] %-.*s | coordenadas: (%d , %d)\n",
                 log->fechaHora.tm_year + 1900, log->fechaHora.tm_mon + 1, log->fechaHora.tm_mday,
                 log->fechaHora.tm_hour, log->fechaHora.tm_min, log->fechaHora.tm_sec, log->tipoEvento,
                 log->coordXY[0], log->coordXY[1]);
