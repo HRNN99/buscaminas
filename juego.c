@@ -522,14 +522,16 @@ void setLog(Log *log, int coordX, int coordY, char tipoEvento[80]){
 }
 
 // Función para abrir un archivo y manejar errores
-FILE *abrirArchivo(const char *nombre, const char *modo){
+FILE *abrirArchivo(const char *nombre, const char *modo, Juego* juego){
 
     FILE *archivo = fopen(nombre, modo);
     if (!archivo)
     {
-        // setLog(&log, -1, -1, "Error al abrir el archivo.");
-        // escribirArchivoLog(archivoLog, &log);
-        puts("Error al abrir el archivo.");
+        char* textoClick[50];
+        sprintf(textoClick, "Error al abrir el archivo %s.", nombre);
+        Log log;
+        setLog(&log, -1, -1, textoClick);
+        escribirArchivoLog(juego->log, &log);
         return NULL;
     }
     return archivo;
@@ -572,7 +574,12 @@ void clickDoble(Juego *juego , Sonido *sonidos , int gX , int gY){
 // clickHandlers
 void handlerClickIzquierdo(Juego *juego , Sonido *sonidos , int x , int y){
 
-    printf("Hiciste click en la casilla (%i , %i)\n", x, y);
+    char* textoClick[50];
+    sprintf(textoClick, "Hiciste click en casilla", x, y);
+    Log log;
+    setLog(&log, x, y, textoClick);
+    escribirArchivoLog(juego->log, &log);
+    
     if(!juego->finPartida)
         casillaEstado(juego , sonidos , x , y , false);
     if(juego->mapa[y][x].estado == -1)
@@ -584,7 +591,10 @@ void handlerClickIzquierdo(Juego *juego , Sonido *sonidos , int x , int y){
 
 void handlerClickDerecho(Juego *juego , Sonido *sonidos , int x , int y){
 
-    printf("Hiciste click derecho en la casilla (%i , %i), colocando bandera\n", x, y);
+    Log log;
+    setLog(&log, x, y, "Hiciste click derecho en la casilla.");
+    escribirArchivoLog(juego->log, &log);
+
     if(!juego->finPartida)
         casillaBandera(juego , x , y);
     if(juego->mapa[y][x].presionada == 0)
