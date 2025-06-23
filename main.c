@@ -27,6 +27,7 @@
 #include "sonido.h" //Header de sonido
 
 bool linea_ignorable(const char *linea);
+void crear_dificultades_default(const char* archivo);
 int cargar_dificultades(const char *archivo, Dificultad *difs, int num_dif);
 int escribirArchivoLog(FILE *archivoLog, Log *log);
 int leerPuntajes(Juego *juego);
@@ -754,8 +755,9 @@ int cargar_dificultades(const char *archivo, Dificultad *difs, int num_dif)
 
     if (!config)
     {
-        puts("Error al abrir archivo de configuracion. Cerrando juego...");
-        return ERROR_ARCHIVO;
+        crear_dificultades_default(archivo);
+        cargar_dificultades(archivo ,  difs , num_dif);
+        return 0;
     }
 
     char linea[150];
@@ -815,7 +817,7 @@ int cargar_dificultades(const char *archivo, Dificultad *difs, int num_dif)
                 return ERROR_CONFIGURACION;
             }
 
-            printf("%i\n", difs[i].cantidad_minas);
+            printf("%i\n\n", difs[i].cantidad_minas);
 
             i++;
         }
@@ -887,4 +889,30 @@ int leerPuntajes(Juego *juego)
     juego->totalPuntajes = total;
     fclose(aPuntuacion);
     return 0;
+}
+
+void crear_dificultades_default(const char* archivo){
+
+    FILE* config = fopen(archivo, "w");
+
+    if (!config){
+        puts("Error al crear archivo de configuracion. Cerrando juego...");
+        return ERROR_ARCHIVO;
+    }
+
+    fprintf(config , "#Configuracion de dificultad\n\n");
+
+    fprintf(config , "DIFICULTAD = %s\n" ,       "Facil");
+    fprintf(config , "DIMENSION_MAPA = %i\n" ,   8 );
+    fprintf(config , "CANTIDAD_MINAS = %i\n\n" , 10);
+
+    fprintf(config , "DIFICULTAD = %s\n" ,       "Intermedio");
+    fprintf(config , "DIMENSION_MAPA = %i\n" ,   16);
+    fprintf(config , "CANTIDAD_MINAS = %i\n\n" , 40);
+
+    fprintf(config , "DIFICULTAD = %s\n" ,       "Dificil");
+    fprintf(config , "DIMENSION_MAPA = %i\n" ,   32);
+    fprintf(config , "CANTIDAD_MINAS = %i\n\n" , 99);
+
+    fclose(config);
 }
