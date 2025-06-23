@@ -515,9 +515,11 @@ int manejar_eventos_dificultad(Graficos *graficos, SDL_Event *e, EstadoJuego *es
                 *estado_actual = ESTADO_JUGANDO;
                 graficos->tamXVentana = TAM_PIXEL * (difs[0].dimension * PIXELES_X_LADO + 20);
                 graficos->tamYVentana = TAM_PIXEL * (difs[0].dimension * PIXELES_X_LADO + 4 + 3 * 8 + 28);
+                graficos->anchoM = juego->dificultad.dimension * PIXELES_X_LADO + 4;
                 SDL_SetWindowSize(ventana, graficos->tamXVentana, graficos->tamYVentana);
                 // Logeo de seleccion
                 setLog(&log, -1, -1, "Dificultad cargada: Facil.");
+                mapaReiniciar(juego);
                 escribirArchivoLog(juego->log, &log);
                 break;
 
@@ -531,9 +533,11 @@ int manejar_eventos_dificultad(Graficos *graficos, SDL_Event *e, EstadoJuego *es
                 *estado_actual = ESTADO_JUGANDO;
                 graficos->tamXVentana = TAM_PIXEL * (difs[1].dimension * PIXELES_X_LADO + 20);
                 graficos->tamYVentana = TAM_PIXEL * (difs[1].dimension * PIXELES_X_LADO + 4 + 3 * 8 + 28);
+                graficos->anchoM = juego->dificultad.dimension * PIXELES_X_LADO + 4;
                 SDL_SetWindowSize(ventana, graficos->tamXVentana, graficos->tamYVentana);
                 // Logeo de seleccion
                 setLog(&log, -1, -1, "Dificultad cargada: Intermedio.");
+                mapaReiniciar(juego);
                 escribirArchivoLog(juego->log, &log);
                 break;
 
@@ -547,9 +551,11 @@ int manejar_eventos_dificultad(Graficos *graficos, SDL_Event *e, EstadoJuego *es
                 *estado_actual = ESTADO_JUGANDO;
                 graficos->tamXVentana = TAM_PIXEL * (difs[2].dimension * PIXELES_X_LADO + 20);
                 graficos->tamYVentana = TAM_PIXEL * (difs[2].dimension * PIXELES_X_LADO + 4 + 3 * 8 + 28);
+                graficos->anchoM = juego->dificultad.dimension * PIXELES_X_LADO + 4;
                 SDL_SetWindowSize(ventana, graficos->tamXVentana, graficos->tamYVentana);
                 // Logeo de seleccion
                 setLog(&log, -1, -1, "Dificultad cargada: Dificil.");
+                mapaReiniciar(juego);
                 escribirArchivoLog(juego->log, &log);
                 break;
             }
