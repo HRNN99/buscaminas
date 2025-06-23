@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
     Dificultad dificultades[dificultad_count];
 
     cargar_dificultades("buscaminas.conf", dificultades, dificultad_count);
-
+    
     //////////////////////////////////////////////////////////////////////
 
     Juego juego;
@@ -508,6 +508,10 @@ int manejar_eventos_dificultad(Graficos *graficos, SDL_Event *e, EstadoJuego *es
                 graficos->tamXVentana = TAM_PIXEL * (difs[0].dimension * PIXELES_X_LADO + 20);
                 graficos->tamYVentana = TAM_PIXEL * (difs[0].dimension * PIXELES_X_LADO + 4 + 3 * 8 + 28);
                 SDL_SetWindowSize(ventana, graficos->tamXVentana, graficos->tamYVentana);
+                // Logeo de seleccion
+                Log log;
+                setLog(&log, -1, -1, "Dificultad cargada: Facil.\n");
+                escribirArchivoLog(juego->log, &log);
                 break;
 
             case 1:
@@ -521,6 +525,10 @@ int manejar_eventos_dificultad(Graficos *graficos, SDL_Event *e, EstadoJuego *es
                 graficos->tamXVentana = TAM_PIXEL * (difs[1].dimension * PIXELES_X_LADO + 20);
                 graficos->tamYVentana = TAM_PIXEL * (difs[1].dimension * PIXELES_X_LADO + 4 + 3 * 8 + 28);
                 SDL_SetWindowSize(ventana, graficos->tamXVentana, graficos->tamYVentana);
+                // Logeo de seleccion
+                Log log;
+                setLog(&log, -1, -1, "Dificultad cargada: Intermedio.\n");
+                escribirArchivoLog(juego->log, &log);
                 break;
 
             case 2:
@@ -534,6 +542,10 @@ int manejar_eventos_dificultad(Graficos *graficos, SDL_Event *e, EstadoJuego *es
                 graficos->tamXVentana = TAM_PIXEL * (difs[2].dimension * PIXELES_X_LADO + 20);
                 graficos->tamYVentana = TAM_PIXEL * (difs[2].dimension * PIXELES_X_LADO + 4 + 3 * 8 + 28);
                 SDL_SetWindowSize(ventana, graficos->tamXVentana, graficos->tamYVentana);
+                // Logeo de seleccion
+                Log log;
+                setLog(&log, -1, -1, "Dificultad cargada: Dificil.\n");
+                escribirArchivoLog(juego->log, &log);
                 break;
             }
             break;
