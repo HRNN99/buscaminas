@@ -579,7 +579,7 @@ void handlerClickIzquierdo(Juego *juego , Sonido *sonidos , int x , int y){
     Log log;
     setLog(&log, x, y, textoClick);
     escribirArchivoLog(juego->log, &log);
-    
+
     if(!juego->finPartida)
         casillaEstado(juego , sonidos , x , y , false);
     if(juego->mapa[y][x].estado == -1)
@@ -653,26 +653,24 @@ bool archivoExiste(const char *filename) {
     return false;
 }
 
-void inicializarPartidas(Juego partidas[3]) {
-    for (int i = 0; i < 3; ++i) {
-        partidas[i].iniciado = false;
-        partidas[i].finPartida = false;
-        partidas[i].cantCasillasPresionadas = 0;
-        partidas[i].puntaje = 0;
-        partidas[i].dificultad.dimension = 10;
-        strcpy(partidas[i].nombreJugador, "Sin nombre");
-        partidas[i].totalPuntajes = 0;
-        partidas[i].start_time = time(NULL);
+void inicializarPartida(Juego* partida) {
+    partida->iniciado = false;
+    partida->finPartida = false;
+    partida->cantCasillasPresionadas = 0;
+    partida->puntaje = 0;
+    partida->dificultad.dimension = 10;
+    strcpy(partida->nombreJugador, "Sin nombre");
+    partida->totalPuntajes = 0;
+    partida->start_time = time(NULL);
 
-        int dim = partidas[i].dificultad.dimension;
-        partidas[i].mapa = malloc(dim * sizeof(Casilla *));
-        for (int j = 0; j < dim; ++j) {
-            partidas[i].mapa[j] = malloc(dim * sizeof(Casilla));
-            for (int k = 0; k < dim; ++k) {
-                partidas[i].mapa[j][k].estado = 0;
-                partidas[i].mapa[j][k].presionada = false;
-                partidas[i].mapa[j][k].estadoBandera = 0;
-            }
+    int dim = partida->dificultad.dimension;
+    partida->mapa = malloc(dim * sizeof(Casilla *));
+    for (int j = 0; j < dim; ++j) {
+        partida->mapa[j] = malloc(dim * sizeof(Casilla));
+        for (int k = 0; k < dim; ++k) {
+            partida->mapa[j][k].estado = 0;
+            partida->mapa[j][k].presionada = false;
+            partida->mapa[j][k].estadoBandera = 0;
         }
     }
 }
@@ -684,7 +682,9 @@ void guardarEnSlot(Juego *juego, int slot) {
 
     Juego juegoAux[3];
     if(!cargarPartidas(juegoAux, ARCHIVO_PARTIDAS)){ // cargar todos los slots actuales
-        inicializarPartidas(juegoAux);
+        inicializarPartida(&juegoAux[0]);
+        inicializarPartida(&juegoAux[1]);
+        inicializarPartida(&juegoAux[2]);
     }
 
     // Copiar campos base

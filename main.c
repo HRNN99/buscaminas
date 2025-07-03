@@ -588,6 +588,11 @@ int manejar_eventos_juego(Graficos *graficos, SDL_Event *e, EstadoJuego *estado_
     int boton = e->button.button;
     int tecla = e->key.keysym.sym;
 
+        // Para facilidad en correccion y lectura inicializo la var de los botones
+    int botonAtras = graficos->tamXVentana-graficos->pad*10 + 5;
+    int botonAdelante = graficos->tamXVentana-graficos->pad*6;
+    int yBotones = graficos->piCord->y+graficos->altoC-graficos->G*2;
+
     if (e->type == SDL_MOUSEBUTTONDOWN)
     {
         juego->senialRender = 1;
@@ -603,6 +608,14 @@ int manejar_eventos_juego(Graficos *graficos, SDL_Event *e, EstadoJuego *estado_
             Log log;
             setLog(&log, -1, -1, "-Reinicio de juego-.");
             escribirArchivoLog(juego->log, &log);
+        } else if (e->button.x >=  botonAtras && e->button.x <= botonAtras + 20 && // BOTON ATRAS
+                    e->button.y >= yBotones && e->button.y <= yBotones + 20)
+        {
+            printf("aaa");
+        }else if (e->button.x >=  botonAdelante && e->button.x <= botonAdelante + 20 && // BOTON ADELANTE
+                    e->button.y >= yBotones && e->button.y <= yBotones + 20 )
+        {
+            printf("bbb");
         }
         else
         {

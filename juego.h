@@ -186,7 +186,7 @@ void convertirAJuego(JuegoGuardado *src, Juego *dest);
 void guardarPartidas(Juego partidas[3], const char *filename);
 int cargarPartidas(Juego partidas[3], const char *filename);
 bool archivoExiste(const char *filename);
-void inicializarPartidas(Juego partidas[3]);
+void inicializarPartida(Juego* partidas);
 void guardarEnSlot(Juego *juego, int slot);
 int cargarDesdeSlot(Graficos *graficos, Juego *juego, int slot);
 
