@@ -4,35 +4,35 @@
 #include "sonido.h"
 #include "time.h"
 
-
-void dibujar_menu(Graficos* graficos, const char *menu_items[], const int menu_count, int *seleccion , SDL_Texture* fondo)
+void dibujar_menu(Graficos *graficos, const char *menu_items[], const int menu_count, int *seleccion, SDL_Texture *fondo)
 {
-    SDL_SetWindowSize(graficos->ventana, TAM_PIXEL * (16 * PIXELES_X_LADO + 20),  TAM_PIXEL * (16 * PIXELES_X_LADO + 20));
+    SDL_SetWindowSize(graficos->ventana, TAM_PIXEL * (16 * PIXELES_X_LADO + 20), TAM_PIXEL * (16 * PIXELES_X_LADO + 20));
     SDL_SetRenderDrawColor(graficos->renderer, 0, 0, 0, 255);
     SDL_RenderClear(graficos->renderer);
 
-    dibujarFondo(graficos->renderer , fondo);
+    dibujarFondo(graficos->renderer, fondo);
 
     int base_y = 50;
     int espacio = 50;
 
-    for (int i = 0; i < menu_count; i++){
+    for (int i = 0; i < menu_count; i++)
+    {
 
         int text_width, text_height;
         TTF_SizeText(graficos->font, menu_items[i], &text_width, &text_height);
 
         SDL_Rect fondo;
-        fondo.x = (TAM_PIXEL * (16 * PIXELES_X_LADO + 20),  TAM_PIXEL * (16 * PIXELES_X_LADO + 20) - text_width) / 2;
+        fondo.x = (TAM_PIXEL * (16 * PIXELES_X_LADO + 20), TAM_PIXEL * (16 * PIXELES_X_LADO + 20) - text_width) / 2;
         fondo.y = base_y + i * espacio;
         fondo.w = text_width;
         fondo.h = text_height;
 
-        //Establecemos un color para las letras del menu
+        // Establecemos un color para las letras del menu
         SDL_Color colorTexto = colores[NN];
 
-        SDL_Color colorFondo = {0,0,0,0}; //Color fondo default, transparente
-        if(i == *seleccion)
-            colorFondo = colores[RS]; //Color fondo seleccionado
+        SDL_Color colorFondo = {0, 0, 0, 0}; // Color fondo default, transparente
+        if (i == *seleccion)
+            colorFondo = colores[RS]; // Color fondo seleccionado
 
         // Se crea una superficie de texto con el texto contenido en el menu[i]
         SDL_Surface *surface = TTF_RenderText_Solid(graficos->font, menu_items[i], colorTexto);
@@ -56,7 +56,8 @@ void dibujar_menu(Graficos* graficos, const char *menu_items[], const int menu_c
 }
 
 // Funcion destinada a crear una matriz con memoria dinamica
-Casilla **matrizCrear(size_t filas, size_t columnas, size_t tamElem){
+Casilla **matrizCrear(size_t filas, size_t columnas, size_t tamElem)
+{
 
     Casilla **mat = malloc(filas * sizeof(Casilla *));
     if (!mat)
@@ -85,7 +86,8 @@ Casilla **matrizCrear(size_t filas, size_t columnas, size_t tamElem){
 }
 
 // Funcion para liberar la memoria de la matriz creada
-void matrizDestruir(Casilla **mat, size_t filas){
+void matrizDestruir(Casilla **mat, size_t filas)
+{
 
     Casilla **ult = mat + filas - 1;
 
@@ -98,11 +100,14 @@ void matrizDestruir(Casilla **mat, size_t filas){
 }
 
 // Funcion que inicializa el mapa de juego en valores por defecto
-void mapaVacio(Casilla **mapa , int dimension){
+void mapaVacio(Casilla **mapa, int dimension)
+{
 
-    for (int y = 0; y < dimension; y++){
+    for (int y = 0; y < dimension; y++)
+    {
 
-        for (int x = 0; x < dimension; x++){
+        for (int x = 0; x < dimension; x++)
+        {
 
             mapa[y][x].estado = 0;
             mapa[y][x].estadoBandera = 0;
@@ -112,7 +117,8 @@ void mapaVacio(Casilla **mapa , int dimension){
 }
 
 // Funcion que llena el mapa de juego con minas y aleda�os
-void mapaLlenar(Casilla **mapa , int dimension , Coord *minasCoord , int minas){
+void mapaLlenar(Casilla **mapa, int dimension, Coord *minasCoord, int minas)
+{
 
     int x, y, m = 0;
     srand(time(NULL));
@@ -152,7 +158,8 @@ void mapaLlenar(Casilla **mapa , int dimension , Coord *minasCoord , int minas){
     }
 }
 
-void mapaImprimir(Casilla **mapa, int filas, int columnas){
+void mapaImprimir(Casilla **mapa, int filas, int columnas)
+{
 
     // TEST ONLY //Impresion de matriz
     for (size_t i = 0; i < filas; i++)
@@ -170,7 +177,8 @@ void mapaImprimir(Casilla **mapa, int filas, int columnas){
 ////////////////////////////////////////////////////////////////////////////////////////
 
 // Establecer el renderizado con un color base (negro)
-void fondoColor(SDL_Renderer *renderer){
+void fondoColor(SDL_Renderer *renderer)
+{
 
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // color
     SDL_RenderClear(renderer);                      // limpieza
@@ -185,15 +193,14 @@ void interfaz(Graficos *graficos, Juego *juego, Coord *rbutton)
     rbutton->y = 0;
 
     int anchoI = graficos->anchoM + 16;
-    int altoI = graficos->pad*3 + graficos->altoC + graficos->anchoM;
-
+    int altoI = graficos->pad * 3 + graficos->altoC + graficos->anchoM;
 
     rectanguloLleno(graficos->renderer, GS, graficos->piCord->x, graficos->piCord->y, anchoI, altoI);
     marco(graficos->renderer, graficos->piCord->x, graficos->piCord->y, anchoI, altoI, graficos->G); // Exterior
 
     graficos->piCord->x += graficos->pad;
     graficos->piCord->y += graficos->pad;
-    marco(graficos->renderer,graficos->piCord->x, graficos->piCord->y, graficos->anchoM, graficos->altoC, graficos->G); // Puntaje
+    marco(graficos->renderer, graficos->piCord->x, graficos->piCord->y, graficos->anchoM, graficos->altoC, graficos->G); // Puntaje
 
     dibujar(graficos->renderer, PIXELES_X_LADO * 2, restart_button, 0, 0, (graficos->anchoM / 2) - 7, graficos->piCord->y);
     rbutton->x = ((graficos->anchoM / 2) - 7);
@@ -213,7 +220,6 @@ void interfaz(Graficos *graficos, Juego *juego, Coord *rbutton)
 
     itoa(juego->cantMinasEnMapa, bombasEnMapaTexto, 10); // Armado de String a imprimir
     renderizarTexto(graficos->font, fontSize, bombasEnMapaTexto, GF, GS, graficos->renderer, (graficos->pad * 3) + graficos->anchoM + 22, graficos->pad + (graficos->altoC / 2) + fontSize + 4);
-
 }
 
 void tiempoYbombas(Graficos *graficos, Juego *juego)
@@ -224,8 +230,8 @@ void tiempoYbombas(Graficos *graficos, Juego *juego)
     itoa(juego->puntaje, puntaje, 10); // Armado de String a imprimir
     // Creo un rectangulo por detras de las letras para evitar limpiar el render
     SDL_Rect rectFondo = {graficos->pad * 3, graficos->pad + (graficos->altoC / 2) + graficos->fontSize + 4, 70, 16};
-    SDL_SetRenderDrawColor(graficos->renderer , colores[GS].r , colores[GS].g , colores[GS].b , colores[GS].a);
-    SDL_RenderFillRect(graficos->renderer , &rectFondo);
+    SDL_SetRenderDrawColor(graficos->renderer, colores[GS].r, colores[GS].g, colores[GS].b, colores[GS].a);
+    SDL_RenderFillRect(graficos->renderer, &rectFondo);
     renderizarTexto(graficos->font, graficos->fontSize, puntaje, GF, GS, graficos->renderer, graficos->pad * 3, graficos->pad + (graficos->altoC / 2) + graficos->fontSize + 4);
 
     // Aumento de puntaje por segundo
@@ -260,23 +266,24 @@ void interfazGanado(Graficos *graficos, Juego *juego)
 
     renderizarTexto(graficos->font, 16, "Ingrese su nombre:", BB, GS, graficos->renderer, margenX, posYtexto += 35);
     rectanguloLlenoAbsoluto(graficos->renderer, BB, margenX, posYtexto += 40, 5, 2); // Linea antes del nombre
-    char limitador[17] = {0}; // Limito los caracteres por temas visuales
+    char limitador[17] = {0};                                                        // Limito los caracteres por temas visuales
     snprintf(limitador, 12, "%-s", juego->nombreJugador);
 
     renderizarTexto(graficos->font, 20, juego->nombreJugador, BB, GS, graficos->renderer, margenX + 15, posYtexto - 12); // Fix Y por como toma esa coordenada
 
     // Renderizar mejores posiciones
-    if(juego->totalPuntajes >= 3){
-        dibujarAbsoluto(graficos->renderer, 24, construirCoronaConColores(corona, GS, AD, DS), margenX, posYtexto+=30, 1);
+    if (juego->totalPuntajes >= 3)
+    {
+        dibujarAbsoluto(graficos->renderer, 24, construirCoronaConColores(corona, GS, AD, DS), margenX, posYtexto += 30, 1);
         snprintf(limitador, sizeof(limitador), "%05d %-s", juego->puntajes[0].puntos, juego->puntajes[0].nombre);
         renderizarTexto(graficos->font, 16, limitador, BB, GS, graficos->renderer, margenX + 35, posYtexto + 5);
 
-        dibujarAbsoluto(graficos->renderer, 24, construirCoronaConColores(corona, GS, BB, GA), margenX, posYtexto+=25, 1);
+        dibujarAbsoluto(graficos->renderer, 24, construirCoronaConColores(corona, GS, BB, GA), margenX, posYtexto += 25, 1);
         snprintf(limitador, sizeof(limitador), "%05d %-s", juego->puntajes[1].puntos, juego->puntajes[1].nombre);
         renderizarTexto(graficos->font, 16, limitador, BB, GS, graficos->renderer, margenX + 35, posYtexto + 5);
 
         snprintf(limitador, sizeof(limitador), "%05d %-s", juego->puntajes[2].puntos, juego->puntajes[2].nombre);
-        dibujarAbsoluto(graficos->renderer, 24, construirCoronaConColores(corona, GS, BR, BS), margenX, posYtexto+=25, 1);
+        dibujarAbsoluto(graficos->renderer, 24, construirCoronaConColores(corona, GS, BR, BS), margenX, posYtexto += 25, 1);
         renderizarTexto(graficos->font, 16, limitador, BB, GS, graficos->renderer, margenX + 35, posYtexto + 5);
     }
     // Mostrar todo
@@ -284,14 +291,11 @@ void interfazGanado(Graficos *graficos, Juego *juego)
     juego->finPartida = true;
 }
 
-
 void interfazPausa(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, Juego *juego, Coord *pcords, int dimensionM, Coord *rbutton, int *eleccion, bool musicaActiva, const char *menu_items[], int menu_count)
 {
 
-
     int win_width, win_height;
     SDL_GetWindowSize(ventana, &win_width, &win_height);
-
 
     pcords->x = (win_width / 2) - (TAMX_GANADO / 2);
     pcords->y = (win_height / 2) - (TAMY_GANADO / 2);
@@ -320,7 +324,8 @@ void interfazPausa(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, 
     int espacio = 45;
     posYtexto += 35;
 
-    for (int i = 0; i < menu_count; i++) {
+    for (int i = 0; i < menu_count; i++)
+    {
         SDL_Color colorTexto = {255, 255, 255, 255};
         SDL_Color colorFondo = (i == *eleccion) ? (SDL_Color){255, 100, 255, 255} : (SDL_Color){100, 100, 100, 255};
 
@@ -338,8 +343,7 @@ void interfazPausa(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, 
             fondo.x + (fondo.w - text_width) / 2,
             fondo.y + (fondo.h - text_height) / 2,
             text_width,
-            text_height
-        };
+            text_height};
         SDL_RenderCopy(renderer, texture, NULL, &textRect);
 
         SDL_FreeSurface(surface);
@@ -347,11 +351,10 @@ void interfazPausa(SDL_Renderer *renderer, SDL_Window *ventana, TTF_Font *font, 
 
         posYtexto += espacio;
     }
-
-
 }
 
-void mapaReiniciar(Juego *juego){
+void mapaReiniciar(Juego *juego)
+{
 
     juego->iniciado = true;
     Casilla **mapa = juego->mapa;
@@ -362,30 +365,33 @@ void mapaReiniciar(Juego *juego){
     juego->start_time = time(NULL); // Iniciar el contador cuando inicia el juego
     juego->nombreJugador[0] = '\0';
     juego->cantMinasEnMapa = juego->dificultad.cantidad_minas;
-    mapaVacio(mapa , juego->dificultad.dimension);
-    mapaLlenar(mapa , juego->dificultad.dimension , juego->minasCoord , juego->dificultad.cantidad_minas);
+    mapaVacio(mapa, juego->dificultad.dimension);
+    mapaLlenar(mapa, juego->dificultad.dimension, juego->minasCoord, juego->dificultad.cantidad_minas);
 }
 
 // Funcion que coloca todas las casillas sin valor
-void casillaColocacion(SDL_Renderer *renderer , Casilla **mapa , int dimension , Coord *picord){
-
+void casillaColocacion(SDL_Renderer *renderer, Casilla **mapa, int dimension, Coord *picord)
+{
 
     int gX = 0; // Variable para coordenada X
     int gY = 0; // Variable para ccoordenada Y
 
     int x, y = 0;
 
-    while (y < dimension){
+    while (y < dimension)
+    {
 
         x = 0;
-        while (x < dimension){
+        while (x < dimension)
+        {
 
-            //mapa[y][x].estadoBandera = 0; // Uso el ciclo para inicializar todo en 0
+            // mapa[y][x].estadoBandera = 0; // Uso el ciclo para inicializar todo en 0
             gX = x % dimension;
             gY = y % dimension;
 
             // Si la casilla no esta presionada dibujo el estado por defecto
-            if (!mapa[y][x].presionada){
+            if (!mapa[y][x].presionada)
+            {
 
                 if (mapa[y][x].estadoBandera != 0)
                 {
@@ -393,12 +399,12 @@ void casillaColocacion(SDL_Renderer *renderer , Casilla **mapa , int dimension ,
                 }
                 else
                 {
-                    dibujar(renderer, PIXELES_X_LADO, square1 , gX, gY, picord->x, picord->y);
+                    dibujar(renderer, PIXELES_X_LADO, square1, gX, gY, picord->x, picord->y);
                 }
-
             }
             // Si la casilla esta presionada dibujo su valor de estado
-            else{
+            else
+            {
 
                 dibujar(renderer, PIXELES_X_LADO, eleccion(mapa[y][x].estado), gX, gY, picord->x, picord->y);
             }
@@ -414,7 +420,8 @@ void casillaColocacion(SDL_Renderer *renderer , Casilla **mapa , int dimension ,
 }
 
 // Funcion que coloca estados en las casillas
-void casillaEstado(Juego *juego , Sonido *sonidos , int gX, int gY, bool chordClick){
+void casillaEstado(Juego *juego, Sonido *sonidos, int gX, int gY, bool chordClick)
+{
 
     if (gX < 0 || gX >= juego->dificultad.dimension || gY < 0 || gY >= juego->dificultad.dimension)
         return;
@@ -422,7 +429,8 @@ void casillaEstado(Juego *juego , Sonido *sonidos , int gX, int gY, bool chordCl
     Casilla *casillaSeleccionada = &juego->mapa[gY][gX];
     Casilla *casillaBandera = &juego->mapa[gY][gX];
 
-    if (chordClick && casillaSeleccionada->presionada && casillaSeleccionada->estado > 0){
+    if (chordClick && casillaSeleccionada->presionada && casillaSeleccionada->estado > 0)
+    {
 
         for (int i = -1; i < 2; i++)
         {
@@ -430,7 +438,7 @@ void casillaEstado(Juego *juego , Sonido *sonidos , int gX, int gY, bool chordCl
             {
                 if (i == 0 && j == 0)
                     continue; // Evita repetirse a sí mismo
-                casillaEstado(juego , sonidos , gX + i , gY + j , false);
+                casillaEstado(juego, sonidos, gX + i, gY + j, false);
             }
         }
     }
@@ -443,15 +451,16 @@ void casillaEstado(Juego *juego , Sonido *sonidos , int gX, int gY, bool chordCl
     juego->cantCasillasPresionadas++;
 
     // Juego Perdido
-    if (casillaSeleccionada->estado == -1){
+    if (casillaSeleccionada->estado == -1)
+    {
 
         Mix_PauseMusic();
 
         juego->finPartida = true;
 
-
         // Mostrar todas las bombas
-        for (int i = 0; i < juego->dificultad.cantidad_minas ; i++){
+        for (int i = 0; i < juego->dificultad.cantidad_minas; i++)
+        {
 
             int mX = juego->minasCoord[i].x;
             int mY = juego->minasCoord[i].y;
@@ -459,17 +468,18 @@ void casillaEstado(Juego *juego , Sonido *sonidos , int gX, int gY, bool chordCl
             if (gX == mX && gY == mY)
                 continue;
             juego->mapa[mY][mX].presionada = true; // Presionar todas las minas
-            juego->mapa[mY][mX].estado = -2;        // Estado de mina revelada
+            juego->mapa[mY][mX].estado = -2;       // Estado de mina revelada
         }
 
         Mix_PlayChannel(-1, sonidos->sonidoPerder, 0); // Sonido de mina
-        SDL_Delay(2000); // Espera para reproducir el sonido
-        Mix_PlayMusic(sonidos->musicaFondo, -1); // Musica de menu
+        SDL_Delay(2000);                               // Espera para reproducir el sonido
+        Mix_PlayMusic(sonidos->musicaFondo, -1);       // Musica de menu
         return;
     }
 
     // Dibuja numero y termina
-    if (casillaSeleccionada->estado > 0 || casillaSeleccionada->estado == -1){
+    if (casillaSeleccionada->estado > 0 || casillaSeleccionada->estado == -1)
+    {
 
         // dibujar(renderer, PIXELES_X_LADO, eleccion(casillaSeleccionada->estado), gX, gY, picords->x, picords->y);
         return;
@@ -483,14 +493,14 @@ void casillaEstado(Juego *juego , Sonido *sonidos , int gX, int gY, bool chordCl
 
             if (i == 0 && j == 0)
                 continue; // Evita repetirse a sí mismo
-            casillaEstado(juego , sonidos , gX + i , gY + j , false);
-
+            casillaEstado(juego, sonidos, gX + i, gY + j, false);
         }
     }
 }
 
 // Funcion para colocar bandera
-void casillaBandera(Juego *juego, int xG, int yG){
+void casillaBandera(Juego *juego, int xG, int yG)
+{
 
     if (xG < 0 || xG >= juego->dificultad.dimension || yG < 0 || yG >= juego->dificultad.dimension)
         return;
@@ -511,7 +521,8 @@ void casillaBandera(Juego *juego, int xG, int yG){
 }
 
 // funciones Log
-void setLog(Log *log, int coordX, int coordY, char tipoEvento[80]){
+void setLog(Log *log, int coordX, int coordY, char tipoEvento[80])
+{
 
     time_t ahora = time(NULL);
     struct tm *aux = localtime(&ahora);
@@ -522,12 +533,13 @@ void setLog(Log *log, int coordX, int coordY, char tipoEvento[80]){
 }
 
 // Función para abrir un archivo y manejar errores
-FILE *abrirArchivo(const char *nombre, const char *modo, Juego* juego){
+FILE *abrirArchivo(const char *nombre, const char *modo, Juego *juego)
+{
 
     FILE *archivo = fopen(nombre, modo);
     if (!archivo)
     {
-        char* textoClick[50];
+        char *textoClick[50];
         sprintf(textoClick, "Error al abrir el archivo %s.", nombre);
         Log log;
         setLog(&log, -1, -1, textoClick);
@@ -537,7 +549,8 @@ FILE *abrirArchivo(const char *nombre, const char *modo, Juego* juego){
     return archivo;
 }
 
-void clickDoble(Juego *juego , Sonido *sonidos , int gX , int gY){
+void clickDoble(Juego *juego, Sonido *sonidos, int gX, int gY)
+{
 
     Casilla **mapa = juego->mapa;
 
@@ -546,7 +559,7 @@ void clickDoble(Juego *juego , Sonido *sonidos , int gX , int gY){
     {
         for (int j = -1; j < 2; j++)
         {
-            if (gX+i < 0 || gX+i >= juego->dificultad.dimension || gY+j < 0 || gY+j >= juego->dificultad.dimension)
+            if (gX + i < 0 || gX + i >= juego->dificultad.dimension || gY + j < 0 || gY + j >= juego->dificultad.dimension)
                 continue;
             if (mapa[gY + j][gX + i].estadoBandera == 1)
             {
@@ -566,45 +579,49 @@ void clickDoble(Juego *juego , Sonido *sonidos , int gX , int gY){
     if (mapa[gY][gX].estado == cont)
     {
 
-        casillaEstado(juego , sonidos , gX , gY , true);
+        casillaEstado(juego, sonidos, gX, gY, true);
     }
     return;
 }
 
 // clickHandlers
-void handlerClickIzquierdo(Juego *juego , Sonido *sonidos , int x , int y){
+void handlerClickIzquierdo(Juego *juego, Sonido *sonidos, int x, int y)
+{
 
-    char* textoClick[50];
+    char *textoClick[50];
     sprintf(textoClick, "Hiciste click en casilla", x, y);
     Log log;
     setLog(&log, x, y, textoClick);
     escribirArchivoLog(juego->log, &log);
 
-    if(!juego->finPartida)
-        casillaEstado(juego , sonidos , x , y , false);
-    if(juego->mapa[y][x].estado == -1)
-         Mix_PlayChannel(-1, sonidos->sonidoMina, 0);
-    else if(juego->mapa[y][x].estadoBandera == 0){
+    if (!juego->finPartida)
+        casillaEstado(juego, sonidos, x, y, false);
+    guardarHistorial(juego);
+    if (juego->mapa[y][x].estado == -1)
+        Mix_PlayChannel(-1, sonidos->sonidoMina, 0);
+    else if (juego->mapa[y][x].estadoBandera == 0)
+    {
         Mix_PlayChannel(-1, sonidos->sonidoClick, 0); // Reproduce sonido de mina si se presiona una mina
     }
 }
 
-void handlerClickDerecho(Juego *juego , Sonido *sonidos , int x , int y){
+void handlerClickDerecho(Juego *juego, Sonido *sonidos, int x, int y)
+{
 
     Log log;
     setLog(&log, x, y, "Hiciste click derecho en la casilla.");
     escribirArchivoLog(juego->log, &log);
 
-    if(!juego->finPartida)
-        casillaBandera(juego , x , y);
-    if(juego->mapa[y][x].presionada == 0)
+    if (!juego->finPartida)
+        casillaBandera(juego, x, y);
+    if (juego->mapa[y][x].presionada == 0)
         Mix_PlayChannel(-1, sonidos->sonidoBandera, 0);
 }
 
+// CARGADO DE PARTIDAS
 
-//CARGADO DE PARTIDAS
-
-void convertirAJuegoGuardado(Juego *origen, JuegoGuardado *destino) {
+void convertirAJuegoGuardado(Juego *origen, JuegoGuardado *destino)
+{
     destino->iniciado = origen->iniciado;
     destino->cantCasillasPresionadas = origen->cantCasillasPresionadas;
     destino->puntaje = origen->puntaje;
@@ -622,7 +639,21 @@ void convertirAJuegoGuardado(Juego *origen, JuegoGuardado *destino) {
             destino->mapa[i * dim + j] = origen->mapa[i][j];
 }
 
-void convertirAJuego(JuegoGuardado *origen, Juego *destino) {
+void convertirAJuegoHistorial(Juego *origen, JuegoHistorial *destino)
+{
+    destino->iniciado = origen->iniciado;
+    destino->cantCasillasPresionadas = origen->cantCasillasPresionadas;
+    destino->finPartida = origen->finPartida;
+    destino->cantMinasEnMapa = origen->cantMinasEnMapa;
+
+     int dim = origen->dificultad.dimension;
+     for (int i = 0; i < dim; ++i)
+         for (int j = 0; j < dim; ++j)
+             destino->mapa[i * dim + j] = origen->mapa[i][j];
+}
+
+void convertirAJuego(JuegoGuardado *origen, Juego *destino)
+{
     destino->iniciado = origen->iniciado;
     destino->cantCasillasPresionadas = origen->cantCasillasPresionadas;
     destino->puntaje = origen->puntaje;
@@ -636,24 +667,27 @@ void convertirAJuego(JuegoGuardado *origen, Juego *destino) {
 
     int dim = origen->dificultad.dimension;
     destino->mapa = malloc(dim * sizeof(Casilla *));
-    for (int i = 0; i < dim; ++i) {
+    for (int i = 0; i < dim; ++i)
+    {
         destino->mapa[i] = malloc(dim * sizeof(Casilla));
         for (int j = 0; j < dim; ++j)
             destino->mapa[i][j] = origen->mapa[i * dim + j];
     }
 }
 
-
-bool archivoExiste(const char *filename) {
+bool archivoExiste(const char *filename)
+{
     FILE *file = fopen(filename, "rb");
-    if (file) {
+    if (file)
+    {
         fclose(file);
         return true;
     }
     return false;
 }
 
-void inicializarPartida(Juego* partida) {
+void inicializarPartida(Juego *partida)
+{
     partida->iniciado = false;
     partida->finPartida = false;
     partida->cantCasillasPresionadas = 0;
@@ -665,9 +699,11 @@ void inicializarPartida(Juego* partida) {
 
     int dim = partida->dificultad.dimension;
     partida->mapa = malloc(dim * sizeof(Casilla *));
-    for (int j = 0; j < dim; ++j) {
+    for (int j = 0; j < dim; ++j)
+    {
         partida->mapa[j] = malloc(dim * sizeof(Casilla));
-        for (int k = 0; k < dim; ++k) {
+        for (int k = 0; k < dim; ++k)
+        {
             partida->mapa[j][k].estado = 0;
             partida->mapa[j][k].presionada = false;
             partida->mapa[j][k].estadoBandera = 0;
@@ -675,13 +711,14 @@ void inicializarPartida(Juego* partida) {
     }
 }
 
-
-void guardarEnSlot(Juego *juego, int slot) {
+void guardarEnSlot(Juego *juego, int slot)
+{
     if (slot < 0 || slot >= MAX_SLOTS)
         return;
 
     Juego juegoAux[3];
-    if(!cargarPartidas(juegoAux, ARCHIVO_PARTIDAS)){ // cargar todos los slots actuales
+    if (!cargarPartidas(juegoAux, ARCHIVO_PARTIDAS))
+    { // cargar todos los slots actuales
         inicializarPartida(&juegoAux[0]);
         inicializarPartida(&juegoAux[1]);
         inicializarPartida(&juegoAux[2]);
@@ -701,24 +738,108 @@ void guardarEnSlot(Juego *juego, int slot) {
 
     int dim = juego->dificultad.dimension;
     juegoAux[slot].mapa = malloc(dim * sizeof(Casilla *));
-    for (int i = 0; i < dim; i++) {
+    for (int i = 0; i < dim; i++)
+    {
         juegoAux[slot].mapa[i] = malloc(dim * sizeof(Casilla));
-        for (int j = 0; j < dim; j++) {
+        for (int j = 0; j < dim; j++)
+        {
             juegoAux[slot].mapa[i][j] = juego->mapa[i][j];
         }
     }
     guardarPartidas(juegoAux, ARCHIVO_PARTIDAS);
 }
 
-int cargarDesdeSlot(Graficos *graficos,Juego *juego, int slot) {
+void guardarHistorial(Juego *juego)
+{
+    convertirAJuegoHistorial(juego, juego->juegoHistorial);
+    long tam = ftell(juego->historial);
+    printf("[DEBUG] Tamaño del archivo: %ld bytes\n", tam);
+    printf("[DEBUG] <ini = %d\nfin = %d\nPresionadas = %d\nMinas = %d>\n", juego->juegoHistorial->iniciado, juego->juegoHistorial->finPartida, juego->juegoHistorial->cantCasillasPresionadas, juego->juegoHistorial->cantMinasEnMapa);
+    printf("[DEBUG] Tamaño a guardar: %ld bytes\n", sizeof(JuegoHistorial));
+
+    fwrite(juego->juegoHistorial, sizeof(JuegoHistorial), 1, juego->historial);
+    tam = ftell(juego->historial);
+    //fwrite(&juego->puntaje, sizeof(int), 1, juego->historial);
+    printf("----------> pos de archivo %p\n", juego->historial);
+    fseek(juego->historial, 0, SEEK_CUR);
+}
+
+void cargarHistorial(Juego *juego)
+{
+    // int tiempoObtenido;
+
+    // printf("----------> pos de archivo %ld\n", ftell(juego->historial));
+    // fseek(juego->historial, -(sizeof(int)), SEEK_CUR);
+    //             printf("----------> pos de archivo %ld\n", ftell(juego->historial));
+
+    // if (fread(&tiempoObtenido, sizeof(int), 1, juego->historial) != 1) {
+    //             printf("<--> %d\n", tiempoObtenido);
+
+    //     if (feof(juego->historial)) {
+    //         printf("Fin de archivo alcanzado\n");
+    //     } else if (ferror(juego->historial)) {
+    //         perror("Error al leer");
+    //     }
+    //     return;
+    // }else{
+    //         fseek(juego->historial, -(sizeof(int)), SEEK_CUR);
+
+    //             printf("<-->2 %d\n", tiempoObtenido);
+
+    //     printf("wii %d\n", tiempoObtenido);
+    //     return;
+    // }
+
+    long tam = ftell(juego->historial);
+    fseek(juego->historial, -(sizeof(JuegoHistorial)), SEEK_CUR);
+
+    tam = ftell(juego->historial);
+
+    if (fread(juego->juegoHistorial, sizeof(JuegoHistorial), 1, juego->historial) != 1)
+    {
+
+        if (feof(juego->historial))
+        {
+            printf("Fin de archivo alcanzado\n");
+        }
+        else if (ferror(juego->historial))
+        {
+            perror("Error al leer");
+        }
+        return;
+    }
+
+    printf("[DEBUG] <ini = %d\nfin = %d\nPresionadas = %d\nMinas = %d>\n", juego->juegoHistorial->iniciado, juego->juegoHistorial->finPartida, juego->juegoHistorial->cantCasillasPresionadas, juego->juegoHistorial->cantMinasEnMapa);
+
+    fseek(juego->historial, -(sizeof(JuegoHistorial)), SEEK_CUR);
+
+    juego->iniciado = juego->juegoHistorial->iniciado;
+    juego->cantCasillasPresionadas = juego->juegoHistorial->cantCasillasPresionadas;
+    juego->cantMinasEnMapa = juego->juegoHistorial->cantMinasEnMapa;
+    juego->finPartida = juego->juegoHistorial->finPartida;
+
+    int dim = juego->dificultad.dimension;
+    for (int i = 0; i < dim; i++)
+    {
+        for (int j = 0; j < dim; j++)
+        {
+            juego->mapa[i][j] = juego->juegoHistorial->mapa[i * dim + j];
+        }
+    }
+}
+
+int cargarDesdeSlot(Graficos *graficos, Juego *juego, int slot)
+{
     if (slot < 0 || slot >= MAX_SLOTS)
         return 0;
 
     Juego juegoAux[3];
-    if(!cargarPartidas(juegoAux, ARCHIVO_PARTIDAS)) return 0;
+    if (!cargarPartidas(juegoAux, ARCHIVO_PARTIDAS))
+        return 0;
 
     // Liberar mapa previo si existe
-    if (juego->mapa != NULL) {
+    if (juego->mapa != NULL)
+    {
         matrizDestruir(juego->mapa, juego->dificultad.dimension);
     }
 
@@ -735,18 +856,22 @@ int cargarDesdeSlot(Graficos *graficos,Juego *juego, int slot) {
 
     int dim = juegoAux[slot].dificultad.dimension;
     juego->mapa = malloc(dim * sizeof(Casilla *));
-    for (int i = 0; i < dim; i++) {
+    for (int i = 0; i < dim; i++)
+    {
         juego->mapa[i] = malloc(dim * sizeof(Casilla));
-        for (int j = 0; j < dim; j++) {
+        for (int j = 0; j < dim; j++)
+        {
             juego->mapa[i][j] = juegoAux[slot].mapa[i][j];
         }
     }
     return 1;
 }
 
-void guardarPartidas(Juego partidas[3], const char *filename) {
+void guardarPartidas(Juego partidas[3], const char *filename)
+{
     FILE *file = fopen(filename, "wb");
-    if (!file) return;
+    if (!file)
+        return;
     JuegoGuardado aux[3];
     for (int i = 0; i < 3; ++i)
         convertirAJuegoGuardado(&partidas[i], &aux[i]);
@@ -754,9 +879,11 @@ void guardarPartidas(Juego partidas[3], const char *filename) {
     fclose(file);
 }
 
-int cargarPartidas(Juego partidas[3], const char *filename) {
+int cargarPartidas(Juego partidas[3], const char *filename)
+{
     FILE *file = fopen(filename, "rb");
-    if (!file) return 0;
+    if (!file)
+        return 0;
     JuegoGuardado aux[3];
     fread(aux, sizeof(JuegoGuardado), 3, file);
     for (int i = 0; i < 3; ++i)

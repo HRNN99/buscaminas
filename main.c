@@ -187,6 +187,9 @@ int main(int argc, char *argv[])
 
     SDL_Texture *fondo = cargarFondo(renderer, "img/fondo_menu.bmp");
 
+    juego.historial = abrirArchivo("historial.dat", "a+b", &juego);
+    juego.juegoHistorial = malloc(sizeof(JuegoHistorial));
+    
     // While para mantener el programa corriendo
     while (corriendo)
     {
@@ -612,6 +615,9 @@ int manejar_eventos_juego(Graficos *graficos, SDL_Event *e, EstadoJuego *estado_
                     e->button.y >= yBotones && e->button.y <= yBotones + 20)
         {
             printf("aaa");
+            cargarHistorial(juego);
+            printf("aaa done");
+
         }else if (e->button.x >=  botonAdelante && e->button.x <= botonAdelante + 20 && // BOTON ADELANTE
                     e->button.y >= yBotones && e->button.y <= yBotones + 20 )
         {

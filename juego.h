@@ -63,8 +63,8 @@ typedef struct
 
 typedef struct{
     int estado;
-    bool presionada;
     int estadoBandera;
+    bool presionada;
 } Casilla;
 
 typedef struct{
@@ -80,12 +80,22 @@ typedef struct{
 
 typedef struct{
     bool iniciado;
+    bool finPartida;
+    int cantCasillasPresionadas;
+    int cantMinasEnMapa;
+    Casilla mapa[100 * 100];
+} JuegoHistorial;
+
+typedef struct{
+    bool iniciado;
+    FILE *historial;
     Dificultad dificultad;
     Casilla** mapa;
     Coord* minasCoord;
     int cantCasillasPresionadas;
-    int cantMinasEnMapa;
-    int puntaje;
+    JuegoHistorial* juegoHistorial;
+    int cantMinasEnMapa; // Minas mostradas en hud
+    int puntaje; // Tiempo
     char nombreJugador[40];
     bool finPartida;
     Puntaje puntajes[MAX_PUNTAJES];
@@ -182,9 +192,12 @@ void setLog(Log *log, int coordX, int coordY, char tipoEvento[80]);
 //carga de partidas
 
 void convertirAJuegoGuardado(Juego *orig, JuegoGuardado *dest);
+void convertirAJuegoHistorial(Juego *orig, JuegoHistorial *dest);
 void convertirAJuego(JuegoGuardado *src, Juego *dest);
 void guardarPartidas(Juego partidas[3], const char *filename);
 int cargarPartidas(Juego partidas[3], const char *filename);
+void guardarHistorial(Juego* juego);
+void cargarHistorial(Juego* juego);
 bool archivoExiste(const char *filename);
 void inicializarPartida(Juego* partidas);
 void guardarEnSlot(Juego *juego, int slot);
