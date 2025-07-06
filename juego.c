@@ -365,6 +365,8 @@ void mapaReiniciar(Juego *juego)
     juego->start_time = time(NULL); // Iniciar el contador cuando inicia el juego
     juego->nombreJugador[0] = '\0';
     juego->cantMinasEnMapa = juego->dificultad.cantidad_minas;
+    juego->historial = abrirArchivo("historial.dat", "w+b", juego);
+
     mapaVacio(mapa, juego->dificultad.dimension);
     mapaLlenar(mapa, juego->dificultad.dimension, juego->minasCoord, juego->dificultad.cantidad_minas);
 }
@@ -596,7 +598,6 @@ void handlerClickIzquierdo(Juego *juego, Sonido *sonidos, int x, int y)
 
     if (!juego->finPartida)
         casillaEstado(juego, sonidos, x, y, false);
-    guardarHistorial(juego);
     if (juego->mapa[y][x].estado == -1)
         Mix_PlayChannel(-1, sonidos->sonidoMina, 0);
     else if (juego->mapa[y][x].estadoBandera == 0)
@@ -751,68 +752,54 @@ void guardarEnSlot(Juego *juego, int slot)
 
 void guardarHistorial(Juego *juego)
 {
+    printf("\n----------------GUARDAR----------------\n");
     convertirAJuegoHistorial(juego, juego->juegoHistorial);
     long tam = ftell(juego->historial);
     printf("[DEBUG] Tamaño del archivo: %ld bytes\n", tam);
     printf("[DEBUG] <ini = %d\nfin = %d\nPresionadas = %d\nMinas = %d>\n", juego->juegoHistorial->iniciado, juego->juegoHistorial->finPartida, juego->juegoHistorial->cantCasillasPresionadas, juego->juegoHistorial->cantMinasEnMapa);
     printf("[DEBUG] Tamaño a guardar: %ld bytes\n", sizeof(JuegoHistorial));
 
+    long posActual = ftell(juego->historial);
+    fseek(juego->historial, 0, SEEK_END);
+    long tamArchivo = ftell(juego->historial);
+    fseek(juego->historial, posActual, SEEK_SET);
+
+    // // Si la posicion siguiente no es fin de archivo avanzo uno
+    // if (posActual + sizeof(JuegoHistorial) < tamArchivo) {
+    //     fseek(juego->historial, sizeof(JuegoHistorial), SEEK_CUR);
+    // }
+
     fwrite(juego->juegoHistorial, sizeof(JuegoHistorial), 1, juego->historial);
     tam = ftell(juego->historial);
     //fwrite(&juego->puntaje, sizeof(int), 1, juego->historial);
     printf("----------> pos de archivo %p\n", juego->historial);
     fseek(juego->historial, 0, SEEK_CUR);
+    printf("\n----------------GUARDAR----------------\n");
+
 }
 
 void cargarHistorial(Juego *juego)
 {
-    // int tiempoObtenido;
-
-    // printf("----------> pos de archivo %ld\n", ftell(juego->historial));
-    // fseek(juego->historial, -(sizeof(int)), SEEK_CUR);
-    //             printf("----------> pos de archivo %ld\n", ftell(juego->historial));
-
-    // if (fread(&tiempoObtenido, sizeof(int), 1, juego->historial) != 1) {
-    //             printf("<--> %d\n", tiempoObtenido);
-
-    //     if (feof(juego->historial)) {
-    //         printf("Fin de archivo alcanzado\n");
-    //     } else if (ferror(juego->historial)) {
-    //         perror("Error al leer");
-    //     }
-    //     return;
-    // }else{
-    //         fseek(juego->historial, -(sizeof(int)), SEEK_CUR);
-
-    //             printf("<-->2 %d\n", tiempoObtenido);
-
-    //     printf("wii %d\n", tiempoObtenido);
-    //     return;
-    // }
+    printf("\n----------------CARGAR----------------\n");
 
     long tam = ftell(juego->historial);
-    fseek(juego->historial, -(sizeof(JuegoHistorial)), SEEK_CUR);
+    // Voy dos para atras porque la posicion actual es despues del estado actual
+    fseek(juego->historial, -(2*sizeof(JuegoHistorial)), SEEK_CUR);
 
     tam = ftell(juego->historial);
 
     if (fread(juego->juegoHistorial, sizeof(JuegoHistorial), 1, juego->historial) != 1)
     {
-
-        if (feof(juego->historial))
-        {
-            printf("Fin de archivo alcanzado\n");
-        }
-        else if (ferror(juego->historial))
-        {
-            perror("Error al leer");
-        }
+        printf("Fin de archivo alcanzado\n");
         return;
     }
 
     printf("[DEBUG] <ini = %d\nfin = %d\nPresionadas = %d\nMinas = %d>\n", juego->juegoHistorial->iniciado, juego->juegoHistorial->finPartida, juego->juegoHistorial->cantCasillasPresionadas, juego->juegoHistorial->cantMinasEnMapa);
 
-    fseek(juego->historial, -(sizeof(JuegoHistorial)), SEEK_CUR);
+    //fseek(juego->historial, -(sizeof(JuegoHistorial)), SEEK_CUR);
+    printf("[DEBUG] iniciado: %d\n", juego->juegoHistorial->iniciado);
 
+    // Actualizo los datos del juego con lo leido del historial
     juego->iniciado = juego->juegoHistorial->iniciado;
     juego->cantCasillasPresionadas = juego->juegoHistorial->cantCasillasPresionadas;
     juego->cantMinasEnMapa = juego->juegoHistorial->cantMinasEnMapa;
@@ -826,6 +813,9 @@ void cargarHistorial(Juego *juego)
             juego->mapa[i][j] = juego->juegoHistorial->mapa[i * dim + j];
         }
     }
+
+    printf("\n----------------CARGAR----------------\n");
+
 }
 
 int cargarDesdeSlot(Graficos *graficos, Juego *juego, int slot)

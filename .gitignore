@@ -10,3 +10,4 @@ Buscaminas.layout
 /.vscode
 partida.log
 partidas.dat
+juego.c

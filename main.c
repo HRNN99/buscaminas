@@ -187,7 +187,6 @@ int main(int argc, char *argv[])
 
     SDL_Texture *fondo = cargarFondo(renderer, "img/fondo_menu.bmp");
 
-    juego.historial = abrirArchivo("historial.dat", "a+b", &juego);
     juego.juegoHistorial = malloc(sizeof(JuegoHistorial));
     
     // While para mantener el programa corriendo
@@ -283,7 +282,7 @@ int main(int argc, char *argv[])
                 if (!juego.iniciado)
                 {
                     mapaReiniciar(&juego);
-                    system("cls");
+                    //system("cls");
                     // Modifico el ancho del Mapa para manejo de interfaz
                     graficos.anchoM = juego.dificultad.dimension * PIXELES_X_LADO + 4;
                     mapaImprimir(juego.mapa, juego.dificultad.dimension, juego.dificultad.dimension);
@@ -646,6 +645,7 @@ int manejar_eventos_juego(Graficos *graficos, SDL_Event *e, EstadoJuego *estado_
 
                 handlerClick = (boton == SDL_BUTTON_LEFT) ? handlerClickIzquierdo : handlerClickDerecho;
                 handlerClick(juego, sonidos, xG, yG);
+                guardarHistorial(juego);
 
                 if (juego->cantCasillasPresionadas == casillasLibresDeMinas)
                 {
