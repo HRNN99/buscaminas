@@ -369,6 +369,8 @@ void mapaReiniciar(Juego *juego)
 
     mapaVacio(mapa, juego->dificultad.dimension);
     mapaLlenar(mapa, juego->dificultad.dimension, juego->minasCoord, juego->dificultad.cantidad_minas);
+
+    guardarHistorial(juego); // Guardo el inicio (mapa sin movimientos)
 }
 
 // Funcion que coloca todas las casillas sin valor
@@ -782,11 +784,18 @@ void cargarHistorial(Juego *juego)
 {
     printf("\n----------------CARGAR----------------\n");
 
-    long tam = ftell(juego->historial);
     // Voy dos para atras porque la posicion actual es despues del estado actual
-    fseek(juego->historial, -(2*sizeof(JuegoHistorial)), SEEK_CUR);
+    // Verificando que no se inicio de archivo
+    long posActual = ftell(juego->historial);
+    fseek(juego->historial, 0, SEEK_END);
+    long tamArchivo = ftell(juego->historial);
+    fseek(juego->historial, posActual, SEEK_SET);
 
-    tam = ftell(juego->historial);
+    if (posActual - sizeof(JuegoHistorial) > 0) {
+        fseek(juego->historial, -(2*sizeof(JuegoHistorial)), SEEK_CUR);
+    } else{
+        fseek(juego->historial, -(sizeof(JuegoHistorial)), SEEK_CUR); // Me posiciono para leer el elemento actual
+    }
 
     if (fread(juego->juegoHistorial, sizeof(JuegoHistorial), 1, juego->historial) != 1)
     {
