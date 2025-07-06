@@ -614,13 +614,15 @@ int manejar_eventos_juego(Graficos *graficos, SDL_Event *e, EstadoJuego *estado_
                     e->button.y >= yBotones && e->button.y <= yBotones + 20)
         {
             printf("aaa");
-            cargarHistorial(juego);
+            cargarHistorialAtras(juego);
             printf("aaa done");
 
         }else if (e->button.x >=  botonAdelante && e->button.x <= botonAdelante + 20 && // BOTON ADELANTE
                     e->button.y >= yBotones && e->button.y <= yBotones + 20 )
         {
             printf("bbb");
+            cargarHistorialAdelante(juego);
+            printf("bbb done");
         }
         else
         {
@@ -646,6 +648,7 @@ int manejar_eventos_juego(Graficos *graficos, SDL_Event *e, EstadoJuego *estado_
                 handlerClick = (boton == SDL_BUTTON_LEFT) ? handlerClickIzquierdo : handlerClickDerecho;
                 handlerClick(juego, sonidos, xG, yG);
                 guardarHistorial(juego);
+                juego->contadorHistorial = ftell(juego->historial) / sizeof(JuegoHistorial);
 
                 if (juego->cantCasillasPresionadas == casillasLibresDeMinas)
                 {

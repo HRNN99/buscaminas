@@ -366,6 +366,7 @@ void mapaReiniciar(Juego *juego)
     juego->nombreJugador[0] = '\0';
     juego->cantMinasEnMapa = juego->dificultad.cantidad_minas;
     juego->historial = abrirArchivo("historial.dat", "w+b", juego);
+    juego->contadorHistorial = 0;
 
     mapaVacio(mapa, juego->dificultad.dimension);
     mapaLlenar(mapa, juego->dificultad.dimension, juego->minasCoord, juego->dificultad.cantidad_minas);
@@ -780,7 +781,42 @@ void guardarHistorial(Juego *juego)
 
 }
 
-void cargarHistorial(Juego *juego)
+void cargarHistorialAdelante(Juego *juego)
+{
+    printf("\n----------------CARGAR----------------\n");
+
+    
+    if ( ftell(juego->historial) / sizeof(JuegoHistorial) < juego->contadorHistorial && fread(juego->juegoHistorial, sizeof(JuegoHistorial), 1, juego->historial) != 1)
+    {
+        printf("Fin de archivo alcanzado\n");
+        return;
+    }
+
+    printf("[DEBUG] <ini = %d\nfin = %d\nPresionadas = %d\nMinas = %d>\n", juego->juegoHistorial->iniciado, juego->juegoHistorial->finPartida, juego->juegoHistorial->cantCasillasPresionadas, juego->juegoHistorial->cantMinasEnMapa);
+
+    //fseek(juego->historial, -(sizeof(JuegoHistorial)), SEEK_CUR);
+    printf("[DEBUG] iniciado: %d\n", juego->juegoHistorial->iniciado);
+
+    // Actualizo los datos del juego con lo leido del historial
+    juego->iniciado = juego->juegoHistorial->iniciado;
+    juego->cantCasillasPresionadas = juego->juegoHistorial->cantCasillasPresionadas;
+    juego->cantMinasEnMapa = juego->juegoHistorial->cantMinasEnMapa;
+    juego->finPartida = juego->juegoHistorial->finPartida;
+
+    int dim = juego->dificultad.dimension;
+    for (int i = 0; i < dim; i++)
+    {
+        for (int j = 0; j < dim; j++)
+        {
+            juego->mapa[i][j] = juego->juegoHistorial->mapa[i * dim + j];
+        }
+    }
+
+    printf("\n----------------CARGAR----------------\n");
+
+}
+
+void cargarHistorialAtras(Juego *juego)
 {
     printf("\n----------------CARGAR----------------\n");
 
@@ -794,7 +830,7 @@ void cargarHistorial(Juego *juego)
     if (posActual - sizeof(JuegoHistorial) > 0) {
         fseek(juego->historial, -(2*sizeof(JuegoHistorial)), SEEK_CUR);
     } else{
-        fseek(juego->historial, -(sizeof(JuegoHistorial)), SEEK_CUR); // Me posiciono para leer el elemento actual
+        return;
     }
 
     if (fread(juego->juegoHistorial, sizeof(JuegoHistorial), 1, juego->historial) != 1)

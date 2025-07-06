@@ -89,6 +89,7 @@ typedef struct{
 typedef struct{
     bool iniciado;
     FILE *historial;
+    int contadorHistorial;
     Dificultad dificultad;
     Casilla** mapa;
     Coord* minasCoord;
@@ -197,7 +198,8 @@ void convertirAJuego(JuegoGuardado *src, Juego *dest);
 void guardarPartidas(Juego partidas[3], const char *filename);
 int cargarPartidas(Juego partidas[3], const char *filename);
 void guardarHistorial(Juego* juego);
-void cargarHistorial(Juego* juego);
+void cargarHistorialAtras(Juego* juego);
+void cargarHistorialAdelante(Juego* juego);
 bool archivoExiste(const char *filename);
 void inicializarPartida(Juego* partidas);
 void guardarEnSlot(Juego *juego, int slot);
