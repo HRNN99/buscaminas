@@ -221,8 +221,8 @@ void interfaz(Graficos *graficos, Juego *juego, Coord *rbutton)
     itoa(juego->cantMinasEnMapa, bombasEnMapaTexto, 10); // Armado de String a imprimir
     renderizarTexto(graficos->font, fontSize, bombasEnMapaTexto, GF, GS, graficos->renderer, (graficos->pad * 3) + graficos->anchoM + 22, graficos->pad + (graficos->altoC / 2) + fontSize + 4);
 
-        marcoInvertido(graficos->renderer, graficos->tamXVentana-graficos->pad*10 + 5, graficos->piCord->y+graficos->altoC, 15, 15, 1);
-    marcoInvertido(graficos->renderer, graficos->tamXVentana-graficos->pad*6, graficos->piCord->y+graficos->altoC, 15, 15, 1);
+    marcoInvertido(graficos->renderer, graficos->tamXVentana-graficos->pad*10 + 5, graficos->piCord->y+graficos->altoC, 15, 12, 1);
+    marcoInvertido(graficos->renderer, graficos->tamXVentana-graficos->pad*6, graficos->piCord->y+graficos->altoC, 15, 12, 1);
 
     renderizarTexto(graficos->font, fontSize, "<-", GF, GS, graficos->renderer, graficos->tamXVentana-graficos->pad*10 + 7, graficos->piCord->y+graficos->altoC-graficos->G*2);
     renderizarTexto(graficos->font, fontSize, "->", GF, GS, graficos->renderer, graficos->tamXVentana-graficos->pad*6+2, graficos->piCord->y+graficos->altoC-graficos->G*2);

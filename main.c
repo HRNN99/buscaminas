@@ -1,17 +1,6 @@
 /**
-
-    Apellido: Ortega, Marco Antonio
-    DNI: 44108566
-    Entrega: Si
-
     Apellido: Villalba, Hernan Agustin
     DNI: 42057001
-    Entrega: Si
-
-    Apellido: Caputo, Franco Gustavo
-    DNI: 42949130
-    Entrega: Si
-
 **/
 
 #include <stdio.h>
@@ -127,17 +116,15 @@ int main(int argc, char *argv[])
     cargar_dificultades("buscaminas.conf", dificultades, dificultad_count);
 
     //////////////////////////////////////////////////////////////////////
-
+    
+    // Inicializar el juego
     Juego juego;
     juego.mapa = NULL;
     juego.iniciado = false;
     juego.senialRender = 1;
     juego.log = archivoLog;
-    // Inicializar el juego
     juego.puntaje = 0;
     juego.cantCasillasPresionadas = 0;
-    // juego.cantMinasEnInterfaz = minasEnMapa;
-    // juego.dimMapa = filas;
     juego.finPartida = false;
     juego.start_time = time(NULL); // Iniciar el contador cuando inicia el juego
     juego.nombreJugador[0] = '\0';
@@ -319,10 +306,16 @@ int main(int argc, char *argv[])
     }
 
     //////////////////////////////////////////////////////////////////////
-
-    if (!juego.mapa)
-        matrizDestruir(juego.mapa, juego.dificultad.dimension);
-
+    
+    if (juego.juegoHistorial)
+        free(juego.juegoHistorial);
+    fclose(juego.historial);
+    // Elimino historial
+    if (remove("historial.dat") != 0)
+    {
+        perror("Error al eliminar el archivo fuente");
+        return ERROR_ELIMINACION_ARCHIVO;
+    }
     FinalizarSDL(ventana, renderer, font, EXIT_SUCCESS, archivoLog); // Funcion para la finalizacion de SDL y sus componentes
 
     SDL_DestroyTexture(fondo);
@@ -590,7 +583,7 @@ int manejar_eventos_juego(Graficos *graficos, SDL_Event *e, EstadoJuego *estado_
     int boton = e->button.button;
     int tecla = e->key.keysym.sym;
 
-        // Para facilidad en correccion y lectura inicializo la var de los botones
+    // Para facilidad en correccion y lectura inicializo la var de los botones
     int botonAtras = graficos->tamXVentana-graficos->pad*10 + 5;
     int botonAdelante = graficos->tamXVentana-graficos->pad*6;
     int yBotones = graficos->piCord->y+graficos->altoC-graficos->G*2;
