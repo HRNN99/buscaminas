@@ -607,10 +607,16 @@ int manejar_eventos_juego(Graficos *graficos, SDL_Event *e, EstadoJuego *estado_
                     e->button.y >= yBotones && e->button.y <= yBotones + 20)
         {
             cargarHistorialAtras(juego);
+            Log log;
+            setLog(&log, -1, -1, "Retrocediste un paso");
+            escribirArchivoLog(juego->log, &log);
         }else if (e->button.x >=  botonAdelante && e->button.x <= botonAdelante + 20 && // BOTON ADELANTE
                     e->button.y >= yBotones && e->button.y <= yBotones + 20 )
         {
             cargarHistorialAdelante(juego);
+            Log log;
+            setLog(&log, -1, -1, "Avanzaste un paso");
+            escribirArchivoLog(juego->log, &log);
         }
         else
         {
