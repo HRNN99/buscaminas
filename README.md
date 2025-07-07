@@ -8,3 +8,4 @@
 * Dentro de codeblocks agregar en las build options -> Linker settings -> other linker options "-lSDL2_ttf -lSDL2_mixer" quedando asi: 
 > "-lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_mixer"
 * Colocar el directorio SDL2_ttf-2.22.0\x86_64-w64-mingw32\lib y SDL2_mixer-2.8.1\x86_64-w64-mingw32\lib en  build options -> search directories -> linker. O en su defecto copiar lo de esta carpeta dentro de la carpeta lib de SDL2
+* Colocar en search->directories -> compiler "SDL2-2.0.22\x86_64-w64-mingw32\include"
