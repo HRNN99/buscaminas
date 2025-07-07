@@ -1,8 +1,11 @@
 #include <stdio.h>
 #include "juego.h"
+#include "string.h"
 #include "estados.h"
 #include "sonido.h"
 #include "time.h"
+
+extern int escribirArchivoLog(FILE *archivoLog, Log *log);
 
 void dibujar_menu(Graficos *graficos, const char *menu_items[], const int menu_count, int *seleccion, SDL_Texture *fondo)
 {
@@ -22,7 +25,8 @@ void dibujar_menu(Graficos *graficos, const char *menu_items[], const int menu_c
         TTF_SizeText(graficos->font, menu_items[i], &text_width, &text_height);
 
         SDL_Rect fondo;
-        fondo.x = (TAM_PIXEL * (16 * PIXELES_X_LADO + 20), TAM_PIXEL * (16 * PIXELES_X_LADO + 20) - text_width) / 2;
+        fondo.x = ((TAM_PIXEL * (16 * PIXELES_X_LADO + 20) - text_width) / 2);
+//        fondo.x = (TAM_PIXEL * (16 * PIXELES_X_LADO + 20), TAM_PIXEL * (16 * PIXELES_X_LADO + 20) - text_width) / 2;
         fondo.y = base_y + i * espacio;
         fondo.w = text_width;
         fondo.h = text_height;
@@ -548,7 +552,7 @@ FILE *abrirArchivo(const char *nombre, const char *modo, Juego *juego)
     FILE *archivo = fopen(nombre, modo);
     if (!archivo)
     {
-        char *textoClick[50];
+        char textoClick[50];
         sprintf(textoClick, "Error al abrir el archivo %s.", nombre);
         Log log;
         setLog(&log, -1, -1, textoClick);
@@ -596,11 +600,8 @@ void clickDoble(Juego *juego, Sonido *sonidos, int gX, int gY)
 // clickHandlers
 void handlerClickIzquierdo(Juego *juego, Sonido *sonidos, int x, int y)
 {
-
-    char *textoClick[50];
-    sprintf(textoClick, "Hiciste click en casilla", x, y);
     Log log;
-    setLog(&log, x, y, textoClick);
+    setLog(&log, x, y, "Hiciste click en casilla");
     escribirArchivoLog(juego->log, &log);
 
     if (!juego->finPartida)
@@ -796,12 +797,10 @@ void cargarHistorialAtras(Juego *juego)
     // Voy dos para atras porque la posicion actual es despues del estado actual
     // Verificando que no se inicio de archivo
     long posActual = ftell(juego->historial);
-    fseek(juego->historial, 0, SEEK_END);
-    long tamArchivo = ftell(juego->historial);
     fseek(juego->historial, posActual, SEEK_SET);
 
     if (posActual - sizeof(JuegoHistorial) > 0) {
-        fseek(juego->historial, -(2*sizeof(JuegoHistorial)), SEEK_CUR);
+        fseek(juego->historial, -(2*(long int)sizeof(JuegoHistorial)), SEEK_CUR);
     } else{
         return;
     }

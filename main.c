@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
     cargar_dificultades("buscaminas.conf", dificultades, dificultad_count);
 
     //////////////////////////////////////////////////////////////////////
-    
+
     // Inicializar el juego
     Juego juego;
     juego.mapa = NULL;
@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
     SDL_Texture *fondo = cargarFondo(renderer, "img/fondo_menu.bmp");
 
     juego.juegoHistorial = malloc(sizeof(JuegoHistorial));
-    
+
     // While para mantener el programa corriendo
     while (corriendo)
     {
@@ -306,7 +306,7 @@ int main(int argc, char *argv[])
     }
 
     //////////////////////////////////////////////////////////////////////
-    
+
     if (juego.juegoHistorial)
         free(juego.juegoHistorial);
     fclose(juego.historial);
@@ -570,17 +570,13 @@ int manejar_eventos_dificultad(Graficos *graficos, SDL_Event *e, EstadoJuego *es
 int manejar_eventos_juego(Graficos *graficos, SDL_Event *e, EstadoJuego *estado_actual, EstadoJuego *estado_anterior, Juego *juego, Coord *picords, Coord *rbutton, Sonido *sonidos)
 {
 
-    if (estado_anterior == ESTADO_DIFICULTAD)
+    if (*estado_anterior == ESTADO_DIFICULTAD)
     {
         mapaReiniciar(juego);
     }
     Casilla **mapa = juego->mapa;
 
-    int xG = ((e->button.x - (picords->x * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
-    int yG = ((e->button.y - (picords->y * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
-    int casillasLibresDeMinas = (juego->dificultad.dimension * juego->dificultad.dimension) - juego->dificultad.cantidad_minas;
     // guardado del boton anterior antes de nuevo evento
-    int boton = e->button.button;
     int tecla = e->key.keysym.sym;
 
     // Para facilidad en correccion y lectura inicializo la var de los botones
@@ -624,7 +620,7 @@ int manejar_eventos_juego(Graficos *graficos, SDL_Event *e, EstadoJuego *estado_
             if (e->button.x > (graficos->tamXVentana - graficos->pad - 6 * graficos->G) || e->button.x <= (graficos->pad + 6 * graficos->G) ||
                 e->button.y > (graficos->tamYVentana - graficos->pad - 6 * graficos->G) ||
                 e->button.y <= (graficos->pad * 4 + graficos->altoC + 16 * graficos->G))
-                return;
+                return 0;
 
             int xG = ((e->button.x - (graficos->piCord->x * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
             int yG = ((e->button.y - (graficos->piCord->y * TAM_PIXEL)) / (PIXELES_X_LADO * TAM_PIXEL));
@@ -646,7 +642,7 @@ int manejar_eventos_juego(Graficos *graficos, SDL_Event *e, EstadoJuego *estado_
                 if (juego->cantCasillasPresionadas == casillasLibresDeMinas)
                 {
                     puts("¡Ganaste el juego!");
-                    char *textoGanado[36];
+                    char textoGanado[36];
                     sprintf(textoGanado, "Ganaste el juego! puntuacion: %d", juego->puntaje);
                     Log log;
                     setLog(&log, -1, -1, textoGanado);
@@ -923,7 +919,7 @@ void crear_dificultades_default(const char* archivo){
 
     if (!config){
         puts("Error al crear archivo de configuracion. Cerrando juego...");
-        return ERROR_ARCHIVO;
+        return;
     }
 
     fprintf(config , "#Configuracion de dificultad\n\n");
